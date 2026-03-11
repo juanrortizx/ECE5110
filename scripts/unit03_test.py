@@ -11,7 +11,7 @@ def f1(x):
     return x**2
 
 xact_f1_i = 1/3  # ∫ x² dx from 0 to 1 is 1/3
-xact_f1_d = 2
+xact_f1_d = 2 # Derivative of x² is 2x, at x=1 should be 2
 
 # Integration methods
 f1_mp = tool.midpoint_rule(f1, 0, 1, 10000)

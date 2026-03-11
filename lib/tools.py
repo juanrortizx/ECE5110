@@ -230,24 +230,6 @@ class tools:
                           f(x[n])) # Simpson's sum
 
     def numerical_differentiation_3point(self, f, x, h=1e-5, method='central'):
-        """
-        Compute the derivative of f at point x using 3-point formula.
-        
-        Parameters:
-        - f : callable
-            Function to differentiate
-        - x : float
-            Point at which to compute the derivative
-        - h : float
-            Step size (default: 1e-5)
-        - method : str
-            'central' : f'(x) ≈ (f(x+h) - f(x-h)) / (2h)
-            'forward' : f'(x) ≈ (-3f(x) + 4f(x+h) - f(x+2h)) / (2h)
-            'backward': f'(x) ≈ (f(x-2h) - 4f(x-h) + 3f(x)) / (2h)
-        
-        Returns:
-        - float : approximation of f'(x)
-        """
         if method == 'central':
             return (f(x + h) - f(x - h)) / (2 * h)
         elif method == 'forward':
