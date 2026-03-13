@@ -1,0 +1,351 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% IS&T Template 
+% Patrick Vandewalle
+% January 2006
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document class
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[letterpaper,twocolumn,fleqn]{article} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ist}
+% add other packages here
+\usepackage{float} %forza
+\usepackage{wrapfig} %forza
+\usepackage{minted}
+
+\pagestyle{empty}                % no page numbers is default
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title and Authors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ Polynomial Interpolation for Modeling DC Motor Calibration }
+\author{ Juan R. Ortiz; Pomona, California}
+\date{\today} % date has an empty field.
+% correct for bad hyphenation here
+% \hyphenation{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Begin document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document} 
+\maketitle 
+\thispagestyle{empty} % prevents the first page to be numbered
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+This article presents a practical application of the numerical modeling approach to polynomial interpolation. The study focuses on calibrating the steady-state response of a brushed DC motor used in manufacturing-robotic conveyor systems. Calibration data were collected across a voltage range from 0.5 V to 5.0 V, where the motor was allowed to reach steady-state at each configuration. The data set was processed using the Lagrange Interpolation Method, where the S-Curve was generated that passes through all measured points. This interpolation-based plant model forms the basis for tuning a PID controller tailored to the specific motor behavior. 
+\end{abstract}
+
+\section{Objective}
+\label{sec:intro}
+The objective of this study is to develop a static plant model of a brushed DC motor by applying the Lagrange Polynomial Interpolation method. The resulting S-Curve presents the characteristics of the DC motor's steady-state response and can be used for tuning a PID controller tuner.
+
+\section{Method}
+A manufacturing robot uses a small brushed DC motor to control the speed of the conveyor belt. Before tuning the PID controller, a static model of the steady ‐ state response of the motor is needed. 
+\vspace{0.1in}
+
+\noindent This model must show how the motor reacts to different control voltages. 
+\vspace{0.1in}
+
+\noindent During testing, data points were collected at several fixed voltages between 0.5 V and 5.0 V. At each setting, the system was allowed to reach its steady‑state speed.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|} % Defines two centered columns with vertical lines
+\hline
+\textbf{Voltage (V)} & \textbf{Speed (RPM)} \\ \hline
+0.5 & 0 \\ \hline
+1.0 & 80 \\ \hline
+1.5 & 200 \\ \hline
+2.0 & 380 \\ \hline
+2.5 & 650 \\ \hline
+3.0 & 1000 \\ \hline
+3.5 & 1350 \\ \hline
+4.0 & 1600 \\ \hline
+4.5 & 1750 \\ \hline
+5.0 & 1850 \\ \hline
+\end{tabular}
+\vspace{0.1in}
+\caption{Motor Steady-State Response Across Fixed Voltage Inputs}
+\end{table}
+
+Given the testing data, we can now approximate a S-Curve that will pass through each of those points using the Lagrange Interpolation Method.
+\vspace{0.1in}
+
+\noindent For each point ($x_k$, $y_k$), a "mini-curve" basis polynomial $L_k(x)$ is created, where it equals 1 at $x_k$ and 0 at all other data points. 
+\vspace{0.1in}
+
+\noindent The final S-Curve will be the SUM of all the mini-curves scaled by $y_k$:
+\[\hspace{0.4in}
+P(x) = y_0L_0(x) + y_1L_1(x) + ... + y_{n-1}L_{n-1}(x)
+\]
+\[\hspace{0.4in}
+P(x) = \sum_{k=0}y_k\frac{\Pi(X-x_i)}{\Pi(x_k-x_i)}
+\]
+
+\noindent In Python, we can compute the denominator by:
+\vspace{0.1in}
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\normalsize, frame=single]{python}
+diff = x[k] - np.delete(x, k)
+denom[k] = np.prod(diff)
+\end{minted}
+\end{minipage}
+\end{center}
+
+\begin{center}
+${\Pi_{i \neq k}(x_k-x_i)}$
+\end{center}
+\vspace{0.1in}
+
+\noindent Followed by building the numerator:
+
+\begin{center}
+\begin{minipage}{0.75\linewidth}
+\begin{minted}[fontsize=\normalsize, frame=single]{python}
+num = np.ones_like(X)
+for i in range(n):
+    if i == k: continue
+    num *= (X - x[i])
+\end{minted}
+\end{minipage}
+\end{center}
+
+\begin{center}
+${\Pi_{i \neq k}(X - x_i)}$
+\end{center}
+
+\noindent Lastly, the code will build the interpolation:
+\vspace{0.1in}
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\normalsize, frame=single]{python}
+out += y[k] * (num / denom[k])
+
+\end{minted}
+\end{minipage}
+\end{center}
+
+\begin{center}
+$\sum_{k=0}y_k\frac{\Pi(X-x_i)}{\Pi(x_k-x_i)}$
+\end{center}
+\vspace{0.1in}
+
+\noindent This ensures that the output matches the exact data point and fills in the curve smoothly for every value in between.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Result}
+In Figure \ref{fig:1} the plot represents the static plant model of the brushed DC motor. Through observation, a deadzone appears at low voltages as a result of mechanical friction. The motor speed then increases rapidly through the mid-voltages region, until it reaches saturation, where additional voltage results in smaller increases in RPM.
+%\clearpage
+\begin{figure}[H]
+    \includegraphics[width=1.0\linewidth]{unit02/SCurve_Lagrange.png}
+    \caption{S-Curve Plot for the Steady-State Response of a DC Motor}
+    \label{fig:1}
+\end{figure}
+
+Based on these findings, we can tune a PID (Proportional Derivative Integral) controller to the characteristics of the specific brushed DC motor.
+\vspace{0.15in}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\clearpage
+% Overall Document Guidelines: Head
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overall Document Guidelines: Head}
+\label{sec:intro}
+
+Clear document of any fonts other than Times, Arial, and Symbol. The
+paper should be formatted using the tags provided in the template,
+i.e., title, author, section, subsection, subsubsection, eq./fig.,
+references, etc.  in a 2 column format on US letter size paper ($8.5
+\times 11$ inches, or $21.6 \times 27.9$ cm).
+
+The left and right margins are set automatically to .75 inch (1.90 cm),
+and the top and bottom margins to 1.0 inch (2.54 cm). The document is in
+a 2-column format with column widths set at 3.38 inch (8.57 cm) and the
+gutter -the space between columns- at .25 inch (0.635 cm).
+
+Papers should be a maximum of 4-6 pages; longer papers will be
+returned for revision. Please do not place folios or page numbers in
+your paper. That information is inserted when we assemble the book.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Graphics and Equations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Graphics and Equations}
+Graphics and equations should fit within one column (3.38 inches
+wide), but full width (7 inch) figures are also acceptable. Equations,
+figures and figure captions each have their own style tags. Equations
+are numbered using parentheses flushed right as shown below.
+
+\begin{equation}
+\label{eq:ist}
+\textrm{IS\&T} + \textrm{members} \times \textrm{Confs.} = \textrm{Success}
+\end{equation}
+
+
+\subsection{Helpful Hints and Style Tags: Subhead}
+For a complete listing of the style tags for use in this template
+refer to Table \ref{tab:fonts}. These are the style tags for
+conference proceedings; if you use the wrong template/style tags your
+paper will be sent back to you to be reformatted.  All of these forms
+and templates related to the publication of conference papers are
+available at
+
+www.imaging.org/conferences/guidelines.cfm. 
+
+Select the specific conference and download the Authors Kit. The
+template may vary from one conference to another.
+
+The template is set up for MS Word and LaTeX. Please check the paper
+carefully to confirm that the styles have been applied correctly, then
+print it out and double check to ensure that the paper appears as
+intended.
+
+\begin{table}[!h]
+\caption{Style Tag Table: Table head}
+\label{tab:fonts}
+\begin{center}       
+\begin{tabular}{|p{0.45\columnwidth}|p{0.45\columnwidth}|} 
+\hline
+1. Title& title environment \\ \hline
+2. Byline: & \\
+Author/Affiliation & author environment \\ \hline
+3. Head & section environment \\ \hline
+4. Subhead & subsection environment \\ \hline
+5. Tertiary head & subsubsection environment \\ \hline
+6. Abstract & abstract environment \\ \hline 
+& \\ \hline
+7. Body & regular text\\ \hline
+8. Equation & equation environment\\ \hline
+9.1 Figure & align left \\ \hline
+9.2 Figure caption & caption environment \\ \hline
+10.1 Table head & caption environment \\ \hline
+10.2 Table text & tabular environment \\ \hline
+11. References & bibliography + 
+command \emph{small} to have a 1pt smaller font\\ \hline
+12. Author Bio text & biography environment\\ \hline
+13.1 List, bullet & itemize environment\\ \hline
+13.2 List, numbered & enumerate environment \\ \hline
+\end{tabular}
+\end{center}
+\end{table} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Submitting Your Paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Submitting Your Paper}
+The submission of your paper has to be performed through the IS\&T
+submission website. Authors receive a login for this site by e-mail.
+Papers can be submitted in Postscript, Word, or WordPerfect format,
+and will be converted to PDF by the submission server. Please
+carefully review the generated PDF and verify that all the text,
+equations, figures and tables are displayed correctly before approving
+its submission.
+
+\subsection{Margins in LaTeX}
+Because of the differences between dvips conversion utilities, the
+margins of your generated PDF document might vary. Please print
+your document, and verify its margins. If they are incorrect, please
+adapt the sizes of the margins in the file \emph{ist.sty}. Typically the
+top margin should be decreased.
+
+\begin{table}[!h]
+\caption{Document Specs: Table head}
+\label{tab:specs}
+\begin{center}       
+\begin{tabular}{p{0.35\columnwidth}p{0.55\columnwidth}} 
+Paper Size & US Letter \\
+Left/right margin & .75 inch (1.90 cm) \\
+Top/bottom margin & 1 inch (2.54 cm) \\
+Columns & 2 at 3.38 inch (8.57 cm) wide. \\
+ & Spacing between columns: 0.25 inch (0.635 cm)
+\end{tabular}
+\end{center}
+\end{table} 
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+Please contact IS\&T with any questions or requests for assistance in
+helping prepare the paper. We look forward to having your paper
+presented at the conference and published in the conference
+proceedings.
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reference Preparation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Reference Preparation}
+Use the standard LaTeX \emph{cite} command for references in the
+text. You can then use the standard bibliography command to generate
+the list of references. Add the command \emph{small} before the
+bibliography to give it the right font size.  Reference \cite{bib1}
+style should be used for books, Reference \cite{bib2} style should be
+used for Journals, and Reference \cite{bib3} style should be used for
+Proceedings.
+
+%\section{Acknowledgments} 
+%add the acknowledgement section here
+
+% To start a new column (but not a new page) and help balance the last-page
+% column length use \vfill\pagebreak.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\small
+\begin{thebibliography}{9}
+\bibitem{bib1}John Doe, Recent Progress in Digital Halftoning II,
+  IS\&T, Springfield, VA, 1999, pg. 173.
+\bibitem{bib2}John Doe, Digital Imaging, J. Imaging. Sci. and
+  Technol., 42, 112 (1998).
+\bibitem{bib3}John Doe, An Inexpensive Micro-Goniophotometry You Can
+  Build, Proc. PICS, pg. 179. (1998).
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Biography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{biography}
+Please submit a brief biographical sketch of no more than 75 words. 
+Include relevant professional and educational information as shown 
+in the example below.
+
+Jane Doe received her BS in physics from the University of Nevada (1977) 
+and her PhD in applied physics from Columbia University (1983). Since 
+then she has worked in the Research and Technology Division at Xerox 
+in Webster, NY. Her work has focused on the development of toner adhesion 
+and transport issues. She is on the Board of  IS\&T and a member of APS 
+and SPIE.
+\end{biography}
+
+\end{document} 

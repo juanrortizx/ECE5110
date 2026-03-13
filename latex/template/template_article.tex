@@ -1,0 +1,330 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% IS&T Template 
+% Patrick Vandewalle
+% January 2006
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document class
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[letterpaper,twocolumn,fleqn]{article} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ist}
+% add other packages here
+\usepackage{float} %forza
+\usepackage{wrapfig} %forza
+
+\pagestyle{empty}                % no page numbers is default
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title and Authors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Yield Enhancement in Production of CMOS Image Sensors: \\ Defect Analysis and Solutions }
+\author{ Liviu Oniciuc, Abhinav Agarwal, Joseph Valenzuela, Daniel Chica, Loc Truong; Forza Silicon-Ametek; Pasadena, California}
+\date{\today} % date has an empty field.
+% correct for bad hyphenation here
+% \hyphenation{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Begin document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document} 
+\maketitle 
+\thispagestyle{empty} % prevents the first page to be numbered
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+This report outlines an aspect of the yield analysis and optimization efforts undertaken by Forza Silicon and foundry partners throughout the image sensor production process. Beginning with design and wafer fabrication, the process includes detailed characterization, wafer probing, and final testing, with all image and data results stored locally for analysis. Through a new method using full wafer image mosaic at probe recurring issue were identified. One such issue was defective pixel error density increasing toward the wafer edge. The root cause was traced to contact resistance linked to oxidation at the pixel output stages. Collaborative efforts with the wafer fabrication vendor led to process modifications, including a new cleaning step and recipe adjustments. Comparative analysis between reference and modified wafers showed significant yield improvements and elimination of border defect patterns. Other refinements for this project addressed center die failures and color channel inconsistencies, particularly in the blue filter coating. These findings have been incorporated into the production flow, enhancing overall sensor reliability and yield. Forza Silicon continues to provide integrated production services with a strong focus on yield optimization.
+\end{abstract}
+
+\section{Context}
+\label{sec:intro}
+In the pursuit of high-performance image sensor production, yield optimization remains a critical challenge across the semiconductor industry. We present a detailed account of Forza Silicon’s collaborative efforts to enhance sensor yield through rigorous analysis and process refinement. Spanning the entire production lifecycle, from design and wafer fabrication to final testing, the study identifies recurring defect patterns and traces their root causes.
+
+\section{Objective}
+Through targeted simulations, probing, and vendor collaboration, we implemented modifications that significantly improved yield. This strongly correlates with the cost incurred in the manufacturing of CMOS image sensors. These findings underscore the importance of integrated diagnostics and vendor partnerships and demonstrate Forza Silicon’s commitment to continuous improvement in sensor reliability and manufacturing efficiency. 
+
+\section{Method}
+Beside standard semiconductor test wafer maps, we took advantage of the fact that each die can generate an image. Each of these images are analyzed independently to create a dedicated map (e.g. defect map, noise map). We aggregated the maps back into the wafer form keeping track of the physical orientation of the die within the wafer.
+
+\section{Result}
+Figure \ref{fig:1} illustrates the aggregated defect map corresponding to a low-yield wafer. The application of this processing methodology reveals an elevated spatial density of defective pixels, predominantly located at the wafer periphery.
+
+\begin{figure}[H]
+    \includegraphics[width=1.0\linewidth]{figure1.png}
+    \caption{Wafer-Level Aggregated Image Defect Map}
+    \label{fig:1}
+\end{figure}
+
+Defining the edge of the wafer as the region of interest, we observe pairs of defective pixels noted in Figure \ref{fig:2} that are discernible in both dark and illuminated images. This defect signature has a correlation with the pixel output line readout architecture for this given pixel design, indicating that the defects originate from locations that are common to the corresponding shared pixel pairs.
+
+\begin{figure}[H]
+    \includegraphics[width=0.9\linewidth]{figure2.png}
+    \caption{Defective pixels with diagonal artifacts in the dark (left) and the light (right) image acquisitions}
+    \label{fig:2}
+\end{figure}
+
+By correlating the precise pixel coordinates in the captured images with their corresponding locations in the design layout, we localized the defects to regions shared by diagonally adjacent pixels. This spatial mapping indicated that the shared via within the pixel structure Figure \ref{fig:3} was the underlying root cause of the observed artifacts.
+
+\begin{figure}[H]
+    \includegraphics[width=1\linewidth]{figure3.png}
+    \caption{Shared via localization in the defect pixel pair}
+    \label{fig:3}
+\end{figure}
+
+In collaboration with our partners at STMicro, this enabled a more detailed identification and characterization of the underlying issue. Using cross-sections Figure \ref{fig:4a} at this location, we compare measurements of a defective pixel Figure \ref{fig:4b} versus the same locations within a good pixel Figure \ref{fig:4c}, a higher oxidation was observed for the defective pixels producing a higher in-pixel resistance for these vias.
+
+%\begin{wrapfigure}{r}{0.25\textwidth}
+%    \includegraphics[width=0.5\linewidth]{figure4a.png}
+%    \caption{(a)}
+%    \label{fig:4a}
+%\end{wrapfigure}
+
+\begin{figure}[H]
+    \includegraphics[width=1\linewidth]{figure4a.png}
+    \caption{Cross Section}
+    \label{fig:4a}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=1\linewidth]{figure4b.png}
+    \caption{Defective Pixel}
+    \label{fig:4b}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=1\linewidth]{figure4c.png}
+    \caption{Good Pixel}
+    \label{fig:4c}
+\end{figure}
+
+A new cleaning step was added to improve the in-pixel contact resistance. The new process was applied to a 3 wafer engineering split resulting in a decrease in wafer border defects. 
+
+We then applied the new recipe to half of the wafers in a few pre-production lots. The results showed a clear correlation between the new process and the reduction on the wafer border defects. The table below shows the split used for the reference recipe versus the new recipe.
+
+
+We also share the mosaics with the reassembled wafer defect maps for all wafers within this lot that shows the direct correlation to the new recipe Figure \ref{fig:5}. 
+
+\begin{figure}[H]
+    \includegraphics[width=1\linewidth]{figure5.png}
+    \caption{Wafer defectmap mosaic for an entire wafer lot}
+    \label{fig:5}
+\end{figure}
+
+Another benefit of using this wafer mosaic image is that it can highlight a defect within the color filter process. Splitting the images per color plane before creating the wafer mosaic showed a circular pattern across the image that was isolated to only one of the color planes. This helped pinpoint one of the sources for the fixed pattern noise that we were seeing in our images. Below we show the same processing done on a wafer before and after the fix was applied for the blue color coating. Figure \ref{fig:6a} Figure \ref{fig:6b}
+
+
+
+\section{Novelty}
+There is limited public work available that looks at improving the image quality of large format image sensors for cinematography. For cinematography applications, image quality is very important. Combining each captured image into an aggregated wafer mosaic can highlight extra details that would not be known otherwise. This larger view helps us pinpoint further improvements that help Forza Silicon sensors provide a high-quality image.
+
+\clearpage
+
+\begin{figure}[p]
+    \includegraphics[width=2.1\linewidth]{figure6b.png}
+    \caption{Wafer image mosaic of blue CFA only before (left) and after (right) the fix}
+    \label{fig:6b}
+\end{figure}
+
+\begin{figure}[p]
+    \includegraphics[width=2.1\linewidth]{figure6a.png}
+    \caption{Wafer image mosaic split per color plane}
+    \label{fig:6a}
+\end{figure}
+
+
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Overall Document Guidelines: Head
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overall Document Guidelines: Head}
+\label{sec:intro}
+
+Clear document of any fonts other than Times, Arial, and Symbol. The
+paper should be formatted using the tags provided in the template,
+i.e., title, author, section, subsection, subsubsection, eq./fig.,
+references, etc.  in a 2 column format on US letter size paper ($8.5
+\times 11$ inches, or $21.6 \times 27.9$ cm).
+
+The left and right margins are set automatically to .75 inch (1.90 cm),
+and the top and bottom margins to 1.0 inch (2.54 cm). The document is in
+a 2-column format with column widths set at 3.38 inch (8.57 cm) and the
+gutter -the space between columns- at .25 inch (0.635 cm).
+
+Papers should be a maximum of 4-6 pages; longer papers will be
+returned for revision. Please do not place folios or page numbers in
+your paper. That information is inserted when we assemble the book.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Graphics and Equations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Graphics and Equations}
+Graphics and equations should fit within one column (3.38 inches
+wide), but full width (7 inch) figures are also acceptable. Equations,
+figures and figure captions each have their own style tags. Equations
+are numbered using parentheses flushed right as shown below.
+
+\begin{equation}
+\label{eq:ist}
+\textrm{IS\&T} + \textrm{members} \times \textrm{Confs.} = \textrm{Success}
+\end{equation}
+
+
+\subsection{Helpful Hints and Style Tags: Subhead}
+For a complete listing of the style tags for use in this template
+refer to Table \ref{tab:fonts}. These are the style tags for
+conference proceedings; if you use the wrong template/style tags your
+paper will be sent back to you to be reformatted.  All of these forms
+and templates related to the publication of conference papers are
+available at
+
+www.imaging.org/conferences/guidelines.cfm. 
+
+Select the specific conference and download the Authors Kit. The
+template may vary from one conference to another.
+
+The template is set up for MS Word and LaTeX. Please check the paper
+carefully to confirm that the styles have been applied correctly, then
+print it out and double check to ensure that the paper appears as
+intended.
+
+\begin{table}[!h]
+\caption{Style Tag Table: Table head}
+\label{tab:fonts}
+\begin{center}       
+\begin{tabular}{|p{0.45\columnwidth}|p{0.45\columnwidth}|} 
+\hline
+1. Title& title environment \\ \hline
+2. Byline: & \\
+Author/Affiliation & author environment \\ \hline
+3. Head & section environment \\ \hline
+4. Subhead & subsection environment \\ \hline
+5. Tertiary head & subsubsection environment \\ \hline
+6. Abstract & abstract environment \\ \hline 
+& \\ \hline
+7. Body & regular text\\ \hline
+8. Equation & equation environment\\ \hline
+9.1 Figure & align left \\ \hline
+9.2 Figure caption & caption environment \\ \hline
+10.1 Table head & caption environment \\ \hline
+10.2 Table text & tabular environment \\ \hline
+11. References & bibliography + 
+command \emph{small} to have a 1pt smaller font\\ \hline
+12. Author Bio text & biography environment\\ \hline
+13.1 List, bullet & itemize environment\\ \hline
+13.2 List, numbered & enumerate environment \\ \hline
+\end{tabular}
+\end{center}
+\end{table} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Submitting Your Paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Submitting Your Paper}
+The submission of your paper has to be performed through the IS\&T
+submission website. Authors receive a login for this site by e-mail.
+Papers can be submitted in Postscript, Word, or WordPerfect format,
+and will be converted to PDF by the submission server. Please
+carefully review the generated PDF and verify that all the text,
+equations, figures and tables are displayed correctly before approving
+its submission.
+
+\subsection{Margins in LaTeX}
+Because of the differences between dvips conversion utilities, the
+margins of your generated PDF document might vary. Please print
+your document, and verify its margins. If they are incorrect, please
+adapt the sizes of the margins in the file \emph{ist.sty}. Typically the
+top margin should be decreased.
+
+\begin{table}[!h]
+\caption{Document Specs: Table head}
+\label{tab:specs}
+\begin{center}       
+\begin{tabular}{p{0.35\columnwidth}p{0.55\columnwidth}} 
+Paper Size & US Letter \\
+Left/right margin & .75 inch (1.90 cm) \\
+Top/bottom margin & 1 inch (2.54 cm) \\
+Columns & 2 at 3.38 inch (8.57 cm) wide. \\
+ & Spacing between columns: 0.25 inch (0.635 cm)
+\end{tabular}
+\end{center}
+\end{table} 
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+Please contact IS\&T with any questions or requests for assistance in
+helping prepare the paper. We look forward to having your paper
+presented at the conference and published in the conference
+proceedings.
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reference Preparation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Reference Preparation}
+Use the standard LaTeX \emph{cite} command for references in the
+text. You can then use the standard bibliography command to generate
+the list of references. Add the command \emph{small} before the
+bibliography to give it the right font size.  Reference \cite{bib1}
+style should be used for books, Reference \cite{bib2} style should be
+used for Journals, and Reference \cite{bib3} style should be used for
+Proceedings.
+
+%\section{Acknowledgments} 
+%add the acknowledgement section here
+
+% To start a new column (but not a new page) and help balance the last-page
+% column length use \vfill\pagebreak.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\small
+\begin{thebibliography}{9}
+\bibitem{bib1}John Doe, Recent Progress in Digital Halftoning II,
+  IS\&T, Springfield, VA, 1999, pg. 173.
+\bibitem{bib2}John Doe, Digital Imaging, J. Imaging. Sci. and
+  Technol., 42, 112 (1998).
+\bibitem{bib3}John Doe, An Inexpensive Micro-Goniophotometry You Can
+  Build, Proc. PICS, pg. 179. (1998).
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Biography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{biography}
+Please submit a brief biographical sketch of no more than 75 words. 
+Include relevant professional and educational information as shown 
+in the example below.
+
+Jane Doe received her BS in physics from the University of Nevada (1977) 
+and her PhD in applied physics from Columbia University (1983). Since 
+then she has worked in the Research and Technology Division at Xerox 
+in Webster, NY. Her work has focused on the development of toner adhesion 
+and transport issues. She is on the Board of  IS\&T and a member of APS 
+and SPIE.
+\end{biography}
+
+\end{document} 

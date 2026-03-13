@@ -1,0 +1,239 @@
+\documentclass[a4paper,landscape, 12pt]{extarticle}
+\usepackage[left=0.5in, right=0.5in, top=0.4in, bottom=0.55in]{geometry}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[normalem]{ulem}
+\usepackage{tabto}
+\usepackage{minted}
+\renewcommand\ULthickness{1.0pt}   %%---> For changing thickness of underline
+\setlength\ULdepth{1.3ex}%\maxdimen ---> For changing depth of underline
+\usepackage{tikz}
+\usetikzlibrary{graphs}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{amsmath} 
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\author{Juan R Ortiz}
+
+% Page style with slide numbers
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[R]{\Large\thepage\ / \pageref{LastPage}}
+
+% Define header command for consistent formatting
+\newcommand{\slideheader}[2]{%
+\noindent
+\includegraphics[height=0.5in]{cpp_logo.png}%
+\hspace{0.3in}%
+{\Large \uline{#1 \hfill #2}}%
+\par\vspace{0.4in}
+}
+% Standard content spacing - 0.6in base indent for all content
+\newcommand{\contentstart}{%
+\leftskip 0.6in \rightskip 0.6in
+}
+\newcommand{\contentend}{%
+\leftskip 0in \rightskip 0in
+}
+
+% Standard font size for body content
+\newcommand{\bodytext}{\LARGE}
+
+\begin{document}
+\begin{huge} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIDE 1 - Title Slide
+\slideheader{ECE5110 Numerical Modeling}{Unit 01}
+
+\vspace{1.2in}
+\begin{center}
+{\Huge \textbf{Juan Ortiz}}
+
+\vspace{0.4in}
+{\LARGE Solving a function by the Newton Method}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 2
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+You have been hired to help design the input stage of a new guitar effects pedal.
+This pedal needs a low‑pass RC filter to remove harsh high‑frequencies while keeping the musical tone warm and natural.
+
+\vspace{0.4in}
+\noindent
+The design team wants the filter’s cutoff frequency to be:
+\vspace{0.1in}
+\begin{center}$f_c = 1kHz$\end{center}
+\vspace{0.1in}
+The resistor value is already chosen:
+\begin{center}$R = 10k\Omega$\end{center}
+\vspace{0.1in}
+Your job is to determine the capacitor value C that will produce the desired cutoff
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 3
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+\noindent
+The cutoff frequency of a simple RC low‑pass filter is:
+\begin{center}$f_c = \frac{1}{2\pi RC}$\end{center}
+\vspace{0.2in}
+This can be solved by rearranging the equation in root-finding form:
+\begin{center}$g(C) = \frac{1}{2\pi RC} - f_c = 0$\end{center}
+\vspace{0.2in}
+Next define the function and it's derivative:
+\vspace{0.2in}
+\begin{center}$f(C) = \frac{1}{2\pi RC} - f_c$
+\vspace{0.2in}
+\\$f'(C) = -\frac{1}{2\pi RC^2}$\end{center}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 4
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+
+In the guitar pedal world and analog audio circuits, the capacitance you choose in the signal path has a huge impact on the character of the sound.
+
+\noindent
+\\The standard capacitance for tone-shaping can range from 1nF-100nF, which will directly reflect electrical behavior and musical intent.
+\begin{center}
+\includegraphics[height=2in]{GTR_PDL.png}%
+\end{center}
+\begin{flushright}
+1983 - BOSS DD-2
+\end{flushright}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 5
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+\noindent
+Given the 1nF–100nF capacitance range used in guitar‑pedal signal paths, we can make a few reasonable assumptions when applying Newton’s Method to solve our filter equation.
+\vspace{0.2in}
+{
+\begin{itemize}
+    \item The plot interval: \{START, STOP\} = \{1nF, 100nF\} = \{1e-9, 1e-7\}
+    \item Accuracy and tolerance: PRECISION = 1nF = 1e-9
+    \item Initial guess: $x_0$ = 10nF = 1e-8
+    \item Iterations: MAX\_STEPS = 20 (NM converges fast)
+\end{itemize}
+}
+\vspace{0.2in} 
+Recall the defined functions from the previous slides:
+\vspace{0.2in}
+{
+\begin{itemize}
+    \item f = 1/(2*math.pi*10000*C) - 1000
+    \item df = -1/(2*math.pi*10000*C**2)
+\end{itemize}
+}
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage %Page 6
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\begin{minted}[fontsize=\LARGE]{python}
+def solve_newton_method(self, f, df, x0, tolerance, max_steps):
+    x = x0
+
+    for i in range(1, max_steps + 1):
+        dfx = df(x)
+        if dfx == 0:
+            return x, i, -1
+
+        fx = f(x)
+        x_new = x - fx / dfx
+
+        if abs(x_new - x) < tolerance:
+            return x_new, i, 0
+
+        x = x_new
+
+    return x, max_steps, -2
+\end{minted}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 7
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+Plug in the information VIA Python or Matlab:
+\vspace{0.2in}
+\begin{center}
+\includegraphics[height=5.25in]{NumMet_Newton_GTRPDL.png}%
+\end{center}
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 8
+
+% --- Background image using TikZ overlay (works in ANY document class) ---
+\begin{tikzpicture}[remember picture,overlay]
+    \node[opacity=0.15, at=(current page.center)] {
+        \includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{TS808.jpg}
+    };
+\end{tikzpicture}
+
+% --- Your slide header (custom macro) ---
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+% --- Your slide content ---
+\leftskip 0.7in 
+\rightskip 0.7in
+
+\begin{frame}{}
+
+Our result is approximately a $16\,\text{nF}$ capacitor, which satisfies our low‑pass filter.
+
+\vspace{0.2in}
+
+This mid‑sized capacitor sits in a sweet spot for tone‑shaping, providing a gentle high‑frequency roll‑off used in classic pedals like the Big Muff, Tube Screamer, and Swollen Pickle.
+\vspace{0.75in}
+\begin{center}
+\includegraphics[height=1.5in]{ECE_CAP.png}%
+\end{center}
+
+\end{frame}
+
+\leftskip 0in 
+\rightskip 0in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 9
+\slideheader{Newton Example: Designing a tone-shaping circuit for a guitar pedal}{Newton Method}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{2.5in}
+\begin{center}
+{\Huge \textbf{END}}
+\end{center}
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{huge}
+\end{document}
