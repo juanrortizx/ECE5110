@@ -13,7 +13,7 @@ argument-hint: 'Subject or topic for the article (e.g., "Newton-Cotes integratio
 
 ## Template Overview
 
-The template lives at [templates/article.tex](../../../templates/article.tex) and uses [templates/ist.sty](../../../templates/ist.sty).
+The template lives at [latex/template/article.tex](../../../latex/template/template_article.tex) and uses [latex/template/ist.sty](../../../latex/template/ist.sty).
 
 **Document class:**
 ```latex
@@ -40,7 +40,7 @@ Firstname Lastname; Institution Name; City, State
 Ask (or infer from context) the following:
 - **Subject / topic** — what the article is about
 - **Author name and affiliation** — ask for the author's name; institution defaults to `California Polytechnic University Pomona; Pomona, California`
-- **Target output path** — e.g., `unit04/article.tex`
+- **Target output path** — e.g., `unit03/article.tex`
 - **Key sections needed** — default set listed below
 
 ### 2. Plan the Article Structure
@@ -108,9 +108,9 @@ Before finalizing, verify:
 - [ ] Output path matches the requested location
 
 ### 5. Copy `ist.sty`
-Copy `templates/ist.sty` into the same directory as the new `.tex` file so the document compiles without any path configuration.
+Copy `latex/template/ist.sty` into the same directory as the new `.tex` file so the document compiles without any path configuration.
 
-Example: if the output is `unit04/article.tex`, copy `templates/ist.sty` → `unit04/ist.sty`.
+Example: if the output is `unit03/article.tex`, copy `latex/template/ist.sty` → `unit03/ist.sty`.
 
 ### 6. Output
 Create the `.tex` file at the requested path. Remind the user that images referenced with `\includegraphics` must exist at the specified relative paths.
