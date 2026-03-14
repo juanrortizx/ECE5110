@@ -13,7 +13,7 @@ argument-hint: 'Subject or topic for the article (e.g., "Newton-Cotes integratio
 
 ## Template Overview
 
-The template lives at [latex/template/article.tex](../../../latex/template/template_article.tex) and uses [latex/template/ist.sty](../../../latex/template/ist.sty).
+The template lives at [latex/template/article.tex]/home/juanrortiz/.documents/.school/ECE5110/references/template and uses [latex/template/ist.sty]/home/juanrortiz/.documents/.school/ECE5110/references/template/ist.sty for styling. It includes the following key features:
 
 **Document class:**
 ```latex
@@ -79,6 +79,26 @@ Follow these conventions from the template:
 \end{figure}
 ```
 
+**Tables (tight two-column layout):**
+```latex
+\begin{table}[h!]
+\caption{...}
+\label{tab:...}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\sisetup{round-mode=figures,round-precision=8}
+\begin{tabular}{|l|c|c|}
+\hline
+Method & Approx. & Abs. Error \\\hline
+... \\\hline
+\end{tabular}
+}
+\end{table}
+```
+
+Use concise column headers and abbreviated row labels when needed to prevent overflow in two-column format.
+
 **Bibliography:**
 ```latex
 \small
@@ -103,6 +123,8 @@ Before finalizing, verify:
 - [ ] `\maketitle` and `\thispagestyle{empty}` follow `\begin{document}`
 - [ ] Abstract is present and self-contained
 - [ ] All equations are numbered or displayed correctly (no raw `$$`)
+- [ ] Tables are tightened for two-column layout (compact headers, reduced `\tabcolsep`, optional local `\small`)
+- [ ] Build log has no `Overfull \hbox` warnings; if warnings appear, tighten tables/text and recompile
 - [ ] At least one bibliography entry exists
 - [ ] Document ends with `\end{document}`
 - [ ] Output path matches the requested location
