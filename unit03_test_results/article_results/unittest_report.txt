@@ -1,0 +1,17 @@
+3-Point Numerical Differentiation — Unit Test Report
+Run index : 3
+Timestamp : 2026-03-14T19:34:48.940602+00:00
+
+Case                                Method          Abs Err        Tol   Pass
+--------------------------------------------------------------------------------
+sin(x) at x = π/4                   central       1.396e-11      1e-09    Yes
+sin(x) at x = π/4                   forward       3.045e-11      1e-09    Yes
+sin(x) at x = π/4                   backward      8.241e-12      1e-09    Yes
+exp(x) at x = 0.3                   central       2.174e-11      1e-09    Yes
+exp(x) at x = 0.3                   forward       3.377e-11      1e-09    Yes
+exp(x) at x = 0.3                   backward      8.928e-11      1e-09    Yes
+x³ − 2x² + x − 5 at x = 1.2         central       1.260e-10      1e-08    Yes
+x³ − 2x² + x − 5 at x = 1.2         forward       1.405e-10      1e-08    Yes
+x³ − 2x² + x − 5 at x = 1.2         backward      1.405e-10      1e-08    Yes
+
+Overall: PASS

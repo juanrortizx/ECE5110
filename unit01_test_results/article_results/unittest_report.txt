@@ -1,0 +1,12 @@
+Differentiation unit test report for unit01
+Output root: /Users/rushisharma/Desktop/Spring 2026/5110/ECE5110/unit01_test_results
+
+sin(x) at x = pi/4 | central | approx=7.071067811726e-01 | exact=7.071067811865e-01 | abs_error=1.396371906992e-11 | passed=True
+sin(x) at x = pi/4 | forward | approx=7.071067812170e-01 | exact=7.071067811865e-01 | abs_error=3.044520191509e-11 | passed=True
+sin(x) at x = pi/4 | backward | approx=7.071067811948e-01 | exact=7.071067811865e-01 | abs_error=8.240741422583e-12 | passed=True
+exp(x) at x = 0.3 | central | approx=1.349858807598e+00 | exact=1.349858807576e+00 | abs_error=2.174482816031e-11 | passed=True
+exp(x) at x = 0.3 | forward | approx=1.349858807542e+00 | exact=1.349858807576e+00 | abs_error=3.376632307095e-11 | passed=True
+exp(x) at x = 0.3 | backward | approx=1.349858807487e+00 | exact=1.349858807576e+00 | abs_error=8.927747430221e-11 | passed=True
+x^3 - 2x^2 + x - 5 at x = 1.2 | central | approx=5.200000001260e-01 | exact=5.200000000000e-01 | abs_error=1.259747861582e-10 | passed=True
+x^3 - 2x^2 + x - 5 at x = 1.2 | forward | approx=5.199999998595e-01 | exact=5.200000000000e-01 | abs_error=1.404787397519e-10 | passed=True
+x^3 - 2x^2 + x - 5 at x = 1.2 | backward | approx=5.199999998595e-01 | exact=5.200000000000e-01 | abs_error=1.404787397519e-10 | passed=True
