@@ -9,11 +9,4 @@ article_results/
 article_images/
 latex.lnk
 
-
-# Generated files inside test result folders
-unit*_test_results/**/*.png
-unit*_test_results/**/*.svg
-unit*_test_results/**/*.csv
-unit*_test_results/**/*.json
-unit*_test_results/**/*.md
-unit*_test_results/**/*.txt
+unit*_test_results/
