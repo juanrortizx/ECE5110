@@ -1,7 +1,12 @@
 .venv/
+.DS_Store
+__pycache__/
+
 assignments/
 images/
 plots/
+article_results/
+article_images/
 latex.lnk
 
 
