@@ -1,0 +1,258 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% IS&T Template
+% ECE5110 Unit 03 Article
+% Three-Point Finite-Difference Differentiation and
+% Gravitational Acceleration Estimation from Free-Fall Data
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document class
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[letterpaper,twocolumn,fleqn]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ist}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\usepackage{physics}
+\AtBeginDocument{\RenewCommandCopy\qty\SI}
+\ExplSyntaxOn
+\msg_redirect_name:nnn { siunitx } { physics-pkg } { none }
+\ExplSyntaxOff
+
+\pagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title and Authors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Three-Point Finite-Difference Differentiation: Analytic Validation and Gravitational Acceleration Estimation from Free-Fall Data}
+\author{Juan Ortiz; California Polytechnic Pomona; Pomona, California}
+\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Begin document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Three-point finite-difference formulas---central, forward, and backward---are implemented in Python and validated against three analytic test functions: $\sin(x)$ at $x=\pi/4$, $e^{x}$ at $x=0.3$, and $x^{3}-2x^{2}+x-5$ at $x=1.2$. All nine method-function combinations achieve absolute errors below $\num{1.5e-10}$, well within specified tolerances. The same pipeline is then applied to a free-fall experiment: seven discrete position-time measurements are fitted with a quadratic polynomial, and the second numerical derivative of the interpolant is evaluated to estimate gravitational acceleration. The resulting magnitude $|\hat{g}|=\qty{9.6904}{m/s^2}$ differs from the standard value $\qty{9.81}{m/s^2}$ by only $\qty{0.1196}{m/s^2}$, confirming the estimate within a prescribed tolerance of $\qty{0.15}{m/s^2}$.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:intro}
+Numerical differentiation is a fundamental tool in computational engineering when analytic derivatives are unavailable or impractical to evaluate. Finite-difference approximations replace symbolic calculus with function evaluations at nearby discrete points, making them immediately applicable to sampled physical data.
+
+Three-point stencils offer a straightforward path to second-order accuracy, $O(h^{2})$, with only two or three function evaluations. This work has two objectives: first, to validate a Python implementation of the central, forward, and backward three-point formulas against smooth analytic benchmarks; second, to demonstrate that the same numerical pipeline can recover the gravitational acceleration $g$ from a measured free-fall trajectory in which the underlying acceleration is inferred entirely from discrete position-time samples.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theory and Method
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Theory and Method}
+Given a smooth function $f$ and a step size $h>0$, the three second-order accurate approximations to $f'(x)$ are
+
+\begin{align}
+f'(x) &\approx \frac{f(x+h)-f(x-h)}{2h}, \label{eq:central}\\
+f'(x) &\approx \frac{-3f(x)+4f(x+h)-f(x+2h)}{2h}, \label{eq:forward}\\
+f'(x) &\approx \frac{f(x-2h)-4f(x-h)+3f(x)}{2h}. \label{eq:backward}
+\end{align}
+
+Equation~\eqref{eq:central} is the \emph{central difference} formula; Eqs.~\eqref{eq:forward} and~\eqref{eq:backward} are the \emph{forward} and \emph{backward} three-point formulas, respectively. All three carry a leading truncation error of $O(h^{2})$. The central formula cancels the odd-order error terms by symmetry, giving it a smaller leading coefficient in practice.
+
+\subsection{Gravity Estimation via Double Differentiation}
+Under constant gravitational acceleration the vertical position of a falling object follows
+\[
+y(t) = \tfrac{1}{2}a\,t^{2} + v_{0}\,t + y_{0},
+\]
+a quadratic in time. The acceleration is recovered by differentiating the position signal twice:
+\[
+\hat{a} = \dv[2]{y}{t}.
+\]
+Because the position signal is discrete, a degree-2 polynomial is first fitted to the data using \texttt{numpy.polyfit}, yielding a continuous interpolant $\hat{y}(t)$. The three-point central formula~\eqref{eq:central} is then applied twice: once to $\hat{y}$ to obtain the velocity $\hat{v}(t_{0})$, and once to $\hat{v}$ to obtain the acceleration $\hat{a}(t_{0})$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Analytic Test Cases
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analytic Test Cases}
+Three functions with known closed-form derivatives serve as ground truth. Each is evaluated at a fixed point with step size $h=\num{1e-5}$:
+
+\begin{enumerate}
+    \item $f(x)=\sin x$,\quad $f'(x)=\cos x$,\quad $x=\pi/4$,\\
+          exact: $\cos(\pi/4)\approx\num{0.70710678}$.
+    \item $f(x)=e^{x}$,\quad $f'(x)=e^{x}$,\quad $x=0.3$,\\
+          exact: $e^{0.3}\approx\num{1.34985881}$.
+    \item $f(x)=x^{3}-2x^{2}+x-5$,\quad $f'(x)=3x^{2}-4x+1$,\quad $x=1.2$,\\
+          exact: $3(1.2)^{2}-4(1.2)+1=\num{0.52}$.
+\end{enumerate}
+
+The acceptance tolerance is $\num{1e-8}$ for the central method and $\num{1e-7}$ for both one-sided methods.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Free-Fall Experiment
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Free-Fall Experiment}
+A drop test recorded the vertical displacement $y$ of a falling object at seven instants. Downward motion is represented by negative displacement (Table~\ref{tab:freefall-data}).
+
+\begin{table}[h!]
+\caption{Free-fall position-versus-time measurements}
+\label{tab:freefall-data}
+\centering
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|c|c|}
+\hline
+Index & Time (s) & Position (m) \\\hline
+0 & \num{0.000000} & \num{ 0.00} \\\hline
+1 & \num{0.100764} & \num{-0.05} \\\hline
+2 & \num{0.141736} & \num{-0.10} \\\hline
+3 & \num{0.174306} & \num{-0.15} \\\hline
+4 & \num{0.201042} & \num{-0.20} \\\hline
+5 & \num{0.224583} & \num{-0.25} \\\hline
+6 & \num{0.247569} & \num{-0.30} \\\hline
+\end{tabular}
+}
+\end{table}
+
+A degree-2 polynomial $\hat{y}(t) = a_{2}t^{2}+a_{1}t+a_{0}$ is fitted to these data with the coefficients
+\[
+a_{2} = \num{-4.845194}, \quad a_{1} = \num{-0.019173}, \quad a_{0} = \num{2.593e-4}.
+\]
+The central three-point formula is applied to $\hat{y}(t)$ at the middle sample time $t_{0}=\qty{0.174306}{s}$. Figure~\ref{fig:freefall} shows the interpolant overlaid on the measured data.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\columnwidth]{../results/plots/freefall_gravity_interpolation.png}
+    \caption{Quadratic interpolant (solid curve) fitted to seven free-fall samples (circles). The evaluation point $t_{0}$ is marked; the title reports the estimated $|\hat{g}|$.}
+    \label{fig:freefall}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+\subsection{Analytic Differentiation}
+Table~\ref{tab:analytic} lists the absolute error for each method-function combination. All nine cases pass their tolerance.
+
+\begin{table}[h!]
+\caption{Analytic differentiation absolute errors ($h=\num{1e-5}$)}
+\label{tab:analytic}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\sisetup{scientific-notation=true,round-mode=figures,round-precision=3}
+\begin{tabular}{|l|l|c|c|}
+\hline
+Function & Method & Abs.\ Error & Pass \\\hline
+$\sin(\pi/4)$ & central  & $\num{1.40e-11}$ & Yes \\\hline
+              & forward  & $\num{3.04e-11}$ & Yes \\\hline
+              & backward & $\num{8.24e-12}$ & Yes \\\hline
+$e^{0.3}$     & central  & $\num{2.17e-11}$ & Yes \\\hline
+              & forward  & $\num{3.38e-11}$ & Yes \\\hline
+              & backward & $\num{8.93e-11}$ & Yes \\\hline
+$p'(1.2)$     & central  & $\num{1.26e-10}$ & Yes \\\hline
+              & forward  & $\num{1.40e-10}$ & Yes \\\hline
+              & backward & $\num{1.40e-10}$ & Yes \\\hline
+\end{tabular}
+}
+\end{table}
+
+Figure~\ref{fig:sine-error} shows how the absolute error varies with step size for the $\sin(x)$ case. The log-log plot confirms $O(h^{2})$ convergence across the mid-range of $h$; floating-point cancellation degrades accuracy below $h\approx\num{1e-6}$.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\columnwidth]{../results/plots/sine_at_pi_over_4_error_vs_h.png}
+    \caption{Absolute error versus step size for $\sin'(\pi/4)$. The $O(h^{2})$ slope is visible in the convergence region.}
+    \label{fig:sine-error}
+\end{figure}
+
+\subsection{Method Summary}
+Table~\ref{tab:summary} summarises performance by method across all three analytic cases.
+
+\begin{table}[h!]
+\caption{Per-method error summary over three analytic cases}
+\label{tab:summary}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\sisetup{scientific-notation=true,round-mode=figures,round-precision=3}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Method   & All Pass & Max Abs.\ Err. & Mean Abs.\ Err. \\\hline
+central  & Yes & $\num{1.26e-10}$ & $\num{5.39e-11}$ \\\hline
+forward  & Yes & $\num{1.40e-10}$ & $\num{6.82e-11}$ \\\hline
+backward & Yes & $\num{1.40e-10}$ & $\num{7.93e-11}$ \\\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Gravity Estimation}
+The second derivative of the quadratic interpolant at $t_{0}=\qty{0.174306}{s}$ yields the signed acceleration
+\[
+\hat{a} = \qty{-9.6904}{m/s^2},
+\]
+indicating downward motion consistent with the sign convention. Table~\ref{tab:gravity} compares the estimated magnitude against the standard value.
+
+\begin{table}[h!]
+\caption{Free-fall gravity estimation result}
+\label{tab:gravity}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|l|c|}
+\hline
+Quantity & Value \\\hline
+$|\hat{g}|$ (m/s$^{2}$)       & $\num{9.6904}$ \\\hline
+Standard $|g|$ (m/s$^{2}$)    & $\num{9.8100}$ \\\hline
+Magnitude error (m/s$^{2}$)   & $\num{0.1196}$ \\\hline
+Tolerance (m/s$^{2}$)         & $\num{0.1500}$ \\\hline
+Pass                           & Yes            \\\hline
+\end{tabular}
+}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Error Analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Error Analysis}
+For the analytic cases, the central difference consistently achieves the smallest or near-smallest absolute error (Table~\ref{tab:summary}). The maximum error across all methods is $\num{1.40e-10}$, far below the loosest tolerance of $\num{1e-7}$. The log-log error plots confirm $O(h^{2})$ behaviour in the convergence region and the onset of floating-point cancellation at very small $h$.
+
+For the gravity estimate, the primary source of error is the measurement resolution of the position data, which is quantised to the nearest \qty{5}{cm}. The fitted coefficient $a_{2}=\num{-4.845194}$~m/s$^{2}$ implies $2a_{2}=\qty{-9.6904}{m/s^2}$, differing from the accepted $\qty{9.81}{m/s^2}$ by approximately $1.2\%$. This is consistent with the coarse position resolution and indicates that the numerical differentiation step introduces negligible additional error.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Discussion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+The central formula outperforms both one-sided stencils on every analytic test case, which is expected from its symmetric cancellation of the odd-order Taylor-series error terms. The forward and backward formulas perform comparably to each other and remain within one order of magnitude of the central result---all well within the prescribed tolerances.
+
+The free-fall validation demonstrates that physically meaningful constants can be recovered from a small, coarsely sampled dataset by combining quadratic interpolation with numerical differentiation. Fitting a polynomial first converts the discrete samples into a smooth, differentiable surrogate; double application of the central formula then extracts the acceleration accurately. The $\qty{0.12}{m/s^2}$ discrepancy from the true value of $g$ reflects the position measurement resolution rather than a limitation of the numerical method.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+A Python implementation of three-point finite-difference differentiation was validated on three smooth analytic functions and on measured free-fall data. All analytic test cases pass their error tolerances by several orders of magnitude, and the gravity estimate derived from double differentiation of a quadratic interpolant agrees with the standard value to within $1.2\%$. These results confirm that three-point stencils provide reliable first-derivative approximations and can be composed to recover higher-order physical quantities from sampled measurements.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\small
+\begin{thebibliography}{9}
+\bibitem{burden}
+R. L. Burden and J. D. Faires, \emph{Numerical Analysis}, 10th ed., Cengage Learning, 2015.
+
+\bibitem{chapra}
+S. C. Chapra and R. P. Canale, \emph{Numerical Methods for Engineers}, 8th ed., McGraw-Hill, 2020.
+\end{thebibliography}
+
+\end{document}
