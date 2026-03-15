@@ -1,0 +1,2 @@
+case_name,display_name,interpolant_type,evaluation_time,step_size,accel_estimate_signed,accel_estimate_magnitude,target_gravity_magnitude,magnitude_abs_error,tolerance,passed,time_units,position_units,acceleration_units
+freefall_gravity_interpolation,Free-fall gravity from quadratic interpolant,quadratic (polyfit degree 2),0.174306,1e-05,-9.690387658967126,9.690387658967126,9.81,0.11961234103287488,0.15,True,s,m,m/s^2
