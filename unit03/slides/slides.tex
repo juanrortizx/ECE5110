@@ -1,30 +1,37 @@
 \documentclass[a4paper,landscape,12pt]{extarticle}
 \usepackage[left=0.5in, right=0.5in, top=0.4in, bottom=0.55in]{geometry}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage[normalem]{ulem}
+\usepackage{array}
 \usepackage{caption}
+\usepackage{amsmath}
 \usepackage{fancyhdr}
-\usepackage{enumitem}
-\usepackage{ulem}
+\usepackage{lastpage}
+
+\renewcommand\ULthickness{1.0pt}
+\setlength\ULdepth{1.3ex}
 
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \fancyfoot[R]{\Large\thepage\ / \pageref{LastPage}}
 
-% Header style for slides
 \newcommand{\slideheader}[2]{%
 \noindent
-{\Large\textbf{#1}}\hfill {\large #2}
-\par\vspace{0.4in}}
+\includegraphics[height=0.5in]{./unit03/slides/images/cpp_logo.png}%
+\hspace{0.3in}%
+{\Large \uline{#1 \hfill #2}}%
+\par\vspace{0.4in}
+}
 
-% Slide content indentation
 \newcommand{\contentstart}{%
-\leftskip 0.6in \rightskip 0.6in}
+\leftskip 0.6in \rightskip 0.6in
+}
 \newcommand{\contentend}{%
-\leftskip 0in \rightskip 0in}
+\leftskip 0in \rightskip 0in
+}
+
+\newcommand{\bodytext}{\LARGE}
 
 \begin{document}
 \begin{huge}
@@ -33,104 +40,123 @@
 % Slide 1 - Title
 \slideheader{ECE5110 Numerical Modeling}{Unit 03}
 
-\vspace{1.2in}
+\vspace{0.7in}
 \begin{center}
-{\Huge \textbf{Three-Point Finite-Difference Differentiation}}\\[0.3in]
-{\Large Analytic Validation \& Free-Fall Gravity Estimation}
+{\Huge \textbf{Three-Point Finite-Difference Differentiation}}\\[0.2in]
+{\Large Analytic Validation and Free-Fall Gravity Estimation}\\[0.6in]
+{\Large Carson Quesada, Ishmael Taleo, Juan Ortiz,}\\
+{\Large Michael Lanfranchi, Rushi Sharma, Timothy Jung}
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Motivation \& Goals}{Unit 03}
+\slideheader{Problem Overview}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.4em]
-    \item Numerical differentiation is essential when analytic derivatives are unavailable.
-    \item Three-point finite-difference stencils achieve $O(h^{2})$ accuracy with only three samples.
-    \item This unit validates Python implementations on analytic benchmarks, then estimates $g$ from discrete free-fall data.
+{\bodytext
+\begin{itemize}
+    \item Approximate first derivatives from sampled data using three-point stencils.
+    \item Validate central, forward, and backward formulas against analytic derivatives.
+    \item Apply the same workflow to estimate $g$ from free-fall position-time measurements.
 \end{itemize}
+}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Three-Point Differentiation Formulas}{Unit 03}
+\slideheader{Core Formulas}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.6em]
-    \item \textbf{Central (symmetric):}
-    \[ f'(x) \approx \frac{f(x+h)-f(x-h)}{2h} \]
-
-    \item \textbf{Forward (one-sided):}
-    \[ f'(x) \approx \frac{-3f(x)+4f(x+h)-f(x+2h)}{2h} \]
-
-    \item \textbf{Backward (one-sided):}
-    \[ f'(x) \approx \frac{f(x-2h)-4f(x-h)+3f(x)}{2h} \]
+{\bodytext
+\begin{itemize}
+    \item Central:
+    \[
+    f'(x) \approx \frac{f(x+h)-f(x-h)}{2h}
+    \]
+    \item Forward:
+    \[
+    f'(x) \approx \frac{-3f(x)+4f(x+h)-f(x+2h)}{2h}
+    \]
+    \item Backward:
+    \[
+    f'(x) \approx \frac{f(x-2h)-4f(x-h)+3f(x)}{2h}
+    \]
 \end{itemize}
+}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Analytic Validation}{Unit 03}
+\slideheader{Analytic Validation Results}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.4em]
-    \item Three test functions with known derivatives were evaluated at fixed points.
-    \item All 9 method–function combinations met the tolerances: central $1\times10^{-8}$, one-sided $1\times10^{-7}$.
-    \item Example results (absolute error):
+{\bodytext
+\begin{itemize}
+    \item Test functions: $\sin(x)$ at $\pi/4$, $e^x$ at $0.3$, and $x^3-2x^2+x-5$ at $1.2$.
+    \item Step size: $h=10^{-5}$.
+    \item All 9 method-function combinations passed tolerance.
 \end{itemize}
 
-\vspace{0.2in}
-\begin{tabular}{l c c}
+\vspace{0.15in}
+\begin{center}
+\begin{tabular}{|l|c|c|}
 \hline
-Function & Method & Abs. Error \\
-\hline
-$\sin(x)$ @ $\pi/4$ & central & $1.4\times10^{-11}$ \\
-$e^{x}$ @ 0.3 & forward & $3.4\times10^{-11}$ \\
-$p(x)=x^{3}-2x^{2}+x-5$ @ 1.2 & backward & $1.4\times10^{-10}$ \\
-\hline
+Function and point & Method & Abs. error \\\hline
+$\sin(\pi/4)$ & central & $1.40\times10^{-11}$ \\\hline
+$e^{0.3}$ & forward & $3.38\times10^{-11}$ \\\hline
+$p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
 \end{tabular}
+\end{center}
+}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Free-Fall Gravity Estimation}{Unit 03}
+\slideheader{Free-Fall Application}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.4em]
-    \item Seven position–time samples were collected during a drop test.
-    \item Fit a quadratic polynomial $\hat y(t)=a_2 t^2 + a_1 t + a_0$ using \texttt{numpy.polyfit}.
-    \item Apply central three-point differentiation twice (velocity then acceleration) at the mid-point $t_0$.
+{\bodytext
+\begin{itemize}
+    \item Fit a quadratic interpolant to 7 measured position-time samples.
+    \item Differentiate numerically twice using the central stencil.
+    \item Evaluate at $t_0=0.174306\,\mathrm{s}$ to recover acceleration.
 \end{itemize}
+}
 
-\vspace{0.3in}
+\vspace{0.1in}
 \begin{center}
-\includegraphics[width=0.78\linewidth]{../results/plots/freefall_gravity_interpolation.png}
-\captionof{figure}{Quadratic interpolant fitted to measured free-fall samples (markers).}
+\includegraphics[width=0.73\linewidth]{../results/plots/freefall_gravity_interpolation.png}
+\captionof{figure}{Quadratic interpolant fitted to measured free-fall data.}
 \end{center}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Gravity Estimate \& Results}{Unit 03}
+\slideheader{Estimated Gravity}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.4em]
-    \item Estimated acceleration: $\hat a = -9.6904\ \mathrm{m/s^{2}}$ (downward sign).
-    \item Magnitude $|\hat g| = 9.6904\ \mathrm{m/s^{2}}$.
-    \item Comparison to standard $|g|=9.81\ \mathrm{m/s^{2}}$ yields error $0.1196\ \mathrm{m/s^{2}}$ ($1.2\%$).
-    \item Result passes tolerance $0.15\ \mathrm{m/s^{2}}$.
+{\bodytext
+\begin{itemize}
+    \item Signed estimate: $\hat{a}=-9.6904\,\mathrm{m/s^2}$ (downward direction).
+    \item Magnitude: $|\hat{g}|=9.6904\,\mathrm{m/s^2}$.
+    \item Reference: $9.81\,\mathrm{m/s^2}$.
+    \item Absolute magnitude error: $0.1196\,\mathrm{m/s^2}$.
+    \item Tolerance check: pass ($0.1196 < 0.15$).
 \end{itemize}
+}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Key Takeaways}{Unit 03}
+\slideheader{Conclusions}{Unit 03}
 \contentstart
-\begin{itemize}[leftmargin=*,itemsep=0.4em]
-    \item Three-point stencils offer a simple, second-order-accurate way to approximate derivatives from sampled data.
-    \item Central differences consistently produce smaller errors than one-sided formulas.
-    \item Combining polynomial interpolation with numerical differentiation allows recovery of physical constants (e.g., $g$) from noisy, discrete measurements.
+{\bodytext
+\begin{itemize}
+    \item Three-point finite-difference methods achieved strong analytic accuracy.
+    \item Central differencing provided the best overall error performance.
+    \item Interpolation plus numerical differentiation recovered $g$ within 1.2\% of the standard value.
 \end{itemize}
+}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\slideheader{Questions}{Unit 03}
+\slideheader{Unit 03}{ECE5110 - Numerical Modeling}
 \vspace{2.5in}
 \begin{center}
 {\Huge \textbf{Questions?}}
