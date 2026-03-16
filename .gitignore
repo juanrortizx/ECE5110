@@ -4,9 +4,9 @@ __pycache__/
 
 assignments/
 images/
-plots/
-article_results/
-article_images/
+# plots/
+# article_results/
+# article_images/
 latex.lnk
 
 unit*_test_results/
