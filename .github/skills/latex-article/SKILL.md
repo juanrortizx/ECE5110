@@ -29,7 +29,10 @@ The template lives at [latex/template/article.tex]/home/juanrortiz/.documents/.s
 \usepackage{siunitx}
 ```
 
-**Author format:**
+**Author source and format:**
+- Read author names from `AUTHORS.txt` in the repository base directory.
+- Use one line per author in the LaTeX `\author{...}` block.
+- Format each author as:
 ```
 Firstname Lastname; Institution Name; City, State
 ```
@@ -39,7 +42,8 @@ Firstname Lastname; Institution Name; City, State
 ### 1. Gather Requirements
 Ask (or infer from context) the following:
 - **Subject / topic** — what the article is about
-- **Author name and affiliation** — ask for the author's name; institution defaults to `California Polytechnic University Pomona; Pomona, California`
+- **Author name and affiliation** — read names from `AUTHORS.txt` at the repository root; institution defaults to `California Polytechnic University Pomona; Pomona, California` unless explicitly overridden
+- **Missing author file fallback** — if `AUTHORS.txt` is absent or empty, ask for author names before generating the article
 - **Target output path** — e.g., `unit03/article.tex`
 - **Key sections needed** — default set listed below
 
@@ -83,6 +87,7 @@ Follow these conventions from the template:
 ```latex
 \begin{table}[h!]
 \caption{...}
+\vspace{12pt}
 \label{tab:...}
 \centering
 {\small
@@ -96,6 +101,8 @@ Method & Approx. & Abs. Error \\\hline
 }
 \end{table}
 ```
+
+If a table has a `\caption{...}` line, always insert `\vspace{12pt}` immediately after the caption and before the rest of the table contents.
 
 Use concise column headers and abbreviated row labels when needed to prevent overflow in two-column format.
 
@@ -119,10 +126,11 @@ Author, \emph{Title}, Publisher, Year.
 Before finalizing, verify:
 - [ ] `\documentclass`, all five standard packages, and `\usepackage{ist}` are present
 - [ ] `\pagestyle{empty}` appears after package declarations
-- [ ] Title, author (correct format), and `\date{}` are set
+- [ ] Title, author names loaded from root `AUTHORS.txt` (correct format), and `\date{}` are set
 - [ ] `\maketitle` and `\thispagestyle{empty}` follow `\begin{document}`
 - [ ] Abstract is present and self-contained
 - [ ] All equations are numbered or displayed correctly (no raw `$$`)
+- [ ] Every table with `\caption{...}` includes `\vspace{12pt}` immediately after the caption
 - [ ] Tables are tightened for two-column layout (compact headers, reduced `\tabcolsep`, optional local `\small`)
 - [ ] Build log has no `Overfull \hbox` warnings; if warnings appear, tighten tables/text and recompile
 - [ ] At least one bibliography entry exists
