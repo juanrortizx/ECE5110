@@ -1,0 +1,2 @@
+method,case_name,n_values,num_runs,expected_order,observed_order,finest_n,finest_h,finest_approx,exact,finest_abs_error,final_tolerance,passed_final_tolerance
+simpson,pi_integral,"4,8,16,32,64,128,256",7,4.0,6.655247250110747,256,0.00390625,3.141592653589793,3.141592653589793,0.0,1e-09,True

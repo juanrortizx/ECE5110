@@ -1,0 +1,10 @@
+Unit 03 Integration Report
+==========================
+
+case_name: pi_integral
+display_name: Integral of 4/(1+x^2) on [0, 1]
+exact_integral: 3.141592653590
+
+method | expected_order | observed_order | finest_n | finest_abs_error | final_tolerance | passed_final_tolerance
+trapezoidal | 2.0 | 1.999993 | 256 | 2.543132e-06 | 2.000000e-05 | True
+simpson | 4.0 | 6.655247 | 256 | 0.000000e+00 | 1.000000e-09 | True

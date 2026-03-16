@@ -1,0 +1,24 @@
+{
+  "generated_at_utc": "2026-03-16T23:15:27.497804+00:00",
+  "case_name": "pi_integral",
+  "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+  "method": "trapezoidal",
+  "exact_integral": 3.141592653589793,
+  "integration_bounds": [
+    0.0,
+    1.0
+  ],
+  "n_values": [
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+  ],
+  "expected_order": 2.0,
+  "observed_order": 1.9999925138691277,
+  "final_tolerance": 2e-05,
+  "passed_final_tolerance": true
+}
