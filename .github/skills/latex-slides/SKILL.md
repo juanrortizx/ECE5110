@@ -44,6 +44,7 @@ Create or update:
 - Preserve important formulas when needed for understanding.
 - Put the authors' names and the article title on the first slide.
 - Read the author names from `AUTHORS.txt` (repository root) rather than inferring or inventing names.
+- Add `./unit03/slides/images/cpp_logo.png` on the left side of each slide header.
 - If the article references figures from `unitXX/results/`, reuse those same files with relative paths.
 - Do not copy images into the slides folder unless explicitly requested.
 - end presentation with a slide prompting for questions.
@@ -70,7 +71,21 @@ Target about 5 to 10 slides unless the user asks for something different.
 3. Identify the main problem, methods, formulas, and conclusions.
 4. Build a short slide outline.
 5. Write `unitXX/slides/slides.tex`.
-6. Reuse figures from `unitXX/results/` by referencing them with relative paths when needed.
+6. Define a reusable slide header command that places `./unit03/slides/images/cpp_logo.png` at the left of the header and use it consistently on every slide.
+7. Reuse figures from `unitXX/results/` by referencing them with relative paths when needed.
+
+## Header Guidance
+Use a shared command/macro for headers so formatting is consistent across slides. The logo should appear at the left of each header, for example:
+
+```latex
+\newcommand{\slideheader}[2]{%
+\noindent
+\includegraphics[height=0.5in]{./unit03/slides/images/cpp_logo.png}%
+\hspace{0.3in}%
+{\Large \uline{#1 \hfill #2}}%
+\par\vspace{0.4in}
+}
+```
 
 ## Figure Path Guidance
 If a figure exists at:
