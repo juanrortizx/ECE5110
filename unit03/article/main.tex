@@ -28,7 +28,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Title and Authors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Three-Point Finite-Difference Differentiation: Analytic Validation and Gravitational Acceleration Estimation from Free-Fall Data}
+\title{Three-Point Differentiation and Composite Integration: Unit 03 Numerical Validation on Analytic and Experimental Data}
 \author{
 Carson Quesada, Ishmael Taleo, Juan Ortiz, Michael Lanfranchi, Rushi Sharma, Timothy Jung \\
 California Polytechnic University Pomona; Pomona, California
@@ -46,7 +46,11 @@ California Polytechnic University Pomona; Pomona, California
 % Abstract
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-Three-point finite-difference formulas---central, forward, and backward---are implemented in Python and validated against three analytic test functions: $\sin(x)$ at $x=\pi/4$, $e^{x}$ at $x=0.3$, and $x^{3}-2x^{2}+x-5$ at $x=1.2$. All nine method-function combinations achieve absolute errors below $\num{1.5e-10}$, well within specified tolerances. The same pipeline is then applied to a free-fall experiment: seven discrete position-time measurements are fitted with a quadratic polynomial, and the second numerical derivative of the interpolant is evaluated to estimate gravitational acceleration. The resulting magnitude $|\hat{g}|=\qty{9.6904}{m/s^2}$ differs from the standard value $\qty{9.81}{m/s^2}$ by only $\qty{0.1196}{m/s^2}$, confirming the estimate within a prescribed tolerance of $\qty{0.15}{m/s^2}$.
+Unit 03 numerical workflows were implemented and validated for both differentiation and integration. Three-point finite-difference formulas---central, forward, and backward---were tested on three analytic derivatives: $\sin(x)$ at $x=\pi/4$, $e^{x}$ at $x=0.3$, and $x^{3}-2x^{2}+x-5$ at $x=1.2$. All nine method-function combinations achieved absolute errors below $\num{1.5e-10}$. Composite trapezoidal and composite Simpson integration were then evaluated on
+\[
+\int_{0}^{1} \frac{4}{1+x^2}\,dx=\pi,
+\]
+using $n=4$ to $256$ subintervals. Trapezoidal converged at observed order $1.99999$ with finest absolute error $\num{2.543e-6}$, while Simpson reached near machine precision at the finest mesh and passed all prescribed tolerances. Finally, a free-fall dataset was fit with a quadratic interpolant and numerically differentiated twice to estimate gravity, yielding $|\hat{g}|=\qty{9.6904}{m/s^2}$ with magnitude error $\qty{0.1196}{m/s^2}$ versus $\qty{9.81}{m/s^2}$.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,9 +58,9 @@ Three-point finite-difference formulas---central, forward, and backward---are im
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:intro}
-Numerical differentiation is a fundamental tool in computational engineering when analytic derivatives are unavailable or impractical to evaluate. Finite-difference approximations replace symbolic calculus with function evaluations at nearby discrete points, making them immediately applicable to sampled physical data.
+Numerical differentiation and numerical integration are core operators in scientific computing. In many engineering workflows, derivatives and integrals must be estimated from discrete samples rather than symbolic expressions. Reliable finite-difference and quadrature methods therefore provide the bridge from sampled data to physical inference.
 
-Three-point stencils offer a straightforward path to second-order accuracy, $O(h^{2})$, with only two or three function evaluations. This work has two objectives: first, to validate a Python implementation of the central, forward, and backward three-point formulas against smooth analytic benchmarks; second, to demonstrate that the same numerical pipeline can recover the gravitational acceleration $g$ from a measured free-fall trajectory in which the underlying acceleration is inferred entirely from discrete position-time samples.
+Three-point stencils offer second-order derivative accuracy, $O(h^{2})$, with compact local evaluations. Composite trapezoidal and Simpson rules offer globally second-order and fourth-order integral convergence, respectively, on smooth integrands. This study has three objectives: (i) validate three-point differentiation on analytic benchmarks, (ii) validate trapezoidal and Simpson integration on an integral with known exact value $\pi$, and (iii) recover gravitational acceleration from free-fall measurements using interpolation plus numerical differentiation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Theory and Method
@@ -71,6 +75,13 @@ f'(x) &\approx \frac{f(x-2h)-4f(x-h)+3f(x)}{2h}. \label{eq:backward}
 \end{align}
 
 Equation~\eqref{eq:central} is the \emph{central difference} formula; Eqs.~\eqref{eq:forward} and~\eqref{eq:backward} are the \emph{forward} and \emph{backward} three-point formulas, respectively. All three carry a leading truncation error of $O(h^{2})$. The central formula cancels the odd-order error terms by symmetry, giving it a smaller leading coefficient in practice.
+
+For numerical integration on $[a,b]$ with $n$ subintervals and $h=(b-a)/n$, composite trapezoidal and Simpson rules are
+\begin{align}
+\int_a^b f(x)\,dx &\approx h\left[\frac{f(x_0)+f(x_n)}{2}+\sum_{i=1}^{n-1}f(x_i)\right], \\
+\int_a^b f(x)\,dx &\approx \frac{h}{3}\left[f(x_0)+f(x_n)+4\sum_{i=1,\,\text{odd}}^{n-1} f(x_i)+2\sum_{i=2,\,\text{even}}^{n-2} f(x_i)\right],
+\end{align}
+where Simpson requires even $n$. For smooth $f$, the global truncation errors scale as $O(h^2)$ and $O(h^4)$, respectively.
 
 \subsection{Gravity Estimation via Double Differentiation}
 Under constant gravitational acceleration the vertical position of a falling object follows
@@ -99,6 +110,69 @@ Three functions with known closed-form derivatives serve as ground truth. Each i
 \end{enumerate}
 
 The acceptance tolerance is $\num{1e-8}$ for the central method and $\num{1e-7}$ for both one-sided methods.
+
+\section{Integration Benchmark: $\int_0^1 \frac{4}{1+x^2}\,dx$}
+To validate quadrature behavior, both composite methods were applied to
+\[
+I = \int_0^1 \frac{4}{1+x^2}\,dx = \pi,
+\]
+with subinterval counts $n=4,8,16,32,64,128,256$.
+
+Table~\ref{tab:int-summary} reports convergence metrics from the unit-test outputs. Both methods pass final absolute-error tolerances at the finest mesh.
+
+\begin{table}[h!]
+\caption{Integration convergence summary for the $\pi$ benchmark}
+\vspace{12pt}
+\label{tab:int-summary}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\sisetup{scientific-notation=true,round-mode=figures,round-precision=3}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Method & Exp. order & Obs. order & Finest $n$ & Finest abs. err. & Pass \\\hline
+trapezoidal & 2 & \num{1.99999} & 256 & \num{2.543e-6} & Yes \\\hline
+simpson & 4 & \num{6.65525} & 256 & \num{0.0} & Yes \\\hline
+\end{tabular}
+}
+\end{table}
+
+Representative rows from each method are listed in Table~\ref{tab:int-rows}.
+
+\begin{table}[h!]
+\caption{Representative integration results for selected subinterval counts}
+\vspace{12pt}
+\label{tab:int-rows}
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\sisetup{scientific-notation=true,round-mode=figures,round-precision=3}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Method & $n$ & Approximation & Abs. error \\\hline
+trapezoidal & 4   & \num{3.131176} & \num{1.042e-2} \\\hline
+trapezoidal & 64  & \num{3.141552} & \num{4.069e-5} \\\hline
+trapezoidal & 256 & \num{3.141590} & \num{2.543e-6} \\\hline
+simpson & 4   & \num{3.141569} & \num{2.403e-5} \\\hline
+simpson & 64  & \num{3.141593} & \num{5.773e-13} \\\hline
+simpson & 256 & \num{3.141593} & \num{0.0} \\\hline
+\end{tabular}
+}
+\end{table}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\columnwidth]{../results/plots/integration_trapezoidal_error_vs_h.png}
+    \caption{Composite trapezoidal absolute error versus step size $h$ for the $\pi$ benchmark.}
+    \label{fig:trap-error}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\columnwidth]{../results/plots/integration_simpson_error_vs_h.png}
+    \caption{Composite Simpson absolute error versus step size $h$ for the $\pi$ benchmark.}
+    \label{fig:simp-error}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Free-Fall Experiment
@@ -234,6 +308,8 @@ Pass                           & Yes            \\\hline
 \section{Error Analysis}
 For the analytic cases, the central difference consistently achieves the smallest or near-smallest absolute error (Table~\ref{tab:summary}). The maximum error across all methods is $\num{1.40e-10}$, far below the loosest tolerance of $\num{1e-7}$. The log-log error plots confirm $O(h^{2})$ behaviour in the convergence region and the onset of floating-point cancellation at very small $h$.
 
+For integration, trapezoidal errors decrease by roughly a factor of 4 when $h$ is halved, matching second-order convergence. Simpson errors initially decrease much faster and then saturate at floating-point limits; this causes the fitted order to exceed the theoretical value because near-zero terminal errors dominate the regression window.
+
 For the gravity estimate, the primary source of error is the measurement resolution of the position data, which is quantised to the nearest \qty{5}{cm}. The fitted coefficient $a_{2}=\num{-4.845194}$~m/s$^{2}$ implies $2a_{2}=\qty{-9.6904}{m/s^2}$, differing from the accepted $\qty{9.81}{m/s^2}$ by approximately $1.2\%$. This is consistent with the coarse position resolution and indicates that the numerical differentiation step introduces negligible additional error.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -242,13 +318,15 @@ For the gravity estimate, the primary source of error is the measurement resolut
 \section{Discussion}
 The central formula outperforms both one-sided stencils on every analytic test case, which is expected from its symmetric cancellation of the odd-order Taylor-series error terms. The forward and backward formulas perform comparably to each other and remain within one order of magnitude of the central result---all well within the prescribed tolerances.
 
+The integration benchmark reinforces expected method behavior: trapezoidal is robust and predictably second-order, while Simpson is substantially more accurate for smooth functions at equal mesh densities. For this integrand, Simpson reaches machine-level agreement with $\pi$ at moderate refinement.
+
 The free-fall validation demonstrates that physically meaningful constants can be recovered from a small, coarsely sampled dataset by combining quadratic interpolation with numerical differentiation. Fitting a polynomial first converts the discrete samples into a smooth, differentiable surrogate; double application of the central formula then extracts the acceleration accurately. The $\qty{0.12}{m/s^2}$ discrepancy from the true value of $g$ reflects the position measurement resolution rather than a limitation of the numerical method.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Conclusion
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
-A Python implementation of three-point finite-difference differentiation was validated on three smooth analytic functions and on measured free-fall data. All analytic test cases pass their error tolerances by several orders of magnitude, and the gravity estimate derived from double differentiation of a quadratic interpolant agrees with the standard value to within $1.2\%$. These results confirm that three-point stencils provide reliable first-derivative approximations and can be composed to recover higher-order physical quantities from sampled measurements.
+A Python implementation of Unit 03 numerical operators was validated across differentiation and integration tasks. Three-point differentiation passes all analytic checks and supports physically meaningful inference in the free-fall gravity experiment, where $|\hat{g}|=\qty{9.6904}{m/s^2}$ is within tolerance. Composite trapezoidal and Simpson quadrature both satisfy convergence and final-accuracy criteria on the $\pi$ benchmark, with Simpson achieving near machine precision at the finest mesh. Together, these results confirm that the implemented methods are accurate, stable, and suitable for engineering computation on both analytic and measured datasets.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % References

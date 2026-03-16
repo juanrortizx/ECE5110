@@ -43,7 +43,7 @@
 \vspace{0.7in}
 \begin{center}
 {\Huge \textbf{Three-Point Finite-Difference Differentiation}}\\[0.2in]
-{\Large Analytic Validation and Free-Fall Gravity Estimation}\\[0.6in]
+{\Large Plus Composite Trapezoidal and Simpson Integration}\\[0.6in]
 {\Large Carson Quesada, Ishmael Taleo, Juan Ortiz,}\\
 {\Large Michael Lanfranchi, Rushi Sharma, Timothy Jung}
 \end{center}
@@ -56,7 +56,8 @@
 \begin{itemize}
     \item Approximate first derivatives from sampled data using three-point stencils.
     \item Validate central, forward, and backward formulas against analytic derivatives.
-    \item Apply the same workflow to estimate $g$ from free-fall position-time measurements.
+    \item Validate composite trapezoidal and Simpson rules on an integral with exact value $\pi$.
+    \item Apply the differentiation workflow to estimate $g$ from free-fall position-time measurements.
 \end{itemize}
 }
 \contentend
@@ -91,7 +92,7 @@
 \begin{itemize}
     \item Test functions: $\sin(x)$ at $\pi/4$, $e^x$ at $0.3$, and $x^3-2x^2+x-5$ at $1.2$.
     \item Step size: $h=10^{-5}$.
-    \item All 9 method-function combinations passed tolerance.
+    \item All 9 method-function combinations passed tolerance with errors below $1.5\times10^{-10}$.
 \end{itemize}
 
 \vspace{0.15in}
@@ -105,6 +106,64 @@ $p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
 \end{tabular}
 \end{center}
 }
+\contentend
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\slideheader{Composite Integration Formulas}{Unit 03}
+\contentstart
+{\bodytext
+\begin{itemize}
+    \item Trapezoidal:
+    \[
+    \int_a^b f(x)\,dx \approx h\left[\frac{f(x_0)+f(x_n)}{2}+\sum_{i=1}^{n-1}f(x_i)\right]
+    \]
+    \item Simpson (even $n$):
+    \[
+    \int_a^b f(x)\,dx \approx \frac{h}{3}\left[f(x_0)+f(x_n)+4\sum_{i=1,\,\mathrm{odd}}^{n-1}f(x_i)+2\sum_{i=2,\,\mathrm{even}}^{n-2}f(x_i)\right]
+    \]
+    \item Benchmark integral:
+    \[
+    \int_0^1 \frac{4}{1+x^2}\,dx = \pi
+    \]
+\end{itemize}
+}
+\contentend
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\slideheader{Integration Convergence Results}{Unit 03}
+\contentstart
+{\bodytext
+\begin{itemize}
+    \item Subinterval sweep: $n=4,8,16,32,64,128,256$ for both methods.
+    \item Trapezoidal observed order: $1.99999$ (expected $2$).
+    \item Simpson observed order: $6.65525$ (expected $4$; inflated by near-zero terminal errors).
+    \item Finest-mesh errors: trapezoidal $2.543\times10^{-6}$, Simpson $0$ (within machine precision).
+\end{itemize}
+
+\vspace{0.15in}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Method & Expected order & Observed order & Final tolerance pass \\\hline
+Trapezoidal & 2 & 1.99999 & Yes \\\hline
+Simpson & 4 & 6.65525 & Yes \\\hline
+\end{tabular}
+\end{center}
+}
+\contentend
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\slideheader{Integration Error Plots}{Unit 03}
+\contentstart
+\begin{center}
+\includegraphics[width=0.45\linewidth]{../results/plots/integration_trapezoidal_error_vs_h.png}
+\hspace{0.03\linewidth}
+\includegraphics[width=0.45\linewidth]{../results/plots/integration_simpson_error_vs_h.png}
+\captionof{figure}{Log-log absolute error trends for composite trapezoidal and Simpson rules on the $\pi$ benchmark.}
+\end{center}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,6 +208,8 @@ $p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
 \begin{itemize}
     \item Three-point finite-difference methods achieved strong analytic accuracy.
     \item Central differencing provided the best overall error performance.
+    \item Trapezoidal and Simpson integration both passed convergence and final-accuracy checks.
+    \item Simpson reached near machine precision on the smooth benchmark integral.
     \item Interpolation plus numerical differentiation recovered $g$ within 1.2\% of the standard value.
 \end{itemize}
 }
