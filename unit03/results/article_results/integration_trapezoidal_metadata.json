@@ -1,12 +1,35 @@
 {
-  "generated_at_utc": "2026-03-16T23:15:27.497804+00:00",
-  "case_name": "pi_integral",
-  "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+  "generated_at_utc": "2026-03-17T00:29:15.902204+00:00",
   "method": "trapezoidal",
-  "exact_integral": 3.141592653589793,
-  "integration_bounds": [
-    0.0,
-    1.0
+  "benchmark_cases": [
+    {
+      "case_name": "poly_x_squared",
+      "display_name": "Integral of x^2 on [0, 1]",
+      "a": 0.0,
+      "b": 1.0,
+      "exact": 0.3333333333333333
+    },
+    {
+      "case_name": "sin_0_to_pi",
+      "display_name": "Integral of sin(x) on [0, pi]",
+      "a": 0.0,
+      "b": 3.141592653589793,
+      "exact": 2.0
+    },
+    {
+      "case_name": "exp_0_to_1",
+      "display_name": "Integral of exp(x) on [0, 1]",
+      "a": 0.0,
+      "b": 1.0,
+      "exact": 1.718281828459045
+    },
+    {
+      "case_name": "pi_integral",
+      "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+      "a": 0.0,
+      "b": 1.0,
+      "exact": 3.141592653589793
+    }
   ],
   "n_values": [
     4,
@@ -17,8 +40,70 @@
     128,
     256
   ],
-  "expected_order": 2.0,
-  "observed_order": 1.9999925138691277,
-  "final_tolerance": 2e-05,
-  "passed_final_tolerance": true
+  "case_summaries": [
+    {
+      "method": "trapezoidal",
+      "case_name": "poly_x_squared",
+      "display_name": "Integral of x^2 on [0, 1]",
+      "n_values": "4,8,16,32,64,128,256",
+      "num_runs": 7,
+      "expected_order": 2.0,
+      "observed_order": 1.9999999999986675,
+      "finest_n": 256,
+      "finest_h": 0.00390625,
+      "finest_approx": 0.33333587646484375,
+      "exact": 0.3333333333333333,
+      "finest_abs_error": 2.5431315104351704e-06,
+      "final_tolerance": 3e-06,
+      "passed_final_tolerance": true
+    },
+    {
+      "method": "trapezoidal",
+      "case_name": "sin_0_to_pi",
+      "display_name": "Integral of sin(x) on [0, pi]",
+      "n_values": "4,8,16,32,64,128,256",
+      "num_runs": 7,
+      "expected_order": 2.0,
+      "observed_order": 2.0018996325032523,
+      "finest_n": 256,
+      "finest_h": 0.01227184630308513,
+      "finest_approx": 1.9999749002350524,
+      "exact": 2.0,
+      "finest_abs_error": 2.509976494757815e-05,
+      "final_tolerance": 3e-05,
+      "passed_final_tolerance": true
+    },
+    {
+      "method": "trapezoidal",
+      "case_name": "exp_0_to_1",
+      "display_name": "Integral of exp(x) on [0, 1]",
+      "n_values": "4,8,16,32,64,128,256",
+      "num_runs": 7,
+      "expected_order": 2.0,
+      "observed_order": 1.999809310668038,
+      "finest_n": 256,
+      "finest_h": 0.00390625,
+      "finest_approx": 1.71828401336682,
+      "exact": 1.718281828459045,
+      "finest_abs_error": 2.1849077749269696e-06,
+      "final_tolerance": 3e-06,
+      "passed_final_tolerance": true
+    },
+    {
+      "method": "trapezoidal",
+      "case_name": "pi_integral",
+      "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+      "n_values": "4,8,16,32,64,128,256",
+      "num_runs": 7,
+      "expected_order": 2.0,
+      "observed_order": 1.9999925138691284,
+      "finest_n": 256,
+      "finest_h": 0.00390625,
+      "finest_approx": 3.141590110458283,
+      "exact": 3.141592653589793,
+      "finest_abs_error": 2.543131510268637e-06,
+      "final_tolerance": 5e-06,
+      "passed_final_tolerance": true
+    }
+  ]
 }

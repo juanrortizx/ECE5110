@@ -3,15 +3,23 @@
 - .github
   - agents
     - ece5110-latex-formatter.agent.md
+    - python_agent.md
   - skills
     - differentiation-3point
       - OLD.md
       - SKILL.md
     - hello-world
       - SKILL.md
+    - integration-simpson
+      - SKILL.md
+    - integration-trapezoidal
+      - SKILL.md
     - latex-article
       - SKILL.md
+    - latex-slides
+      - SKILL.md
 - .gitignore
+- AUTHORS.txt
 - README.md
 - images
   - ECE_CAP.png
@@ -30,10 +38,12 @@
   - .DS_Store
   - __pycache__
     - differentiation_tools.cpython-313.pyc
+    - integration_tools.cpython-313.pyc
     - tools.cpython-312.pyc
     - tools.cpython-314.pyc
     - tools_prof.cpython-314.pyc
   - differentiation_tools.py
+  - integration_tools.py
   - tools.py
 - plots
   - NumMet_Newton_GTRPDL.png
@@ -41,58 +51,87 @@
   - SCurve_Newton.png
 - project_structure.text
 - scripts
+  - test_lowpass_three_point.py
+- unit03
+  - .DS_Store
+  - article
+    - ist.sty
+    - main.pdf
+    - main.tex
+  - results
+    - article_images
+      - all_results_table.png
+      - all_results_table.svg
+      - error_ranking_table.png
+      - error_ranking_table.svg
+      - exp_at_0p3_results_table.png
+      - exp_at_0p3_results_table.svg
+      - freefall_gravity_results_table.png
+      - freefall_gravity_results_table.svg
+      - freefall_source_data_table.png
+      - freefall_source_data_table.svg
+      - integration_simpson_results_table.png
+      - integration_simpson_results_table.svg
+      - integration_simpson_summary_table.png
+      - integration_simpson_summary_table.svg
+      - integration_trapezoidal_results_table.png
+      - integration_trapezoidal_results_table.svg
+      - integration_trapezoidal_summary_table.png
+      - integration_trapezoidal_summary_table.svg
+      - poly_cubic_minus_quadratic_results_table.png
+      - poly_cubic_minus_quadratic_results_table.svg
+      - sine_at_pi_over_4_results_table.png
+      - sine_at_pi_over_4_results_table.svg
+      - summary_table.png
+      - summary_table.svg
+    - article_results
+      - differentiation_summary.csv
+      - differentiation_test_results.csv
+      - differentiation_test_results.json
+      - differentiation_test_results.md
+      - freefall_gravity_results.csv
+      - freefall_gravity_results.json
+      - freefall_gravity_results.md
+      - integration_simpson_metadata.json
+      - integration_simpson_results.csv
+      - integration_simpson_results.json
+      - integration_simpson_results.md
+      - integration_simpson_summary.csv
+      - integration_trapezoidal_metadata.json
+      - integration_trapezoidal_results.csv
+      - integration_trapezoidal_results.json
+      - integration_trapezoidal_results.md
+      - integration_trapezoidal_summary.csv
+      - integration_unittest_report.txt
+      - run_metadata.json
+      - unittest_report.txt
+    - plots
+      - exp_at_0p3_error_vs_h.png
+      - exp_at_0p3_error_vs_h.svg
+      - freefall_gravity_interpolation.png
+      - freefall_gravity_interpolation.svg
+      - integration_simpson_error_vs_h.png
+      - integration_simpson_error_vs_h.svg
+      - integration_trapezoidal_error_vs_h.png
+      - integration_trapezoidal_error_vs_h.svg
+      - poly_cubic_minus_quadratic_error_vs_h.png
+      - poly_cubic_minus_quadratic_error_vs_h.svg
+      - sine_at_pi_over_4_error_vs_h.png
+      - sine_at_pi_over_4_error_vs_h.svg
+  - slides
+    - images
+      - cpp_logo.png
+    - slides.pdf
+    - slides.tex
+  - test
+    - test_differentiation.py
+    - test_integration.py
+- unit_test_resources
   - .DS_Store
   - NumMod_BisectionMet(loop).py
   - NumMod_Fixed-PointMet(loop).py
   - readme
-  - test_differentiation.py
   - unit01.py
   - unit02_prof.py
   - unit02_test.py
   - unit03_test.py
-- unit03_article
-  - ist.sty
-  - main.aux
-  - main.fdb_latexmk
-  - main.fls
-  - main.log
-  - main.pdf
-  - main.synctex.gz
-  - main.tex
-- unit08_test_results
-  - article_images
-    - all_results_table.png
-    - all_results_table.svg
-    - cubic_minus_quadratic_at_1p2_results_table.png
-    - cubic_minus_quadratic_at_1p2_results_table.svg
-    - error_ranking_table.png
-    - error_ranking_table.svg
-    - exp_at_0p3_results_table.png
-    - exp_at_0p3_results_table.svg
-    - freefall_gravity_results_table.png
-    - freefall_gravity_results_table.svg
-    - freefall_source_data_table.png
-    - freefall_source_data_table.svg
-    - sine_at_pi_over_4_results_table.png
-    - sine_at_pi_over_4_results_table.svg
-    - summary_table.png
-    - summary_table.svg
-  - article_results
-    - differentiation_summary.csv
-    - differentiation_test_results.csv
-    - differentiation_test_results.json
-    - differentiation_test_results.md
-    - freefall_gravity_results.csv
-    - freefall_gravity_results.json
-    - freefall_gravity_results.md
-    - run_metadata.json
-    - unittest_report.txt
-  - plots
-    - cubic_minus_quadratic_at_1p2_error_vs_h.png
-    - cubic_minus_quadratic_at_1p2_error_vs_h.svg
-    - exp_at_0p3_error_vs_h.png
-    - exp_at_0p3_error_vs_h.svg
-    - freefall_gravity_interpolation.png
-    - freefall_gravity_interpolation.svg
-    - sine_at_pi_over_4_error_vs_h.png
-    - sine_at_pi_over_4_error_vs_h.svg

@@ -1,10 +1,18 @@
 Unit 03 Integration Report
 ==========================
 
-case_name: pi_integral
-display_name: Integral of 4/(1+x^2) on [0, 1]
-exact_integral: 3.141592653590
+Benchmarks:
+- poly_x_squared: Integral of x^2 on [0, 1] (exact = 0.333333333333)
+- sin_0_to_pi: Integral of sin(x) on [0, pi] (exact = 2.000000000000)
+- exp_0_to_1: Integral of exp(x) on [0, 1] (exact = 1.718281828459)
+- pi_integral: Integral of 4/(1+x^2) on [0, 1] (exact = 3.141592653590)
 
-method | expected_order | observed_order | finest_n | finest_abs_error | final_tolerance | passed_final_tolerance
-trapezoidal | 2.0 | 1.999993 | 256 | 2.543132e-06 | 2.000000e-05 | True
-simpson | 4.0 | 6.655247 | 256 | 0.000000e+00 | 1.000000e-09 | True
+method | case_name | expected_order | observed_order | finest_n | finest_abs_error | final_tolerance | passed_final_tolerance
+trapezoidal | poly_x_squared | 2.0 | 2.000000 | 256 | 2.543132e-06 | 3.000000e-06 | True
+trapezoidal | sin_0_to_pi | 2.0 | 2.001900 | 256 | 2.509976e-05 | 3.000000e-05 | True
+trapezoidal | exp_0_to_1 | 2.0 | 1.999809 | 256 | 2.184908e-06 | 3.000000e-06 | True
+trapezoidal | pi_integral | 2.0 | 1.999993 | 256 | 2.543132e-06 | 5.000000e-06 | True
+simpson | poly_x_squared | 4.0 | inf | 256 | 0.000000e+00 | 1.000000e-12 | True
+simpson | sin_0_to_pi | 4.0 | 4.013800 | 256 | 2.520024e-10 | 5.000000e-10 | True
+simpson | exp_0_to_1 | 4.0 | 3.998666 | 256 | 2.222222e-12 | 1.000000e-11 | True
+simpson | pi_integral | 4.0 | 6.190259 | 256 | 0.000000e+00 | 1.000000e-11 | True

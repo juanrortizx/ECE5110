@@ -7,10 +7,10 @@
   "acceleration_units": "m/s^2",
   "evaluation_time": 0.174306,
   "step_size": 1e-05,
-  "accel_estimate_signed": -9.690387520189248,
-  "accel_estimate_magnitude": 9.690387520189248,
+  "accel_estimate_signed": -9.690387658967126,
+  "accel_estimate_magnitude": 9.690387658967126,
   "target_gravity_magnitude": 9.81,
-  "magnitude_abs_error": 0.11961247981075296,
+  "magnitude_abs_error": 0.11961234103287488,
   "tolerance": 0.15,
   "passed": true,
   "source_time_data": [
@@ -33,7 +33,7 @@
   ],
   "quadratic_coefficients": [
     -4.845193803179445,
-    -0.01917324719618794,
-    0.00025928302400997746
+    -0.019173247196188226,
+    0.0002592830240100139
   ]
 }
