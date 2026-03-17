@@ -1,0 +1,86 @@
+[
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 4,
+    "h": 0.25,
+    "exact": 3.141592653589793,
+    "approx": 3.14156862745098,
+    "abs_error": 2.4026138813137976e-05
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 8,
+    "h": 0.125,
+    "exact": 3.141592653589793,
+    "approx": 3.141592502458707,
+    "abs_error": 1.5113108631226169e-07
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 16,
+    "h": 0.0625,
+    "exact": 3.141592653589793,
+    "approx": 3.141592651224822,
+    "abs_error": 2.364971329882337e-09
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 32,
+    "h": 0.03125,
+    "exact": 3.141592653589793,
+    "approx": 3.1415926535528365,
+    "abs_error": 3.695665995451236e-11
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 64,
+    "h": 0.015625,
+    "exact": 3.141592653589793,
+    "approx": 3.141592653589216,
+    "abs_error": 5.773159728050814e-13
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 128,
+    "h": 0.0078125,
+    "exact": 3.141592653589793,
+    "approx": 3.1415926535897842,
+    "abs_error": 8.881784197001252e-15
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "simpson",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 256,
+    "h": 0.00390625,
+    "exact": 3.141592653589793,
+    "approx": 3.141592653589793,
+    "abs_error": 0.0
+  }
+]

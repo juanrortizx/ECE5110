@@ -1,0 +1,86 @@
+[
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 4,
+    "h": 0.25,
+    "exact": 3.141592653589793,
+    "approx": 3.1311764705882354,
+    "abs_error": 0.010416183001557666
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 8,
+    "h": 0.125,
+    "exact": 3.141592653589793,
+    "approx": 3.138988494491089,
+    "abs_error": 0.0026041590987042618
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 16,
+    "h": 0.0625,
+    "exact": 3.141592653589793,
+    "approx": 3.140941612041389,
+    "abs_error": 0.0006510415484042298
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 32,
+    "h": 0.03125,
+    "exact": 3.141592653589793,
+    "approx": 3.1414298931749745,
+    "abs_error": 0.00016276041481866343
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 64,
+    "h": 0.015625,
+    "exact": 3.141592653589793,
+    "approx": 3.141551963485655,
+    "abs_error": 4.069010413809693e-05
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 128,
+    "h": 0.0078125,
+    "exact": 3.141592653589793,
+    "approx": 3.1415824810637516,
+    "abs_error": 1.0172526041518637e-05
+  },
+  {
+    "case_name": "pi_integral",
+    "display_name": "Integral of 4/(1+x^2) on [0, 1]",
+    "method": "trapezoidal",
+    "a": 0.0,
+    "b": 1.0,
+    "n": 256,
+    "h": 0.00390625,
+    "exact": 3.141592653589793,
+    "approx": 3.141590110458283,
+    "abs_error": 2.543131510268637e-06
+  }
+]
