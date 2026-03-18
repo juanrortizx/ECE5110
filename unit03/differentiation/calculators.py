@@ -1,8 +1,10 @@
-"""Numerical calculators for Unit 03 differentiation workflow."""
+"""Numerical result collectors for Unit 03 differentiation."""
+
+from __future__ import annotations
 
 import numpy as np
 
-from .config import (
+from unit03.differentiation.config import (
     FREEFALL_GRAVITY_TOL,
     FREEFALL_POSITION_DATA,
     FREEFALL_TIME_DATA,
@@ -12,106 +14,91 @@ from .config import (
 
 
 def build_freefall_position_interpolant():
-    """Fit a quadratic position(t) interpolant for the free-fall dataset."""
+    """Build quadratic interpolant for free-fall position data."""
     coeffs = np.polyfit(FREEFALL_TIME_DATA, FREEFALL_POSITION_DATA, 2)
-    return coeffs, np.poly1d(coeffs)
+    return np.poly1d(coeffs), coeffs
 
 
-def estimate_gravity_from_interpolated_freefall(tool, h):
-    """Estimate gravitational acceleration by differentiating interpolated data twice."""
-    coeffs, position_poly = build_freefall_position_interpolant()
+def estimate_gravity_from_interpolated_freefall(tool, h=1e-3):
+    """Estimate gravitational acceleration via two numerical differentiations."""
+    position_poly, coeffs = build_freefall_position_interpolant()
     t0 = float(FREEFALL_TIME_DATA[len(FREEFALL_TIME_DATA) // 2])
 
     velocity = lambda t: tool.numerical_differentiation_3point(
-        position_poly,
-        t,
-        h=h,
-        method="central",
+        position_poly, t, h=h, method="central"
     )
-    acceleration_est = float(
+    accel_est = float(
         tool.numerical_differentiation_3point(velocity, t0, h=h, method="central")
     )
-    abs_accel = abs(acceleration_est)
-    abs_error = abs(abs_accel - 9.81)
+    accel_mag = abs(accel_est)
+    abs_error = abs(accel_mag - 9.81)
 
     return {
-        "method": "central",
-        "h": float(h),
+        "step_size": h,
         "evaluation_time": t0,
-        "acceleration_signed": acceleration_est,
-        "acceleration_magnitude": abs_accel,
-        "target_gravity_magnitude": 9.81,
-        "magnitude_abs_error": abs_error,
-        "tolerance": float(FREEFALL_GRAVITY_TOL),
-        "pass": bool(abs_error <= FREEFALL_GRAVITY_TOL),
-        "poly_coefficients": [float(c) for c in coeffs.tolist()],
-        "source_time_data": [float(v) for v in FREEFALL_TIME_DATA.tolist()],
-        "source_position_data": [float(v) for v in FREEFALL_POSITION_DATA.tolist()],
+        "acceleration_signed": accel_est,
+        "acceleration_magnitude": accel_mag,
+        "target_abs_gravity": 9.81,
+        "absolute_error": abs_error,
+        "tolerance": FREEFALL_GRAVITY_TOL,
+        "passed": abs_error <= FREEFALL_GRAVITY_TOL,
+        "coefficients": [float(v) for v in coeffs],
+        "time_data": [float(v) for v in FREEFALL_TIME_DATA],
+        "position_data": [float(v) for v in FREEFALL_POSITION_DATA],
     }
 
 
 def collect_results(tool):
-    """Evaluate all analytic differentiation test cases and methods."""
+    """Collect derivative approximations for all analytic test cases."""
     rows = []
     for case in TEST_CASES:
-        exact = float(case["df"](case["x"]))
+        x0 = float(case["x"])
+        exact = float(case["df"](x0))
+        h = float(case["h"])
         for method in METHODS:
             approx = float(
-                tool.numerical_differentiation_3point(
-                    case["f"],
-                    case["x"],
-                    h=case["h"],
-                    method=method,
-                )
+                tool.numerical_differentiation_3point(case["f"], x0, h=h, method=method)
             )
             abs_error = abs(approx - exact)
-            rel_error = abs_error / abs(exact) if exact != 0.0 else np.nan
-            tol = float(case["tolerances"][method])
-
+            rel_error = abs_error / max(abs(exact), 1e-15)
+            tolerance = float(case["tolerances"][method])
             rows.append(
                 {
-                    "case_name": case["name"],
-                    "case_display_name": case["display_name"],
-                    "x": float(case["x"]),
-                    "h": float(case["h"]),
+                    "case": case["name"],
+                    "case_display": case["display_name"],
                     "method": method,
+                    "x": x0,
+                    "h": h,
                     "exact": exact,
                     "approx": approx,
-                    "abs_error": float(abs_error),
-                    "rel_error": float(rel_error),
-                    "tolerance": tol,
-                    "pass": bool(abs_error <= tol),
+                    "abs_error": abs_error,
+                    "rel_error": rel_error,
+                    "tolerance": tolerance,
+                    "passed": abs_error <= tolerance,
                 }
             )
     return rows
 
 
 def build_summary(rows):
-    """Build per-method summary statistics from analytic result rows."""
+    """Aggregate pass/fail counts and error statistics by differentiation method."""
     summary_rows = []
     for method in METHODS:
         method_rows = [row for row in rows if row["method"] == method]
         abs_errors = np.array([row["abs_error"] for row in method_rows], dtype=float)
         rel_errors = np.array([row["rel_error"] for row in method_rows], dtype=float)
-        finite_rel = rel_errors[np.isfinite(rel_errors)]
-        pass_count = sum(1 for row in method_rows if row["pass"])
-
+        passed = sum(1 for row in method_rows if row["passed"])
+        total = len(method_rows)
         summary_rows.append(
             {
                 "method": method,
-                "num_cases": len(method_rows),
-                "pass_count": pass_count,
-                "fail_count": len(method_rows) - pass_count,
-                "max_abs_error": float(np.max(abs_errors)) if len(abs_errors) else np.nan,
-                "mean_abs_error": float(np.mean(abs_errors)) if len(abs_errors) else np.nan,
-                "max_rel_error": (
-                    float(np.max(finite_rel)) if len(finite_rel) else np.nan
-                ),
-                "mean_rel_error": (
-                    float(np.mean(finite_rel)) if len(finite_rel) else np.nan
-                ),
-                "all_pass": bool(pass_count == len(method_rows)),
+                "passed": passed,
+                "failed": total - passed,
+                "total": total,
+                "max_abs_error": float(abs_errors.max()) if total else 0.0,
+                "mean_abs_error": float(abs_errors.mean()) if total else 0.0,
+                "max_rel_error": float(rel_errors.max()) if total else 0.0,
+                "mean_rel_error": float(rel_errors.mean()) if total else 0.0,
             }
         )
-
     return summary_rows

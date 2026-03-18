@@ -1,96 +1,85 @@
-"""Artifact writers for Unit 03 integration workflows."""
+"""Artifact output helpers for Unit 03 integration workflows."""
 
-import csv
-import json
-import shutil
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
-from .config import ARTICLE_IMAGES_DIR, ARTICLE_RESULTS_DIR, PLOTS_DIR, UNIT_RESULTS_DIR
+from unit03.common.artifact_io import markdown_table_formatted, write_csv, write_json, write_text
 
 
-def prepare_output_dirs(clear_results=True):
-    """Clear Unit 03 results and recreate shared output directories."""
-    if clear_results and UNIT_RESULTS_DIR.exists():
-        shutil.rmtree(UNIT_RESULTS_DIR)
+def write_method_outputs(method, rows, summary_rows, article_results_dir, expected_order):
+    """Write per-method CSV/JSON/Markdown outputs and metadata."""
+    result_cols = [
+        "method",
+        "case",
+        "case_display",
+        "a",
+        "b",
+        "n",
+        "h",
+        "exact",
+        "approx",
+        "abs_error",
+        "rel_error",
+    ]
+    summary_cols = [
+        "method",
+        "case",
+        "case_display",
+        "observed_order",
+        "best_n",
+        "best_abs_error",
+        "final_n",
+        "final_abs_error",
+    ]
 
-    ARTICLE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
-    ARTICLE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    stem = f"integration_{method}"
+    write_csv(article_results_dir / f"{stem}_results.csv", rows, result_cols)
+    write_json(article_results_dir / f"{stem}_results.json", rows)
+    write_text(
+        article_results_dir / f"{stem}_results.md",
+        markdown_table_formatted(rows, result_cols, float_sigfigs=10),
+    )
 
-    return {
-        "unit_results": UNIT_RESULTS_DIR,
-        "article_results": ARTICLE_RESULTS_DIR,
-        "plots": PLOTS_DIR,
-        "article_images": ARTICLE_IMAGES_DIR,
+    write_csv(article_results_dir / f"{stem}_summary.csv", summary_rows, summary_cols)
+    write_json(article_results_dir / f"{stem}_summary.json", summary_rows)
+    write_text(
+        article_results_dir / f"{stem}_summary.md",
+        markdown_table_formatted(summary_rows, summary_cols, float_sigfigs=10),
+    )
+
+    metadata = {
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "method": method,
+        "expected_order": expected_order,
+        "row_count": len(rows),
+        "summary_count": len(summary_rows),
     }
+    write_json(article_results_dir / f"{stem}_metadata.json", metadata)
+    return metadata
 
 
-def _write_csv(path, rows):
-    if not rows:
-        return
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
+def write_unittest_report(payload_by_method, article_results_dir):
+    """Write plain-text unittest summary spanning both integration methods."""
+    lines = ["Unit 03 Integration Unittest Report", "=" * 36, ""]
+    all_ok = True
 
-
-def _markdown_table(headers, row_dicts):
-    lines = [
-        "| " + " | ".join(headers) + " |",
-        "| " + " | ".join(["---"] * len(headers)) + " |",
-    ]
-    for row in row_dicts:
-        lines.append("| " + " | ".join(str(row[h]) for h in headers) + " |")
-    return "\n".join(lines) + "\n"
-
-
-def write_method_outputs(method_key, rows, summary_rows, metadata):
-    """Write method-specific CSV/JSON/Markdown outputs and metadata."""
-    results_csv = ARTICLE_RESULTS_DIR / f"integration_{method_key}_results.csv"
-    results_json = ARTICLE_RESULTS_DIR / f"integration_{method_key}_results.json"
-    results_md = ARTICLE_RESULTS_DIR / f"integration_{method_key}_results.md"
-    summary_csv = ARTICLE_RESULTS_DIR / f"integration_{method_key}_summary.csv"
-    metadata_json = ARTICLE_RESULTS_DIR / f"integration_{method_key}_metadata.json"
-
-    _write_csv(results_csv, rows)
-    _write_csv(summary_csv, summary_rows)
-    results_json.write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    metadata_json.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-
-    headers = list(rows[0].keys()) if rows else []
-    body = "# Integration Results\n\n" + _markdown_table(headers, rows)
-    results_md.write_text(body, encoding="utf-8")
-
-
-def write_unittest_report(method_outputs):
-    """Write a unified plain-text report across trapezoidal and Simpson workflows."""
-    lines = [
-        "Unit 03 Integration Unittest Report",
-        "=" * 36,
-        f"Generated UTC: {datetime.now(timezone.utc).isoformat()}",
-        "",
-    ]
-
-    for method_key in ("trapezoidal", "simpson"):
-        data = method_outputs[method_key]
-        lines.append(f"Method: {method_key}")
-        lines.append("-" * (8 + len(method_key)))
-        for row in data["summary_rows"]:
+    for method, payload in payload_by_method.items():
+        lines.append(f"Method: {method}")
+        for row in payload["summary_rows"]:
+            order = row["observed_order"]
+            order_text = f"{order:.6f}" if order == order else "nan"
             lines.append(
-                " case={case_name}, n_max={n_max}, final_abs_error={final_abs_error:.6e}, "
-                "observed_order={observed_order:.4f}, order_pass={order_pass}".format(**row)
+                "- "
+                f"{row['case_display']}: observed_order={order_text}, "
+                f"best_abs_error={row['best_abs_error']:.6e}, final_n={row['final_n']}"
             )
-        lines.append(f" all_accuracy_pass={data['all_accuracy_pass']}")
-        lines.append(f" all_order_pass={data['all_order_pass']}")
+        method_ok = all(payload["order_checks"])
+        all_ok = all_ok and method_ok
+        lines.append(f"- Order status: {'PASS' if method_ok else 'FAIL'}")
         lines.append("")
 
-    combined = all(
-        data["all_accuracy_pass"] and data["all_order_pass"]
-        for data in method_outputs.values()
-    )
-    lines.append(f"Overall combined status: {'PASS' if combined else 'FAIL'}")
-    lines.append("")
-
-    path = ARTICLE_RESULTS_DIR / "integration_unittest_report.txt"
-    path.write_text("\n".join(lines), encoding="utf-8")
-    return path
+    lines.append(f"Overall integration status: {'PASS' if all_ok else 'FAIL'}")
+    report_path = article_results_dir / "integration_unittest_report.txt"
+    write_text(report_path, "\n".join(lines))
+    return report_path

@@ -1,13 +1,11 @@
-# Differentiation Test Results
-
-| case_name | case_display_name | x | h | method | exact | approx | abs_error | rel_error | tolerance | pass |
+| case | case_display | method | x | h | exact | approx | abs_error | rel_error | tolerance | passed |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| sine_at_pi_over_4 | sin(x) at x=pi/4 | 0.7853981634 | 1e-05 | central | 0.7071067812 | 0.7071067812 | 1.396371907e-11 | 1.974768089e-11 | 1e-08 | PASS |
-| sine_at_pi_over_4 | sin(x) at x=pi/4 | 0.7853981634 | 1e-05 | forward | 0.7071067812 | 0.7071067812 | 3.044520192e-11 | 4.305601746e-11 | 1e-06 | PASS |
-| sine_at_pi_over_4 | sin(x) at x=pi/4 | 0.7853981634 | 1e-05 | backward | 0.7071067812 | 0.7071067812 | 8.240741423e-12 | 1.165416828e-11 | 1e-06 | PASS |
-| exp_at_0p3 | exp(x) at x=0.3 | 0.3 | 1e-05 | central | 1.349858808 | 1.349858808 | 2.174482816e-11 | 1.610896491e-11 | 1e-08 | PASS |
-| exp_at_0p3 | exp(x) at x=0.3 | 0.3 | 1e-05 | forward | 1.349858808 | 1.349858808 | 3.376632307e-11 | 2.501470738e-11 | 1e-06 | PASS |
-| exp_at_0p3 | exp(x) at x=0.3 | 0.3 | 1e-05 | backward | 1.349858808 | 1.349858807 | 8.92774743e-11 | 6.613837966e-11 | 1e-06 | PASS |
-| poly_cubic_minus_quadratic | x^3 - 2x^2 + x - 5 at x=1.2 | 1.2 | 1e-05 | central | 0.52 | 0.5200000001 | 1.259747862e-10 | 2.422592042e-10 | 1e-08 | PASS |
-| poly_cubic_minus_quadratic | x^3 - 2x^2 + x - 5 at x=1.2 | 1.2 | 1e-05 | forward | 0.52 | 0.5199999999 | 1.404787398e-10 | 2.701514226e-10 | 1e-06 | PASS |
-| poly_cubic_minus_quadratic | x^3 - 2x^2 + x - 5 at x=1.2 | 1.2 | 1e-05 | backward | 0.52 | 0.5199999999 | 1.404787398e-10 | 2.701514226e-10 | 1e-06 | PASS |
+| sin_x | sin(x) at x=pi/4 | central | 0.78539816 | 1e-05 | 0.70710678 | 0.70710678 | 1.3963719e-11 | 1.9747681e-11 | 1e-08 | True |
+| sin_x | sin(x) at x=pi/4 | forward | 0.78539816 | 1e-05 | 0.70710678 | 0.70710678 | 3.0445202e-11 | 4.3056017e-11 | 1e-05 | True |
+| sin_x | sin(x) at x=pi/4 | backward | 0.78539816 | 1e-05 | 0.70710678 | 0.70710678 | 8.2407414e-12 | 1.1654168e-11 | 1e-05 | True |
+| exp_x | exp(x) at x=0.3 | central | 0.3 | 1e-05 | 1.3498588 | 1.3498588 | 2.1744828e-11 | 1.6108965e-11 | 1e-08 | True |
+| exp_x | exp(x) at x=0.3 | forward | 0.3 | 1e-05 | 1.3498588 | 1.3498588 | 3.3766323e-11 | 2.5014707e-11 | 2e-05 | True |
+| exp_x | exp(x) at x=0.3 | backward | 0.3 | 1e-05 | 1.3498588 | 1.3498588 | 8.9277474e-11 | 6.613838e-11 | 2e-05 | True |
+| cubic_poly | x^3 - 2x^2 + x - 5 at x=1.2 | central | 1.2 | 1e-05 | 0.52 | 0.52 | 1.2597479e-10 | 2.422592e-10 | 1e-08 | True |
+| cubic_poly | x^3 - 2x^2 + x - 5 at x=1.2 | forward | 1.2 | 1e-05 | 0.52 | 0.52 | 1.4047874e-10 | 2.7015142e-10 | 1e-05 | True |
+| cubic_poly | x^3 - 2x^2 + x - 5 at x=1.2 | backward | 1.2 | 1e-05 | 0.52 | 0.52 | 1.4047874e-10 | 2.7015142e-10 | 1e-05 | True |

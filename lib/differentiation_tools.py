@@ -1,36 +1,44 @@
 """Numerical differentiation kernels for Unit 03 workflows.
 
-This module intentionally contains only differentiation formulas and validation.
-Plotting and reporting utilities belong to the Unit 03 helper/test workflows.
+This module intentionally contains only numerical-method kernels. Plotting,
+artifact generation, and reporting are handled by workflow helper packages.
 """
+
+from __future__ import annotations
 
 
 class DifferentiationTools:
-    """Collection of finite-difference differentiation methods."""
+    """Finite-difference numerical differentiation utilities.
+
+    Notes
+    -----
+    Only numerical differentiation methods belong in this class. Plotting and
+    report-generation logic should remain in workflow helper modules.
+    """
 
     def numerical_differentiation_3point(self, f, x, h=1e-5, method="central"):
-        """Approximate a first derivative with a 3-point finite-difference scheme.
+        """Approximate the first derivative using 3-point finite differences.
 
         Parameters
         ----------
         f : callable
-            Function to differentiate.
+            Scalar function to differentiate.
         x : float
-            Evaluation location.
+            Evaluation point.
         h : float, optional
-            Step size, by default 1e-5.
+            Positive step size.
         method : {"central", "forward", "backward"}, optional
-            Finite-difference formula to use.
+            3-point stencil to use.
 
         Returns
         -------
         float
-            Numerical derivative approximation.
+            First derivative approximation at ``x``.
 
         Raises
         ------
         ValueError
-            If ``h <= 0`` or if ``method`` is unsupported.
+            If ``h <= 0`` or ``method`` is unsupported.
         """
         if h <= 0:
             raise ValueError("h must be positive.")

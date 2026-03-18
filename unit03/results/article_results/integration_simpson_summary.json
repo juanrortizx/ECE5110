@@ -1,0 +1,42 @@
+[
+  {
+    "best_abs_error": 2.2222224060897133e-12,
+    "best_n": 256,
+    "case": "exp_on_01",
+    "case_display": "Integral of exp(x) on [0,1]",
+    "final_abs_error": 2.2222224060897133e-12,
+    "final_n": 256,
+    "method": "simpson",
+    "observed_order": 3.9986659474020887
+  },
+  {
+    "best_abs_error": 0.0,
+    "best_n": 256,
+    "case": "pi_form",
+    "case_display": "Integral of 4/(1+x^2) on [0,1]",
+    "final_abs_error": 0.0,
+    "final_n": 256,
+    "method": "simpson",
+    "observed_order": 6.190258552593436
+  },
+  {
+    "best_abs_error": 2.520024189323067e-10,
+    "best_n": 256,
+    "case": "sin_on_pi",
+    "case_display": "Integral of sin(x) on [0,pi]",
+    "final_abs_error": 2.520024189323067e-10,
+    "final_n": 256,
+    "method": "simpson",
+    "observed_order": 4.013800203992324
+  },
+  {
+    "best_abs_error": 0.0,
+    "best_n": 4,
+    "case": "x_squared",
+    "case_display": "Integral of x^2 on [0,1]",
+    "final_abs_error": 0.0,
+    "final_n": 256,
+    "method": "simpson",
+    "observed_order": Infinity
+  }
+]

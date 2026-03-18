@@ -1,165 +1,162 @@
-"""Artifact writers for Unit 03 differentiation workflow."""
+"""Artifact generation utilities for Unit 03 differentiation."""
 
-import csv
-import json
-import re
-import shutil
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
-from .calculators import build_summary
-from .config import ARTICLE_RESULTS_DIR, ARTICLE_IMAGES_DIR, PLOTS_DIR, UNIT_RESULTS_DIR
+from unit03.common.artifact_io import (
+    markdown_table_formatted,
+    write_csv,
+    write_json,
+    write_text,
+)
+from unit03.differentiation.calculators import build_summary
 
 
-def create_output_dirs(clear_results=True):
-    """Clear Unit 03 results and recreate expected output directories."""
-    if clear_results and UNIT_RESULTS_DIR.exists():
-        shutil.rmtree(UNIT_RESULTS_DIR)
-
-    ARTICLE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
-    ARTICLE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-    return {
-        "unit_results": UNIT_RESULTS_DIR,
-        "article_results": ARTICLE_RESULTS_DIR,
-        "plots": PLOTS_DIR,
-        "article_images": ARTICLE_IMAGES_DIR,
-    }
+def sanitize_filename(text):
+    """Convert arbitrary labels into filesystem-friendly lowercase stems."""
+    slug = []
+    for char in text.lower():
+        slug.append(char if char.isalnum() else "_")
+    return "".join(slug).strip("_")
 
 
-def sanitize_filename(name):
-    """Normalize a filename stem to lowercase snake case."""
-    cleaned = re.sub(r"[^a-zA-Z0-9]+", "_", name.strip().lower())
-    return re.sub(r"_+", "_", cleaned).strip("_")
-
-
-def format_cell(value):
-    """Format table cells consistently for markdown and text outputs."""
-    if isinstance(value, bool):
-        return "PASS" if value else "FAIL"
-    if isinstance(value, float):
-        return f"{value:.10g}"
-    return str(value)
-
-
-def _markdown_table(headers, row_dicts):
-    lines = [
-        "| " + " | ".join(headers) + " |",
-        "| " + " | ".join(["---"] * len(headers)) + " |",
-    ]
-    for row in row_dicts:
-        lines.append("| " + " | ".join(format_cell(row[h]) for h in headers) + " |")
-    return "\n".join(lines) + "\n"
-
-
-def _write_csv(path, rows):
-    if not rows:
-        return
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def save_results(rows, freefall_result):
-    """Write differentiation CSV/JSON/Markdown outputs and metadata."""
+def save_results(rows, freefall_result, article_results_dir):
+    """Write all differentiation CSV/JSON/Markdown outputs."""
     summary_rows = build_summary(rows)
+    timestamp = datetime.now(timezone.utc).isoformat()
+    metadata = {
+        "generated_utc": timestamp,
+        "workflow": "unit03.differentiation",
+        "total_rows": len(rows),
+        "all_analytic_passed": all(row["passed"] for row in rows),
+        "freefall_passed": bool(freefall_result["passed"]),
+    }
 
-    diff_csv = ARTICLE_RESULTS_DIR / "differentiation_test_results.csv"
-    diff_json = ARTICLE_RESULTS_DIR / "differentiation_test_results.json"
-    diff_md = ARTICLE_RESULTS_DIR / "differentiation_test_results.md"
-    summary_csv = ARTICLE_RESULTS_DIR / "differentiation_summary.csv"
+    result_headers = [
+        "case",
+        "case_display",
+        "method",
+        "x",
+        "h",
+        "exact",
+        "approx",
+        "abs_error",
+        "rel_error",
+        "tolerance",
+        "passed",
+    ]
+    summary_headers = [
+        "method",
+        "passed",
+        "failed",
+        "total",
+        "max_abs_error",
+        "mean_abs_error",
+        "max_rel_error",
+        "mean_rel_error",
+    ]
 
-    freefall_csv = ARTICLE_RESULTS_DIR / "freefall_gravity_results.csv"
-    freefall_json = ARTICLE_RESULTS_DIR / "freefall_gravity_results.json"
-    freefall_md = ARTICLE_RESULTS_DIR / "freefall_gravity_results.md"
+    ranking_rows = sorted(rows, key=lambda row: row["abs_error"], reverse=True)
+    freefall_table_rows = [
+        {
+            "step_size": freefall_result["step_size"],
+            "evaluation_time": freefall_result["evaluation_time"],
+            "acceleration_signed": freefall_result["acceleration_signed"],
+            "acceleration_magnitude": freefall_result["acceleration_magnitude"],
+            "target_abs_gravity": freefall_result["target_abs_gravity"],
+            "absolute_error": freefall_result["absolute_error"],
+            "tolerance": freefall_result["tolerance"],
+            "passed": freefall_result["passed"],
+        }
+    ]
 
-    _write_csv(diff_csv, rows)
-    _write_csv(summary_csv, summary_rows)
-    _write_csv(freefall_csv, [freefall_result])
-
-    diff_json.write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    freefall_json.write_text(json.dumps(freefall_result, indent=2), encoding="utf-8")
-
-    diff_headers = list(rows[0].keys()) if rows else []
-    diff_md.write_text(
-        "# Differentiation Test Results\n\n" + _markdown_table(diff_headers, rows),
-        encoding="utf-8",
+    write_csv(article_results_dir / "differentiation_test_results.csv", rows, result_headers)
+    write_json(article_results_dir / "differentiation_test_results.json", rows)
+    write_text(
+        article_results_dir / "differentiation_test_results.md",
+        markdown_table_formatted(rows, result_headers, float_sigfigs=8),
     )
 
-    freefall_lines = [
-        "# Free-Fall Gravity Validation\n",
-        "## Gravity Check Summary\n",
-        _markdown_table(list(freefall_result.keys()), [freefall_result]),
-        "## Source Data\n",
-    ]
-    source_rows = [
-        {"time_s": t, "position_m": y}
-        for t, y in zip(
-            freefall_result["source_time_data"],
-            freefall_result["source_position_data"],
-        )
-    ]
-    freefall_lines.append(_markdown_table(["time_s", "position_m"], source_rows))
-    freefall_md.write_text("\n".join(freefall_lines), encoding="utf-8")
+    write_csv(
+        article_results_dir / "differentiation_summary.csv",
+        summary_rows,
+        summary_headers,
+    )
+    write_json(article_results_dir / "differentiation_summary.json", summary_rows)
+    write_text(
+        article_results_dir / "differentiation_summary.md",
+        markdown_table_formatted(summary_rows, summary_headers, float_sigfigs=8),
+    )
 
-    run_metadata = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "analytic_total_rows": len(rows),
-        "analytic_all_pass": all(r["pass"] for r in rows),
-        "gravity_pass": bool(freefall_result["pass"]),
-        "combined_pass": bool(all(r["pass"] for r in rows) and freefall_result["pass"]),
-    }
-    (ARTICLE_RESULTS_DIR / "run_metadata.json").write_text(
-        json.dumps(run_metadata, indent=2),
-        encoding="utf-8",
+    write_csv(
+        article_results_dir / "differentiation_error_ranking.csv",
+        ranking_rows,
+        result_headers,
+    )
+
+    write_json(article_results_dir / "run_metadata.json", metadata)
+
+    freefall_headers = list(freefall_table_rows[0].keys())
+    write_csv(
+        article_results_dir / "freefall_gravity_results.csv",
+        freefall_table_rows,
+        freefall_headers,
+    )
+    write_json(
+        article_results_dir / "freefall_gravity_results.json",
+        freefall_result,
+    )
+    write_text(
+        article_results_dir / "freefall_gravity_results.md",
+        markdown_table_formatted(freefall_table_rows, freefall_headers, float_sigfigs=8),
+    )
+
+    coeff_rows = [
+        {"index": idx, "coefficient": value}
+        for idx, value in enumerate(freefall_result["coefficients"])
+    ]
+    write_csv(
+        article_results_dir / "differentiation_freefall_coefficients.csv",
+        coeff_rows,
+        ["index", "coefficient"],
     )
 
     return {
-        "rows": rows,
         "summary_rows": summary_rows,
-        "freefall_result": freefall_result,
-        "metadata": run_metadata,
+        "metadata": metadata,
+        "ranking_rows": ranking_rows,
     }
 
 
-def write_unittest_report(rows, freefall_result):
-    """Write plain-text unittest report for analytic and gravity checks."""
-    summary_rows = build_summary(rows)
-    analytic_pass = all(r["pass"] for r in rows)
-    gravity_pass = bool(freefall_result["pass"])
+def write_unittest_report(rows, freefall_result, article_results_dir):
+    """Write plain-text report summarizing analytic and gravity checks."""
+    analytic_pass = all(row["passed"] for row in rows)
+    gravity_pass = bool(freefall_result["passed"])
     combined_pass = analytic_pass and gravity_pass
 
-    lines = [
+    report = [
         "Unit 03 Differentiation Unittest Report",
         "=" * 40,
         "",
-        "Analytic Summary:",
+        "Analytic checks:",
+        f"- Total checks: {len(rows)}",
+        f"- Passed: {sum(1 for row in rows if row['passed'])}",
+        f"- Failed: {sum(1 for row in rows if not row['passed'])}",
+        f"- Overall analytic status: {'PASS' if analytic_pass else 'FAIL'}",
+        "",
+        "Gravity validation:",
+        f"- Evaluation time: {freefall_result['evaluation_time']:.6f} s",
+        f"- Estimated signed acceleration: {freefall_result['acceleration_signed']:.8f} m/s^2",
+        f"- Acceleration magnitude: {freefall_result['acceleration_magnitude']:.8f} m/s^2",
+        f"- Target |g|: {freefall_result['target_abs_gravity']:.3f} m/s^2",
+        f"- Magnitude absolute error: {freefall_result['absolute_error']:.8f}",
+        f"- Tolerance: {freefall_result['tolerance']:.3f}",
+        f"- Gravity status: {'PASS' if gravity_pass else 'FAIL'}",
+        "",
+        f"Overall combined status: {'PASS' if combined_pass else 'FAIL'}",
     ]
-    for row in summary_rows:
-        lines.append(
-            " - {method}: pass={pass_count}/{num_cases}, max_abs_error={max_abs_error:.6e}, "
-            "mean_abs_error={mean_abs_error:.6e}, all_pass={all_pass}".format(**row)
-        )
 
-    lines.extend(
-        [
-            "",
-            "Gravity Check:",
-            f" - evaluation time (s): {freefall_result['evaluation_time']:.6f}",
-            f" - estimated signed acceleration (m/s^2): {freefall_result['acceleration_signed']:.8f}",
-            f" - acceleration magnitude |a| (m/s^2): {freefall_result['acceleration_magnitude']:.8f}",
-            f" - target |g| (m/s^2): {freefall_result['target_gravity_magnitude']:.8f}",
-            f" - | |a| - |g| |: {freefall_result['magnitude_abs_error']:.8f}",
-            f" - tolerance: {freefall_result['tolerance']:.6f}",
-            f" - pass: {freefall_result['pass']}",
-            "",
-            f"Overall analytic status: {'PASS' if analytic_pass else 'FAIL'}",
-            f"Overall gravity status: {'PASS' if gravity_pass else 'FAIL'}",
-            f"Overall combined status: {'PASS' if combined_pass else 'FAIL'}",
-            "",
-        ]
-    )
-
-    report_path = ARTICLE_RESULTS_DIR / "unittest_report.txt"
-    report_path.write_text("\n".join(lines), encoding="utf-8")
+    report_path = article_results_dir / "unittest_report.txt"
+    write_text(report_path, "\n".join(report))
     return report_path

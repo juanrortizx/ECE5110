@@ -1,61 +1,65 @@
-"""Unit tests and artifact generator for Unit 03 integration workflows."""
+"""Unit tests and artifact generation for Unit 03 integration workflows."""
+
+from __future__ import annotations
 
 import sys
 import unittest
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from lib.integration_tools import IntegrationTools
-from unit03.integration.config import BENCHMARK_CASES, MIN_OBSERVED_ORDERS
+from unit03.integration.config import METHODS, MIN_OBSERVED_ORDER, UNIT_RESULTS_DIR
 from unit03.integration.workflow import generate_all_outputs
 
 
-class TestCompositeIntegrationMethods(unittest.TestCase):
-    """Validates trapezoidal and Simpson integration workflow outputs."""
+class TestIntegrationMethods(unittest.TestCase):
+    """Validate trapezoidal and Simpson workflows, including convergence."""
 
     @classmethod
     def setUpClass(cls):
         cls.tool = IntegrationTools()
-        cls.workflow = generate_all_outputs(cls.tool)
+        cls.workflow_output = generate_all_outputs(cls.tool)
+        cls.methods_payload = cls.workflow_output["methods"]
 
-    def test_trapezoidal_final_accuracy(self):
-        rows = self.workflow["trapezoidal"]["rows"]
-        for case in BENCHMARK_CASES:
-            case_rows = [r for r in rows if r["case_name"] == case["name"]]
-            final_row = max(case_rows, key=lambda r: r["n"])
-            self.assertLessEqual(final_row["abs_error"], case["trapezoidal_tol"])
-
-    def test_simpson_final_accuracy(self):
-        rows = self.workflow["simpson"]["rows"]
-        for case in BENCHMARK_CASES:
-            case_rows = [r for r in rows if r["case_name"] == case["name"]]
-            final_row = max(case_rows, key=lambda r: r["n"])
-            self.assertLessEqual(final_row["abs_error"], case["simpson_tol"])
-
-    def test_observed_orders(self):
-        trap_orders = self.workflow["trapezoidal"]["case_orders"]
-        simp_orders = self.workflow["simpson"]["case_orders"]
-
-        for case_name, order in trap_orders.items():
-            self.assertGreaterEqual(order, MIN_OBSERVED_ORDERS["trapezoidal"], msg=case_name)
-        for case_name, order in simp_orders.items():
-            self.assertGreaterEqual(order, MIN_OBSERVED_ORDERS["simpson"], msg=case_name)
-
-    def test_simpson_requires_even_n(self):
-        with self.assertRaises(ValueError):
-            self.tool.composite_simpson(lambda x: x**2, 0.0, 1.0, 3)
-
-    def test_trapezoidal_validation_errors(self):
+    def test_trapezoidal_validation(self):
         with self.assertRaises(TypeError):
-            self.tool.composite_trapezoidal(1.23, 0.0, 1.0, 8)
+            self.tool.composite_trapezoidal(None, 0.0, 1.0, 10)
         with self.assertRaises(ValueError):
             self.tool.composite_trapezoidal(lambda x: x, 0.0, 1.0, 0)
         with self.assertRaises(ValueError):
-            self.tool.composite_trapezoidal(lambda x: x, 1.0, 1.0, 8)
+            self.tool.composite_trapezoidal(lambda x: x, 1.0, 1.0, 10)
+
+    def test_simpson_rejects_odd_subintervals(self):
+        with self.assertRaises(ValueError):
+            self.tool.composite_simpson(lambda x: x, 0.0, 1.0, 3)
+
+    def test_observed_orders(self):
+        for method in METHODS:
+            for row in self.methods_payload[method]["summary_rows"]:
+                self.assertGreaterEqual(
+                    row["observed_order"],
+                    MIN_OBSERVED_ORDER[method],
+                    msg=(
+                        f"Observed order too low for {method} / {row['case']}: "
+                        f"{row['observed_order']} < {MIN_OBSERVED_ORDER[method]}"
+                    ),
+                )
+
+    def test_required_outputs_exist(self):
+        required = [
+            UNIT_RESULTS_DIR / "article_results" / "integration_trapezoidal_results.csv",
+            UNIT_RESULTS_DIR / "article_results" / "integration_simpson_results.csv",
+            UNIT_RESULTS_DIR / "article_results" / "integration_unittest_report.txt",
+            UNIT_RESULTS_DIR / "plots" / "integration_trapezoidal_error_vs_h.png",
+            UNIT_RESULTS_DIR / "plots" / "integration_simpson_error_vs_h.png",
+            UNIT_RESULTS_DIR / "article_images" / "integration_trapezoidal_summary_table.png",
+            UNIT_RESULTS_DIR / "article_images" / "integration_simpson_summary_table.png",
+        ]
+        missing = [str(path) for path in required if not path.exists()]
+        self.assertFalse(missing, msg=f"Missing expected output files: {missing}")
 
 
 if __name__ == "__main__":

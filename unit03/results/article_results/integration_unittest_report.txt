@@ -1,23 +1,18 @@
 Unit 03 Integration Unittest Report
 ====================================
-Generated UTC: 2026-03-18T04:34:44.302936+00:00
 
 Method: trapezoidal
--------------------
- case=poly_x_squared, n_max=256, final_abs_error=2.543132e-06, observed_order=2.0000, order_pass=True
- case=sin_x, n_max=256, final_abs_error=2.509976e-05, observed_order=2.0019, order_pass=True
- case=exp_x, n_max=256, final_abs_error=2.184908e-06, observed_order=1.9998, order_pass=True
- case=four_over_one_plus_x2, n_max=256, final_abs_error=2.543132e-06, observed_order=2.0000, order_pass=True
- all_accuracy_pass=True
- all_order_pass=True
+- Integral of exp(x) on [0,1]: observed_order=1.999809, best_abs_error=2.184908e-06, final_n=256
+- Integral of 4/(1+x^2) on [0,1]: observed_order=1.999993, best_abs_error=2.543132e-06, final_n=256
+- Integral of sin(x) on [0,pi]: observed_order=2.001900, best_abs_error=2.509976e-05, final_n=256
+- Integral of x^2 on [0,1]: observed_order=2.000000, best_abs_error=2.543132e-06, final_n=256
+- Order status: PASS
 
 Method: simpson
----------------
- case=poly_x_squared, n_max=256, final_abs_error=0.000000e+00, observed_order=inf, order_pass=True
- case=sin_x, n_max=256, final_abs_error=2.520024e-10, observed_order=4.0138, order_pass=True
- case=exp_x, n_max=256, final_abs_error=2.222222e-12, observed_order=3.9987, order_pass=True
- case=four_over_one_plus_x2, n_max=256, final_abs_error=0.000000e+00, observed_order=6.1903, order_pass=True
- all_accuracy_pass=True
- all_order_pass=True
+- Integral of exp(x) on [0,1]: observed_order=3.998666, best_abs_error=2.222222e-12, final_n=256
+- Integral of 4/(1+x^2) on [0,1]: observed_order=6.190259, best_abs_error=0.000000e+00, final_n=256
+- Integral of sin(x) on [0,pi]: observed_order=4.013800, best_abs_error=2.520024e-10, final_n=256
+- Integral of x^2 on [0,1]: observed_order=inf, best_abs_error=0.000000e+00, final_n=256
+- Order status: PASS
 
-Overall combined status: PASS
+Overall integration status: PASS

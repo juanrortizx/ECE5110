@@ -1,84 +1,81 @@
 """Numerical calculators for Unit 03 integration workflows."""
 
+from __future__ import annotations
+
 import numpy as np
 
-from .config import BENCHMARK_CASES, N_VALUES
+from unit03.integration.config import BENCHMARK_CASES, METHOD_TOOL_MAP, N_VALUES
 
 
-def collect_method_results(tool, method_key):
-    """Collect per-case, per-n integration errors for a selected method."""
-    if method_key == "trapezoidal":
-        integrator = tool.composite_trapezoidal
-    elif method_key == "simpson":
-        integrator = tool.composite_simpson
-    else:
-        raise ValueError("method_key must be 'trapezoidal' or 'simpson'.")
-
+def collect_method_results(tool, method):
+    """Collect benchmark integration rows for one method."""
     rows = []
-    case_orders = {}
+    method_name = METHOD_TOOL_MAP[method]
+    integrate = getattr(tool, method_name)
 
     for case in BENCHMARK_CASES:
-        case_rows = []
+        exact = float(case["exact"])
         for n in N_VALUES:
-            approx = float(integrator(case["f"], case["a"], case["b"], n))
-            abs_error = abs(approx - case["exact"])
-            h = (case["b"] - case["a"]) / float(n)
-            row = {
-                "method": method_key,
-                "case_name": case["name"],
-                "case_display_name": case["display_name"],
-                "a": float(case["a"]),
-                "b": float(case["b"]),
-                "n": int(n),
-                "h": float(h),
-                "exact": float(case["exact"]),
-                "approx": approx,
-                "abs_error": float(abs_error),
-            }
-            rows.append(row)
-            case_rows.append(row)
+            approx = float(integrate(case["f"], case["a"], case["b"], n))
+            abs_error = abs(approx - exact)
+            rel_error = abs_error / max(abs(exact), 1e-15)
+            h = abs((case["b"] - case["a"]) / float(n))
+            rows.append(
+                {
+                    "method": method,
+                    "case": case["name"],
+                    "case_display": case["display_name"],
+                    "a": float(case["a"]),
+                    "b": float(case["b"]),
+                    "n": int(n),
+                    "h": h,
+                    "exact": exact,
+                    "approx": approx,
+                    "abs_error": abs_error,
+                    "rel_error": rel_error,
+                }
+            )
+    return rows
 
-        case_orders[case["name"]] = observed_order(case_rows)
 
-    return rows, case_orders
+def observed_order(errors, hs):
+    """Estimate convergence order from log(error)-log(h) slope."""
+    errors = np.asarray(errors, dtype=float)
+    hs = np.asarray(hs, dtype=float)
 
-
-def observed_order(case_rows):
-    """Estimate convergence order via linear fit of log(error) vs log(h)."""
-    hs = np.array([row["h"] for row in case_rows], dtype=float)
-    errors = np.array([row["abs_error"] for row in case_rows], dtype=float)
-
-    if np.allclose(errors, 0.0):
+    # If all sampled errors are exactly zero, the method is exact on this case.
+    if np.all(errors == 0.0):
         return float("inf")
 
-    mask = (hs > 0.0) & (errors > 0.0)
-    hs = hs[mask]
-    errors = errors[mask]
-
-    if hs.size < 3:
+    mask = (errors > 0.0) & (hs > 0.0)
+    if np.count_nonzero(mask) < 2:
         return float("nan")
-
-    slope, _ = np.polyfit(np.log(hs), np.log(errors), 1)
+    slope, _ = np.polyfit(np.log(hs[mask]), np.log(errors[mask]), 1)
     return float(slope)
 
 
-def build_summary(rows, case_orders, method_key, min_order):
-    """Summarize best errors and observed orders for each benchmark case."""
+def build_summary(rows):
+    """Build per-case summary rows with observed convergence order."""
     summary_rows = []
-    for case in BENCHMARK_CASES:
-        case_rows = [r for r in rows if r["case_name"] == case["name"]]
-        best = min(case_rows, key=lambda r: r["n"])
-        final = max(case_rows, key=lambda r: r["n"])
+    case_names = sorted({row["case"] for row in rows})
+    for case_name in case_names:
+        case_rows = sorted(
+            [row for row in rows if row["case"] == case_name],
+            key=lambda row: row["n"],
+        )
+        errors = [row["abs_error"] for row in case_rows]
+        hs = [row["h"] for row in case_rows]
+        best_row = min(case_rows, key=lambda row: row["abs_error"])
         summary_rows.append(
             {
-                "method": method_key,
-                "case_name": case["name"],
-                "n_min": int(best["n"]),
-                "n_max": int(final["n"]),
-                "final_abs_error": float(final["abs_error"]),
-                "min_abs_error": float(min(r["abs_error"] for r in case_rows)),
-                "observed_order": float(case_orders[case["name"]]),
-                "order_pass": bool(case_orders[case["name"]] >= min_order),
+                "method": case_rows[0]["method"],
+                "case": case_name,
+                "case_display": case_rows[0]["case_display"],
+                "observed_order": observed_order(errors, hs),
+                "best_n": int(best_row["n"]),
+                "best_abs_error": float(best_row["abs_error"]),
+                "final_n": int(case_rows[-1]["n"]),
+                "final_abs_error": float(case_rows[-1]["abs_error"]),
             }
         )
     return summary_rows

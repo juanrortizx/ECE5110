@@ -1,20 +1,19 @@
 Unit 03 Differentiation Unittest Report
 ========================================
 
-Analytic Summary:
- - central: pass=3/3, max_abs_error=1.259748e-10, mean_abs_error=5.389444e-11, all_pass=True
- - forward: pass=3/3, max_abs_error=1.404787e-10, mean_abs_error=6.823009e-11, all_pass=True
- - backward: pass=3/3, max_abs_error=1.404787e-10, mean_abs_error=7.933232e-11, all_pass=True
+Analytic checks:
+- Total checks: 9
+- Passed: 9
+- Failed: 0
+- Overall analytic status: PASS
 
-Gravity Check:
- - evaluation time (s): 0.174306
- - estimated signed acceleration (m/s^2): -9.69038761
- - acceleration magnitude |a| (m/s^2): 9.69038761
- - target |g| (m/s^2): 9.81000000
- - | |a| - |g| |: 0.11961239
- - tolerance: 0.150000
- - pass: True
+Gravity validation:
+- Evaluation time: 0.174306 s
+- Estimated signed acceleration: -9.69038761 m/s^2
+- Acceleration magnitude: 9.69038761 m/s^2
+- Target |g|: 9.810 m/s^2
+- Magnitude absolute error: 0.11961239
+- Tolerance: 0.150
+- Gravity status: PASS
 
-Overall analytic status: PASS
-Overall gravity status: PASS
 Overall combined status: PASS

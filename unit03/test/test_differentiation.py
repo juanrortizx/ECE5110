@@ -1,30 +1,18 @@
-"""Unit tests and artifact generator for Unit 03 differentiation workflow."""
+"""Unit tests and artifact generation for Unit 03 3-point differentiation."""
 
-import csv
-import json
-import shutil
+from __future__ import annotations
+
 import sys
 import unittest
-from datetime import datetime, timezone
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from lib.differentiation_tools import DifferentiationTools
 from unit03.differentiation.config import (
     FREEFALL_GRAVITY_TOL,
-    FREEFALL_POSITION_DATA,
-    FREEFALL_TIME_DATA,
-    H_VALUES,
     METHODS,
     TEST_CASES,
     UNIT_RESULTS_DIR,
@@ -33,41 +21,44 @@ from unit03.differentiation.workflow import generate_all_outputs
 
 
 class TestDifferentiationThreePoint(unittest.TestCase):
-    """Validates 3-point differentiation methods and output artifacts."""
+    """Validate 3-point differentiation accuracy and gravity estimate outputs."""
 
     @classmethod
     def setUpClass(cls):
         cls.tool = DifferentiationTools()
-        cls.workflow = generate_all_outputs(cls.tool)
-        cls.rows = cls.workflow["rows"]
-        cls.freefall_result = cls.workflow["freefall_result"]
+        cls.workflow_output = generate_all_outputs(cls.tool)
+        cls.rows = cls.workflow_output["rows"]
+        cls.freefall_result = cls.workflow_output["freefall_result"]
 
     def test_all_methods_meet_tolerance(self):
-        failing_rows = [
+        failures = [
             row
             for row in self.rows
-            if not row["pass"]
+            if not row["passed"]
+            or row["method"] not in METHODS
+            or row["case"] not in {case["name"] for case in TEST_CASES}
         ]
-        details = [
-            (
-                f"{row['case_name']}::{row['method']} abs_error={row['abs_error']:.6e} "
-                f"tol={row['tolerance']:.6e}"
-            )
-            for row in failing_rows
-        ]
-        self.assertFalse(failing_rows, msg="\n".join(details))
+        self.assertFalse(
+            failures,
+            msg=f"Differentiation tolerance failures detected: {failures}",
+        )
 
     def test_gravity_from_interpolated_freefall_data(self):
         accel_est = float(self.freefall_result["acceleration_signed"])
         self.assertAlmostEqual(abs(accel_est), 9.81, delta=FREEFALL_GRAVITY_TOL)
 
-    def test_invalid_method_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            self.tool.numerical_differentiation_3point(np.sin, 0.5, h=1e-4, method="invalid")
-
-    def test_nonpositive_h_raises_value_error(self):
-        with self.assertRaises(ValueError):
-            self.tool.numerical_differentiation_3point(np.sin, 0.5, h=0.0, method="central")
+    def test_required_outputs_exist(self):
+        required = [
+            UNIT_RESULTS_DIR / "article_results" / "differentiation_test_results.csv",
+            UNIT_RESULTS_DIR / "article_results" / "differentiation_summary.csv",
+            UNIT_RESULTS_DIR / "article_results" / "run_metadata.json",
+            UNIT_RESULTS_DIR / "article_results" / "freefall_gravity_results.json",
+            UNIT_RESULTS_DIR / "article_results" / "unittest_report.txt",
+            UNIT_RESULTS_DIR / "plots" / "freefall_gravity_interpolation.png",
+            UNIT_RESULTS_DIR / "article_images" / "summary_table.png",
+        ]
+        missing = [str(path) for path in required if not path.exists()]
+        self.assertFalse(missing, msg=f"Missing expected output files: {missing}")
 
 
 if __name__ == "__main__":

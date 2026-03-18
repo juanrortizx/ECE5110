@@ -1,9 +1,10 @@
 - .DS_Store
 - .gitattributes
 - .github
+  - .DS_Store
   - agents
     - ece5110-latex-formatter.agent.md
-    - python_agent.md
+    - python_agent.agent.md
   - skills
     - differentiation-3point
       - OLD.md
@@ -17,6 +18,8 @@
     - latex-article
       - SKILL.md
     - latex-slides
+      - SKILL.md
+    - unit03-workflow-infra
       - SKILL.md
 - .gitignore
 - AUTHORS.txt
@@ -39,9 +42,6 @@
   - __pycache__
     - differentiation_tools.cpython-313.pyc
     - integration_tools.cpython-313.pyc
-    - tools.cpython-312.pyc
-    - tools.cpython-314.pyc
-    - tools_prof.cpython-314.pyc
   - differentiation_tools.py
   - integration_tools.py
   - tools.py
@@ -58,18 +58,65 @@
     - ist.sty
     - main.pdf
     - main.tex
+  - common
+    - .DS_Store
+    - __init__.py
+    - __pycache__
+      - __init__.cpython-313.pyc
+      - artifact_io.cpython-313.pyc
+      - paths.cpython-313.pyc
+      - table_images.cpython-313.pyc
+    - artifact_io.py
+    - paths.py
+    - table_images.py
+  - differentiation
+    - .DS_Store
+    - __init__.py
+    - __pycache__
+      - __init__.cpython-313.pyc
+      - artifacts.cpython-313.pyc
+      - calculators.cpython-313.pyc
+      - config.cpython-313.pyc
+      - visuals.cpython-313.pyc
+      - workflow.cpython-313.pyc
+    - artifacts.py
+    - calculators.py
+    - config.py
+    - visuals.py
+    - workflow.py
+  - integration
+    - .DS_Store
+    - __init__.py
+    - __pycache__
+      - __init__.cpython-313.pyc
+      - artifacts.cpython-313.pyc
+      - calculators.cpython-313.pyc
+      - config.cpython-313.pyc
+      - visuals.cpython-313.pyc
+      - workflow.cpython-313.pyc
+    - artifacts.py
+    - calculators.py
+    - config.py
+    - visuals.py
+    - workflow.py
   - results
     - article_images
-      - all_results_table.png
-      - all_results_table.svg
-      - error_ranking_table.png
-      - error_ranking_table.svg
-      - exp_at_0p3_results_table.png
-      - exp_at_0p3_results_table.svg
-      - freefall_gravity_results_table.png
-      - freefall_gravity_results_table.svg
-      - freefall_source_data_table.png
-      - freefall_source_data_table.svg
+      - differentiation_case_cubic_poly_table.png
+      - differentiation_case_cubic_poly_table.svg
+      - differentiation_case_exp_x_table.png
+      - differentiation_case_exp_x_table.svg
+      - differentiation_case_sin_x_table.png
+      - differentiation_case_sin_x_table.svg
+      - differentiation_error_ranking_table.png
+      - differentiation_error_ranking_table.svg
+      - differentiation_freefall_gravity_table.png
+      - differentiation_freefall_gravity_table.svg
+      - differentiation_freefall_samples_table.png
+      - differentiation_freefall_samples_table.svg
+      - differentiation_results_table.png
+      - differentiation_results_table.svg
+      - differentiation_summary_table.png
+      - differentiation_summary_table.svg
       - integration_simpson_results_table.png
       - integration_simpson_results_table.svg
       - integration_simpson_summary_table.png
@@ -78,52 +125,70 @@
       - integration_trapezoidal_results_table.svg
       - integration_trapezoidal_summary_table.png
       - integration_trapezoidal_summary_table.svg
-      - poly_cubic_minus_quadratic_results_table.png
-      - poly_cubic_minus_quadratic_results_table.svg
-      - sine_at_pi_over_4_results_table.png
-      - sine_at_pi_over_4_results_table.svg
-      - summary_table.png
-      - summary_table.svg
     - article_results
+      - differentiation_error_ranking.csv
+      - differentiation_freefall_coefficients.csv
+      - differentiation_freefall_gravity.csv
+      - differentiation_freefall_gravity.json
+      - differentiation_freefall_gravity.md
+      - differentiation_metadata.json
+      - differentiation_results.csv
+      - differentiation_results.json
+      - differentiation_results.md
       - differentiation_summary.csv
-      - differentiation_test_results.csv
-      - differentiation_test_results.json
-      - differentiation_test_results.md
-      - freefall_gravity_results.csv
-      - freefall_gravity_results.json
-      - freefall_gravity_results.md
+      - differentiation_summary.json
+      - differentiation_summary.md
       - integration_simpson_metadata.json
       - integration_simpson_results.csv
       - integration_simpson_results.json
       - integration_simpson_results.md
       - integration_simpson_summary.csv
+      - integration_simpson_summary.json
+      - integration_simpson_summary.md
       - integration_trapezoidal_metadata.json
       - integration_trapezoidal_results.csv
       - integration_trapezoidal_results.json
       - integration_trapezoidal_results.md
       - integration_trapezoidal_summary.csv
+      - integration_trapezoidal_summary.json
+      - integration_trapezoidal_summary.md
       - integration_unittest_report.txt
-      - run_metadata.json
       - unittest_report.txt
     - plots
-      - exp_at_0p3_error_vs_h.png
-      - exp_at_0p3_error_vs_h.svg
-      - freefall_gravity_interpolation.png
-      - freefall_gravity_interpolation.svg
-      - integration_simpson_error_vs_h.png
-      - integration_simpson_error_vs_h.svg
-      - integration_trapezoidal_error_vs_h.png
-      - integration_trapezoidal_error_vs_h.svg
-      - poly_cubic_minus_quadratic_error_vs_h.png
-      - poly_cubic_minus_quadratic_error_vs_h.svg
-      - sine_at_pi_over_4_error_vs_h.png
-      - sine_at_pi_over_4_error_vs_h.svg
+      - differentiation_cubic_poly_error_vs_h.png
+      - differentiation_cubic_poly_error_vs_h.svg
+      - differentiation_exp_x_error_vs_h.png
+      - differentiation_exp_x_error_vs_h.svg
+      - differentiation_freefall_interpolation.png
+      - differentiation_freefall_interpolation.svg
+      - differentiation_sin_x_error_vs_h.png
+      - differentiation_sin_x_error_vs_h.svg
+      - integration_simpson_exp_on_01_error_vs_h.png
+      - integration_simpson_exp_on_01_error_vs_h.svg
+      - integration_simpson_pi_form_error_vs_h.png
+      - integration_simpson_pi_form_error_vs_h.svg
+      - integration_simpson_sin_on_pi_error_vs_h.png
+      - integration_simpson_sin_on_pi_error_vs_h.svg
+      - integration_simpson_x_squared_error_vs_h.png
+      - integration_simpson_x_squared_error_vs_h.svg
+      - integration_trapezoidal_exp_on_01_error_vs_h.png
+      - integration_trapezoidal_exp_on_01_error_vs_h.svg
+      - integration_trapezoidal_pi_form_error_vs_h.png
+      - integration_trapezoidal_pi_form_error_vs_h.svg
+      - integration_trapezoidal_sin_on_pi_error_vs_h.png
+      - integration_trapezoidal_sin_on_pi_error_vs_h.svg
+      - integration_trapezoidal_x_squared_error_vs_h.png
+      - integration_trapezoidal_x_squared_error_vs_h.svg
   - slides
     - images
       - cpp_logo.png
     - slides.pdf
     - slides.tex
   - test
+    - .DS_Store
+    - __pycache__
+      - test_differentiation.cpython-313.pyc
+      - test_integration.cpython-313.pyc
     - test_differentiation.py
     - test_integration.py
 - unit_test_resources
