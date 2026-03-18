@@ -1,45 +1,39 @@
-"""Numerical differentiation utilities for Unit 03.
+"""Numerical differentiation kernels for Unit 03 workflows.
 
-This module intentionally focuses on finite-difference derivative approximations.
-Plotting and report-generation utilities belong in test/demo scripts.
+This module intentionally contains only differentiation formulas and validation.
+Plotting and reporting utilities belong to the Unit 03 helper/test workflows.
 """
 
 
 class DifferentiationTools:
-    """Provide 3-point finite-difference derivative approximations.
-
-    Notes
-    -----
-    This class contains only numerical differentiation methods. Plotting logic is
-    intentionally excluded and should be implemented in the calling script.
-    """
+    """Collection of finite-difference differentiation methods."""
 
     def numerical_differentiation_3point(self, f, x, h=1e-5, method="central"):
-        """Approximate the first derivative with a 3-point finite difference.
+        """Approximate a first derivative with a 3-point finite-difference scheme.
 
         Parameters
         ----------
         f : callable
             Function to differentiate.
         x : float
-            Evaluation point.
+            Evaluation location.
         h : float, optional
-            Step size. Must be strictly positive.
+            Step size, by default 1e-5.
         method : {"central", "forward", "backward"}, optional
-            Finite-difference stencil.
+            Finite-difference formula to use.
 
         Returns
         -------
         float
-            Approximation to f'(x).
+            Numerical derivative approximation.
 
         Raises
         ------
         ValueError
-            If ``h <= 0`` or ``method`` is not supported.
+            If ``h <= 0`` or if ``method`` is unsupported.
         """
         if h <= 0:
-            raise ValueError("h must be strictly positive")
+            raise ValueError("h must be positive.")
 
         if method == "central":
             return (f(x + h) - f(x - h)) / (2.0 * h)
@@ -48,4 +42,4 @@ class DifferentiationTools:
         if method == "backward":
             return (f(x - 2.0 * h) - 4.0 * f(x - h) + 3.0 * f(x)) / (2.0 * h)
 
-        raise ValueError("method must be 'central', 'forward', or 'backward'")
+        raise ValueError("method must be one of: 'central', 'forward', 'backward'.")

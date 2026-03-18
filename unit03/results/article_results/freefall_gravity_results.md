@@ -1,29 +1,19 @@
 # Free-Fall Gravity Validation
 
-This result uses a quadratic interpolant of position-versus-time data, then applies the central 3-point finite-difference method twice (position -> velocity -> acceleration).
+## Gravity Check Summary
 
-## Gravity Estimate Summary
-
-| case_name | display_name | interpolant_type | evaluation_time | step_size | accel_estimate_signed | accel_estimate_magnitude | target_gravity_magnitude | magnitude_abs_error | tolerance | passed | time_units | position_units | acceleration_units |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| freefall_gravity_interpolation | Free-fall gravity from quadratic interpolant | quadratic (polyfit degree 2) | 1.743060e-01 | 1.000000e-05 | -9.690388e+00 | 9.690388e+00 | 9.810000e+00 | 1.196123e-01 | 1.500000e-01 | Yes | s | m | m/s^2 |
+| method | h | evaluation_time | acceleration_signed | acceleration_magnitude | target_gravity_magnitude | magnitude_abs_error | tolerance | pass | poly_coefficients | source_time_data | source_position_data |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| central | 0.0001 | 0.174306 | -9.690387606 | 9.690387606 | 9.81 | 0.1196123938 | 0.15 | PASS | [-4.845193803179445, -0.019173247196188226, 0.0002592830240100139] | [0.0, 0.100764, 0.141736, 0.174306, 0.201042, 0.224583, 0.247569] | [0.0, -0.05, -0.1, -0.15, -0.2, -0.25, -0.3] |
 
 ## Source Data
 
-| index | time_s | position_m |
-| --- | --- | --- |
-| 0 | 0.000000e+00 | 0.000000e+00 |
-| 1 | 1.007640e-01 | -5.000000e-02 |
-| 2 | 1.417360e-01 | -1.000000e-01 |
-| 3 | 1.743060e-01 | -1.500000e-01 |
-| 4 | 2.010420e-01 | -2.000000e-01 |
-| 5 | 2.245830e-01 | -2.500000e-01 |
-| 6 | 2.475690e-01 | -3.000000e-01 |
-
-## Quadratic Interpolant Coefficients
-
-| coefficient | value |
+| time_s | position_m |
 | --- | --- |
-| a2 | -4.845194e+00 |
-| a1 | -1.917325e-02 |
-| a0 | 2.592830e-04 |
+| 0 | 0 |
+| 0.100764 | -0.05 |
+| 0.141736 | -0.1 |
+| 0.174306 | -0.15 |
+| 0.201042 | -0.2 |
+| 0.224583 | -0.25 |
+| 0.247569 | -0.3 |

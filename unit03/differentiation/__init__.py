@@ -1,5 +1,5 @@
-"""Differentiation workflow helpers."""
+"""Unit 03 differentiation helper package."""
 
-from . import artifacts, calculators, config, visuals, workflow
+from .workflow import generate_all_outputs
 
-__all__ = ["artifacts", "calculators", "config", "visuals", "workflow"]
+__all__ = ["generate_all_outputs"]

@@ -1,0 +1,14 @@
+{
+  "method": "trapezoidal",
+  "generated_at_utc": "2026-03-18T04:34:38.855154+00:00",
+  "expected_order": 2.0,
+  "minimum_required_order": 1.8,
+  "observed_order_by_case": {
+    "poly_x_squared": 1.9999999999986675,
+    "sin_x": 2.0018996325032523,
+    "exp_x": 1.999809310668038,
+    "four_over_one_plus_x2": 1.9999925138691284
+  },
+  "all_accuracy_pass": true,
+  "all_order_pass": true
+}

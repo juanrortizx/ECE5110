@@ -1,0 +1,5 @@
+method,case_name,n_min,n_max,final_abs_error,min_abs_error,observed_order,order_pass
+simpson,poly_x_squared,4,256,0.0,0.0,inf,True
+simpson,sin_x,4,256,2.520024189323067e-10,2.520024189323067e-10,4.013800203992324,True
+simpson,exp_x,4,256,2.2222224060897133e-12,2.2222224060897133e-12,3.9986659474020887,True
+simpson,four_over_one_plus_x2,4,256,0.0,0.0,6.190258552593436,True

@@ -1,61 +1,73 @@
-"""Workflow entry points for the integration outputs."""
+"""Orchestration for Unit 03 integration outputs."""
 
-from __future__ import annotations
+from datetime import datetime, timezone
 
-from typing import Dict
+from .artifacts import prepare_output_dirs, write_method_outputs, write_unittest_report
+from .calculators import build_summary, collect_method_results
+from .config import BENCHMARK_CASES, EXPECTED_ORDERS, MIN_OBSERVED_ORDERS
+from .visuals import generate_article_images, generate_error_plots
 
-from lib.integration_tools import IntegrationTools
-
-from . import artifacts, calculators, config, visuals
+CASE_BY_NAME = {case["name"]: case for case in BENCHMARK_CASES}
 
 
-def generate_all_outputs(tool: IntegrationTools) -> Dict[str, object]:
-    """Run both trapezoidal and Simpson workflows and return collected data."""
-    article_results_dir, article_images_dir, plots_dir = artifacts.prepare_output_dirs()
-
-    trapezoidal_rows = calculators.collect_method_results(tool, "trapezoidal", tool.composite_trapezoidal)
-    simpson_rows = calculators.collect_method_results(tool, "simpson", tool.composite_simpson)
-
-    trapezoidal_summary_rows = calculators.build_summary(
-        trapezoidal_rows,
-        expected_order=config.TRAPEZOIDAL_ORDER_TARGET,
-        tol_key="trap_tol",
-    )
-    simpson_summary_rows = calculators.build_summary(
-        simpson_rows,
-        expected_order=config.SIMPSON_ORDER_TARGET,
-        tol_key="simp_tol",
+def _run_method(tool, method_key, output_dirs):
+    rows, case_orders = collect_method_results(tool, method_key)
+    summary_rows = build_summary(
+        rows,
+        case_orders,
+        method_key,
+        min_order=MIN_OBSERVED_ORDERS[method_key],
     )
 
-    artifacts.write_method_outputs("trapezoidal", trapezoidal_rows, trapezoidal_summary_rows)
-    artifacts.write_method_outputs("simpson", simpson_rows, simpson_summary_rows)
-    visuals.generate_error_plots(
-        "trapezoidal",
-        trapezoidal_rows,
-        config.TRAPEZOIDAL_ORDER_TARGET,
-        plots_dir,
-        config.BENCHMARK_CASES,
+    all_accuracy_pass = all(
+        _case_accuracy_pass(row, method_key) for row in rows if row["n"] == max(r["n"] for r in rows)
     )
-    visuals.generate_error_plots(
-        "simpson",
-        simpson_rows,
-        config.SIMPSON_ORDER_TARGET,
-        plots_dir,
-        config.BENCHMARK_CASES,
+    all_order_pass = all(
+        case_orders[name] >= MIN_OBSERVED_ORDERS[method_key] for name in case_orders
     )
-    visuals.generate_article_images("trapezoidal", trapezoidal_rows, trapezoidal_summary_rows, article_images_dir)
-    visuals.generate_article_images("simpson", simpson_rows, simpson_summary_rows, article_images_dir)
-    artifacts.write_unittest_report(trapezoidal_summary_rows, simpson_summary_rows)
+    metadata = {
+        "method": method_key,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "expected_order": EXPECTED_ORDERS[method_key],
+        "minimum_required_order": MIN_OBSERVED_ORDERS[method_key],
+        "observed_order_by_case": case_orders,
+        "all_accuracy_pass": all_accuracy_pass,
+        "all_order_pass": all_order_pass,
+    }
+
+    write_method_outputs(method_key, rows, summary_rows, metadata)
+    generate_article_images(method_key, rows, summary_rows, output_dirs["article_images"])
+    generate_error_plots(method_key, rows, output_dirs["plots"])
 
     return {
-        "trapezoidal_rows": trapezoidal_rows,
-        "simpson_rows": simpson_rows,
-        "trapezoidal_summary_rows": trapezoidal_summary_rows,
-        "simpson_summary_rows": simpson_summary_rows,
-        "article_results_dir": article_results_dir,
-        "article_images_dir": article_images_dir,
-        "plots_dir": plots_dir,
+        "rows": rows,
+        "summary_rows": summary_rows,
+        "metadata": metadata,
+        "case_orders": case_orders,
+        "all_accuracy_pass": all_accuracy_pass,
+        "all_order_pass": all_order_pass,
     }
 
 
-__all__ = ["generate_all_outputs"]
+def _case_accuracy_pass(row, method_key):
+    case = CASE_BY_NAME[row["case_name"]]
+    tol_key = "trapezoidal_tol" if method_key == "trapezoidal" else "simpson_tol"
+    return row["abs_error"] <= case[tol_key]
+
+
+def generate_all_outputs(tool, clear_results=True):
+    """Run full integration workflow for trapezoidal and Simpson methods."""
+    output_dirs = prepare_output_dirs(clear_results=clear_results)
+
+    method_outputs = {
+        "trapezoidal": _run_method(tool, "trapezoidal", output_dirs),
+        "simpson": _run_method(tool, "simpson", output_dirs),
+    }
+    report_path = write_unittest_report(method_outputs)
+
+    return {
+        "trapezoidal": method_outputs["trapezoidal"],
+        "simpson": method_outputs["simpson"],
+        "output_dirs": output_dirs,
+        "report_path": report_path,
+    }

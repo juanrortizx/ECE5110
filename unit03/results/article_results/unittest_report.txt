@@ -1,21 +1,20 @@
-Unit 03 Differentiation Report
-==================================
+Unit 03 Differentiation Unittest Report
+========================================
 
-Analytic Summary (per method):
-method | num_cases | all_passed | max_abs_error | mean_abs_error | max_rel_error | mean_rel_error
-central | 3 | True | 1.259748e-10 | 5.389444e-11 | 2.422592e-10 | 9.270528e-11
-forward | 3 | True | 1.404787e-10 | 6.823009e-11 | 2.701514e-10 | 1.127407e-10
-backward | 3 | True | 1.404787e-10 | 7.933232e-11 | 2.701514e-10 | 1.159813e-10
+Analytic Summary:
+ - central: pass=3/3, max_abs_error=1.259748e-10, mean_abs_error=5.389444e-11, all_pass=True
+ - forward: pass=3/3, max_abs_error=1.404787e-10, mean_abs_error=6.823009e-11, all_pass=True
+ - backward: pass=3/3, max_abs_error=1.404787e-10, mean_abs_error=7.933232e-11, all_pass=True
 
-Gravity Check Summary:
-evaluation_time_s: 1.743060e-01
-estimated_signed_accel_mps2: -9.690388e+00
-estimated_accel_magnitude_mps2: 9.690388e+00
-target_abs_g_mps2: 9.810000e+00
-magnitude_abs_error: 1.196123e-01
-tolerance: 1.500000e-01
-pass: True
+Gravity Check:
+ - evaluation time (s): 0.174306
+ - estimated signed acceleration (m/s^2): -9.69038761
+ - acceleration magnitude |a| (m/s^2): 9.69038761
+ - target |g| (m/s^2): 9.81000000
+ - | |a| - |g| |: 0.11961239
+ - tolerance: 0.150000
+ - pass: True
 
-overall_analytic_status: True
-overall_gravity_status: True
-overall_combined_status: True
+Overall analytic status: PASS
+Overall gravity status: PASS
+Overall combined status: PASS

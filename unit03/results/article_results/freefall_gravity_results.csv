@@ -1,2 +1,2 @@
-case_name,display_name,interpolant_type,evaluation_time,step_size,accel_estimate_signed,accel_estimate_magnitude,target_gravity_magnitude,magnitude_abs_error,tolerance,passed,time_units,position_units,acceleration_units
-freefall_gravity_interpolation,Free-fall gravity from quadratic interpolant,quadratic (polyfit degree 2),0.174306,1e-05,-9.690387658967126,9.690387658967126,9.81,0.11961234103287488,0.15,True,s,m,m/s^2
+method,h,evaluation_time,acceleration_signed,acceleration_magnitude,target_gravity_magnitude,magnitude_abs_error,tolerance,pass,poly_coefficients,source_time_data,source_position_data
+central,0.0001,0.174306,-9.690387606231532,9.690387606231532,9.81,0.11961239376846855,0.15,True,"[-4.845193803179445, -0.019173247196188226, 0.0002592830240100139]","[0.0, 0.100764, 0.141736, 0.174306, 0.201042, 0.224583, 0.247569]","[0.0, -0.05, -0.1, -0.15, -0.2, -0.25, -0.3]"

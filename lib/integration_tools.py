@@ -1,33 +1,33 @@
-"""Numerical integration utilities for Unit 03.
+"""Numerical integration kernels for Unit 03 workflows.
 
-This module intentionally focuses on reusable quadrature routines.
-Plotting and report-generation utilities belong in test/demo scripts.
+This module only contains integration formulas and validation logic.
+Plot generation and artifact exports are handled by Unit 03 helper modules.
 """
 
 import numpy as np
 
 
 class IntegrationTools:
-    """Provide composite numerical integration methods."""
+    """Collection of composite numerical integration methods."""
 
     def composite_trapezoidal(self, f, a, b, n):
-        """Approximate an integral with the composite trapezoidal rule.
+        """Approximate an integral using the composite trapezoidal rule.
 
         Parameters
         ----------
         f : callable
-            Integrand that supports NumPy-array input.
+            Integrand accepting scalar or NumPy array input.
         a : float
             Lower integration bound.
         b : float
             Upper integration bound.
         n : int
-            Number of subintervals. Must be strictly positive.
+            Number of subintervals.
 
         Returns
         -------
         float
-            Approximation to the definite integral.
+            Numerical integral approximation.
 
         Raises
         ------
@@ -37,35 +37,35 @@ class IntegrationTools:
             If ``n <= 0`` or ``a == b``.
         """
         if not callable(f):
-            raise TypeError("f must be callable")
+            raise TypeError("f must be callable.")
         if n <= 0:
-            raise ValueError("n must be strictly positive")
+            raise ValueError("n must be positive.")
         if a == b:
-            raise ValueError("integration interval must have nonzero width")
+            raise ValueError("a and b must define a non-zero interval.")
 
-        h = (b - a) / n
+        h = (b - a) / float(n)
         x = np.linspace(a, b, n + 1)
         y = f(x)
         return float(h * (0.5 * y[0] + np.sum(y[1:-1]) + 0.5 * y[-1]))
 
     def composite_simpson(self, f, a, b, n):
-        """Approximate an integral with the composite Simpson rule.
+        """Approximate an integral using composite Simpson's rule.
 
         Parameters
         ----------
         f : callable
-            Integrand that supports NumPy-array input.
+            Integrand accepting scalar or NumPy array input.
         a : float
             Lower integration bound.
         b : float
             Upper integration bound.
         n : int
-            Number of subintervals. Must be strictly positive and even.
+            Number of subintervals (must be even).
 
         Returns
         -------
         float
-            Approximation to the definite integral.
+            Numerical integral approximation.
 
         Raises
         ------
@@ -75,15 +75,15 @@ class IntegrationTools:
             If ``n <= 0``, ``n`` is odd, or ``a == b``.
         """
         if not callable(f):
-            raise TypeError("f must be callable")
+            raise TypeError("f must be callable.")
         if n <= 0:
-            raise ValueError("n must be strictly positive")
+            raise ValueError("n must be positive.")
         if n % 2 != 0:
-            raise ValueError("n must be even for composite Simpson's rule")
+            raise ValueError("n must be even for composite Simpson's rule.")
         if a == b:
-            raise ValueError("integration interval must have nonzero width")
+            raise ValueError("a and b must define a non-zero interval.")
 
-        h = (b - a) / n
+        h = (b - a) / float(n)
         x = np.linspace(a, b, n + 1)
         y = f(x)
         return float(

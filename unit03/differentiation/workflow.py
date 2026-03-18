@@ -1,33 +1,26 @@
-"""Workflow entry points for the differentiation outputs."""
+"""Orchestration for Unit 03 differentiation outputs."""
 
-from __future__ import annotations
-
-from typing import Dict
-
-from lib.differentiation_tools import DifferentiationTools
-
-from . import artifacts, calculators, visuals
+from .artifacts import create_output_dirs, save_results, write_unittest_report
+from .calculators import collect_results, estimate_gravity_from_interpolated_freefall
+from .visuals import generate_article_images, generate_plots
 
 
-def generate_all_outputs(tool: DifferentiationTools) -> Dict[str, object]:
-    """Run the entire differentiation workflow and return key artifacts."""
-    output_root, article_results_dir, plots_dir, article_images_dir = artifacts.create_output_dirs()
-    rows = calculators.collect_results(tool)
-    freefall_result = calculators.estimate_gravity_from_interpolated_freefall(tool)
+def generate_all_outputs(tool, clear_results=True):
+    """Run the full differentiation workflow and return generated data."""
+    output_dirs = create_output_dirs(clear_results=clear_results)
+    rows = collect_results(tool)
+    freefall_result = estimate_gravity_from_interpolated_freefall(tool, h=1e-4)
 
-    artifacts.save_results(rows, freefall_result)
-    visuals.generate_article_images(rows, article_images_dir, freefall_result)
-    visuals.generate_plots(tool, plots_dir, freefall_result)
-    artifacts.write_unittest_report(rows, freefall_result)
+    saved = save_results(rows, freefall_result)
+    generate_article_images(rows, output_dirs["article_images"], freefall_result)
+    generate_plots(tool, output_dirs["plots"], freefall_result)
+    report_path = write_unittest_report(rows, freefall_result)
 
     return {
-        "output_root": output_root,
-        "article_results_dir": article_results_dir,
-        "plots_dir": plots_dir,
-        "article_images_dir": article_images_dir,
-        "rows": rows,
-        "freefall_result": freefall_result,
+        "rows": saved["rows"],
+        "summary_rows": saved["summary_rows"],
+        "freefall_result": saved["freefall_result"],
+        "metadata": saved["metadata"],
+        "output_dirs": output_dirs,
+        "report_path": report_path,
     }
-
-
-__all__ = ["generate_all_outputs"]

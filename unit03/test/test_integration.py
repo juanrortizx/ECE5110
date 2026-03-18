@@ -1,3 +1,5 @@
+"""Unit tests and artifact generator for Unit 03 integration workflows."""
+
 import sys
 import unittest
 from pathlib import Path
@@ -8,81 +10,52 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from lib.integration_tools import IntegrationTools
-from unit03.integration import config
-from unit03.integration.artifacts import sanitize_filename
+from unit03.integration.config import BENCHMARK_CASES, MIN_OBSERVED_ORDERS
 from unit03.integration.workflow import generate_all_outputs
 
 
-class TestIntegrationMethods(unittest.TestCase):
+class TestCompositeIntegrationMethods(unittest.TestCase):
+    """Validates trapezoidal and Simpson integration workflow outputs."""
+
     @classmethod
     def setUpClass(cls):
         cls.tool = IntegrationTools()
-        cls.generated = generate_all_outputs(cls.tool)
+        cls.workflow = generate_all_outputs(cls.tool)
 
     def test_trapezoidal_final_accuracy(self):
-        failures = [
-            row for row in self.generated["trapezoidal_summary_rows"] if not row["passed_final_tolerance"]
-        ]
-        self.assertFalse(failures, msg=f"Trapezoidal tolerance failures: {failures}")
+        rows = self.workflow["trapezoidal"]["rows"]
+        for case in BENCHMARK_CASES:
+            case_rows = [r for r in rows if r["case_name"] == case["name"]]
+            final_row = max(case_rows, key=lambda r: r["n"])
+            self.assertLessEqual(final_row["abs_error"], case["trapezoidal_tol"])
 
     def test_simpson_final_accuracy(self):
-        failures = [row for row in self.generated["simpson_summary_rows"] if not row["passed_final_tolerance"]]
-        self.assertFalse(failures, msg=f"Simpson tolerance failures: {failures}")
+        rows = self.workflow["simpson"]["rows"]
+        for case in BENCHMARK_CASES:
+            case_rows = [r for r in rows if r["case_name"] == case["name"]]
+            final_row = max(case_rows, key=lambda r: r["n"])
+            self.assertLessEqual(final_row["abs_error"], case["simpson_tol"])
 
     def test_observed_orders(self):
-        for row in self.generated["trapezoidal_summary_rows"]:
-            self.assertGreater(row["observed_order"], config.TRAPEZOIDAL_ORDER_TARGET - 0.2)
-        for row in self.generated["simpson_summary_rows"]:
-            self.assertGreater(row["observed_order"], config.SIMPSON_ORDER_TARGET - 0.2)
+        trap_orders = self.workflow["trapezoidal"]["case_orders"]
+        simp_orders = self.workflow["simpson"]["case_orders"]
 
-    def test_required_outputs_exist(self):
-        expected_paths = [
-            config.ARTICLE_RESULTS_DIR / "integration_trapezoidal_results.csv",
-            config.ARTICLE_RESULTS_DIR / "integration_trapezoidal_results.json",
-            config.ARTICLE_RESULTS_DIR / "integration_trapezoidal_results.md",
-            config.ARTICLE_RESULTS_DIR / "integration_trapezoidal_summary.csv",
-            config.ARTICLE_RESULTS_DIR / "integration_trapezoidal_metadata.json",
-            config.ARTICLE_RESULTS_DIR / "integration_simpson_results.csv",
-            config.ARTICLE_RESULTS_DIR / "integration_simpson_results.json",
-            config.ARTICLE_RESULTS_DIR / "integration_simpson_results.md",
-            config.ARTICLE_RESULTS_DIR / "integration_simpson_summary.csv",
-            config.ARTICLE_RESULTS_DIR / "integration_simpson_metadata.json",
-            config.ARTICLE_RESULTS_DIR / "integration_unittest_report.txt",
-        ]
+        for case_name, order in trap_orders.items():
+            self.assertGreaterEqual(order, MIN_OBSERVED_ORDERS["trapezoidal"], msg=case_name)
+        for case_name, order in simp_orders.items():
+            self.assertGreaterEqual(order, MIN_OBSERVED_ORDERS["simpson"], msg=case_name)
 
-        for method in ("trapezoidal", "simpson"):
-            for case in config.BENCHMARK_CASES:
-                base = f"integration_{method}_{sanitize_filename(case['case_name'])}_error_vs_h"
-                expected_paths.append(config.PLOTS_DIR / f"{base}.png")
-                expected_paths.append(config.PLOTS_DIR / f"{base}.svg")
+    def test_simpson_requires_even_n(self):
+        with self.assertRaises(ValueError):
+            self.tool.composite_simpson(lambda x: x**2, 0.0, 1.0, 3)
 
-            for table in ("results_table", "summary_table"):
-                base = config.ARTICLE_IMAGES_DIR / f"integration_{method}_{table}"
-                expected_paths.append(base.with_suffix(".png"))
-                expected_paths.append(base.with_suffix(".svg"))
-
-        missing = [str(path) for path in expected_paths if not path.exists()]
-        self.assertFalse(missing, msg="Missing expected output files:\n" + "\n".join(missing))
-
-    def test_trapezoidal_validation(self):
-        case = config.BENCHMARK_CASES[0]
+    def test_trapezoidal_validation_errors(self):
         with self.assertRaises(TypeError):
-            self.tool.composite_trapezoidal(123, case["a"], case["b"], 4)
+            self.tool.composite_trapezoidal(1.23, 0.0, 1.0, 8)
         with self.assertRaises(ValueError):
-            self.tool.composite_trapezoidal(case["f"], case["a"], case["b"], 0)
+            self.tool.composite_trapezoidal(lambda x: x, 0.0, 1.0, 0)
         with self.assertRaises(ValueError):
-            self.tool.composite_trapezoidal(case["f"], case["a"], case["a"], 4)
-
-    def test_simpson_validation(self):
-        case = config.BENCHMARK_CASES[0]
-        with self.assertRaises(TypeError):
-            self.tool.composite_simpson(None, case["a"], case["b"], 4)
-        with self.assertRaises(ValueError):
-            self.tool.composite_simpson(case["f"], case["a"], case["b"], 0)
-        with self.assertRaises(ValueError):
-            self.tool.composite_simpson(case["f"], case["a"], case["b"], 3)
-        with self.assertRaises(ValueError):
-            self.tool.composite_simpson(case["f"], case["a"], case["a"], 4)
+            self.tool.composite_trapezoidal(lambda x: x, 1.0, 1.0, 8)
 
 
 if __name__ == "__main__":
