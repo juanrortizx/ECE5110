@@ -1,9 +1,6 @@
 """Shared path constants and output-directory setup for Unit 03."""
 
-from __future__ import annotations
-
 from pathlib import Path
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 UNIT_RESULTS_DIR = PROJECT_ROOT / "unit03" / "results"
@@ -13,16 +10,12 @@ ARTICLE_IMAGES_DIR = UNIT_RESULTS_DIR / "article_images"
 
 
 def reset_unit_results():
-    """Ensure Unit 03 result directories exist.
+    """Ensure required Unit 03 output directories exist.
 
-    Returns
-    -------
-    dict
-        Dictionary with absolute paths for result directories.
+    This helper is intentionally non-destructive: existing files are preserved.
     """
-    ARTICLE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
-    ARTICLE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    for directory in (UNIT_RESULTS_DIR, ARTICLE_RESULTS_DIR, PLOTS_DIR, ARTICLE_IMAGES_DIR):
+        directory.mkdir(parents=True, exist_ok=True)
 
     return {
         "unit_results_dir": UNIT_RESULTS_DIR,

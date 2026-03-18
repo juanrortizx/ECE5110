@@ -1,2 +1,2 @@
-step_size,evaluation_time,acceleration_signed,acceleration_magnitude,target_abs_gravity,absolute_error,tolerance,passed
-0.001,0.174306,-9.690387606363426,9.690387606363426,9.81,0.11961239363657405,0.15,True
+evaluation_time,estimated_accel_signed,estimated_accel_magnitude,target_gravity_magnitude,magnitude_abs_error,tolerance,passed
+0.174306,-9.690387658967126,9.690387658967126,9.81,0.11961234103287488,0.15,True

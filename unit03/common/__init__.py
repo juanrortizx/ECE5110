@@ -1,1 +1,1 @@
-"""Shared infrastructure for Unit 03 workflows."""
+"""Shared Unit 03 workflow infrastructure helpers."""

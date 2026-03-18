@@ -94,18 +94,12 @@
     \item Step size: $h=10^{-5}$.
     \item All 9 method-function combinations passed tolerance with errors below $1.5\times10^{-10}$.
 \end{itemize}
-
-\vspace{0.15in}
-\begin{center}
-\begin{tabular}{|l|c|c|}
-\hline
-Function and point & Method & Abs. error \\\hline
-$\sin(\pi/4)$ & central & $1.40\times10^{-11}$ \\\hline
-$e^{0.3}$ & forward & $3.38\times10^{-11}$ \\\hline
-$p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
-\end{tabular}
-\end{center}
 }
+\vspace{0.1in}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{../results/article_images/summary_table.png}
+\captionof{figure}{Per-method differentiation summary reused from generated Unit 03 artifacts.}
+\end{center}
 \contentend
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -138,7 +132,7 @@ $p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
 \begin{itemize}
     \item Subinterval sweep: $n=4,8,16,32,64,128,256$ for both methods.
     \item Trapezoidal observed order: $1.99999$ (expected $2$).
-    \item Simpson observed order: $6.65525$ (expected $4$; inflated by near-zero terminal errors).
+    \item Simpson observed order: $6.19026$ (expected $4$; inflated by near-zero terminal errors).
     \item Finest-mesh errors: trapezoidal $2.543\times10^{-6}$, Simpson $0$ (within machine precision).
 \end{itemize}
 
@@ -148,7 +142,7 @@ $p'(1.2)$ & backward & $1.40\times10^{-10}$ \\\hline
 \hline
 Method & Expected order & Observed order & Final tolerance pass \\\hline
 Trapezoidal & 2 & 1.99999 & Yes \\\hline
-Simpson & 4 & 6.65525 & Yes \\\hline
+Simpson & 4 & 6.19026 & Yes \\\hline
 \end{tabular}
 \end{center}
 }

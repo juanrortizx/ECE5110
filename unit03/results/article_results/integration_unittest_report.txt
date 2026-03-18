@@ -1,18 +1,16 @@
 Unit 03 Integration Unittest Report
 ====================================
 
-Method: trapezoidal
-- Integral of exp(x) on [0,1]: observed_order=1.999809, best_abs_error=2.184908e-06, final_n=256
-- Integral of 4/(1+x^2) on [0,1]: observed_order=1.999993, best_abs_error=2.543132e-06, final_n=256
-- Integral of sin(x) on [0,pi]: observed_order=2.001900, best_abs_error=2.509976e-05, final_n=256
-- Integral of x^2 on [0,1]: observed_order=2.000000, best_abs_error=2.543132e-06, final_n=256
-- Order status: PASS
+Trapezoidal summary
+case_name,observed_order,final_abs_error
+exp,1.99980931,2.18490777e-06
+pi_integrand,1.99999251,2.54313151e-06
+sine,2.00189963,2.50997649e-05
+x_squared,2.00000000,2.54313151e-06
 
-Method: simpson
-- Integral of exp(x) on [0,1]: observed_order=3.998666, best_abs_error=2.222222e-12, final_n=256
-- Integral of 4/(1+x^2) on [0,1]: observed_order=6.190259, best_abs_error=0.000000e+00, final_n=256
-- Integral of sin(x) on [0,pi]: observed_order=4.013800, best_abs_error=2.520024e-10, final_n=256
-- Integral of x^2 on [0,1]: observed_order=inf, best_abs_error=0.000000e+00, final_n=256
-- Order status: PASS
-
-Overall integration status: PASS
+Simpson summary
+case_name,observed_order,final_abs_error
+exp,3.99866595,2.22222241e-12
+pi_integrand,6.19025855,0.00000000e+00
+sine,4.01380020,2.52002419e-10
+x_squared,inf,0.00000000e+00

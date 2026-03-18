@@ -1,19 +1,26 @@
 Unit 03 Differentiation Unittest Report
 ========================================
 
-Analytic checks:
-- Total checks: 9
-- Passed: 9
-- Failed: 0
-- Overall analytic status: PASS
+Analytic case summary
+case_name,method,abs_error,tolerance,passed
+sine_at_pi_over_4,central,1.39637191e-11,1.00000000e-08,True
+sine_at_pi_over_4,forward,3.04452019e-11,1.00000000e-06,True
+sine_at_pi_over_4,backward,8.24074142e-12,1.00000000e-06,True
+exp_at_0p3,central,2.17448282e-11,1.00000000e-08,True
+exp_at_0p3,forward,3.37663231e-11,2.00000000e-06,True
+exp_at_0p3,backward,8.92774743e-11,2.00000000e-06,True
+poly_cubic_minus_quadratic,central,1.25974786e-10,1.00000000e-07,True
+poly_cubic_minus_quadratic,forward,1.40478740e-10,1.00000000e-05,True
+poly_cubic_minus_quadratic,backward,1.40478740e-10,1.00000000e-05,True
 
-Gravity validation:
-- Evaluation time: 0.174306 s
-- Estimated signed acceleration: -9.69038761 m/s^2
-- Acceleration magnitude: 9.69038761 m/s^2
-- Target |g|: 9.810 m/s^2
-- Magnitude absolute error: 0.11961239
-- Tolerance: 0.150
-- Gravity status: PASS
-
-Overall combined status: PASS
+Gravity check summary
+evaluation_time=1.74306000e-01
+estimated_signed_acceleration=-9.69038766e+00
+acceleration_magnitude=9.69038766e+00
+target_g_magnitude=9.81000000e+00
+magnitude_absolute_error=1.19612341e-01
+tolerance=1.50000000e-01
+gravity_pass=True
+overall_analytic_status=True
+overall_gravity_status=True
+overall_combined_status=True

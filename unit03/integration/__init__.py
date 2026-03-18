@@ -1,1 +1,1 @@
-"""Unit 03 integration workflow package."""
+"""Unit 03 integration helper package."""

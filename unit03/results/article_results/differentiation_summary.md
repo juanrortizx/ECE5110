@@ -1,5 +1,5 @@
-| method | passed | failed | total | max_abs_error | mean_abs_error | max_rel_error | mean_rel_error |
+| method | total_cases | pass_count | fail_count | max_abs_error | mean_abs_error | max_rel_error | mean_rel_error |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| central | 3 | 0 | 3 | 1.2597479e-10 | 5.3894444e-11 | 2.422592e-10 | 9.2705283e-11 |
-| forward | 3 | 0 | 3 | 1.4047874e-10 | 6.8230088e-11 | 2.7015142e-10 | 1.1274072e-10 |
-| backward | 3 | 0 | 3 | 1.4047874e-10 | 7.9332318e-11 | 2.7015142e-10 | 1.1598132e-10 |
+| central | 3 | 3 | 0 | 1.25974786e-10 | 5.38944445e-11 | 2.42259204e-10 | 9.27052833e-11 |
+| forward | 3 | 3 | 0 | 1.40478740e-10 | 6.82300882e-11 | 2.70151423e-10 | 1.12740716e-10 |
+| backward | 3 | 3 | 0 | 1.40478740e-10 | 7.93323185e-11 | 2.70151423e-10 | 1.15981324e-10 |

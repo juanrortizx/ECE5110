@@ -1,58 +1,34 @@
-"""Reusable table-image rendering for Unit 03 article artifacts."""
-
-from __future__ import annotations
-
-from pathlib import Path
+"""Shared table-to-image rendering helpers for Unit 03 artifacts."""
 
 import matplotlib.pyplot as plt
 
 
-def save_figure_png_svg(fig, output_stem, dpi=300, close_figure=True):
-    """Save a Matplotlib figure to PNG and SVG using a shared output stem."""
-    output_stem = Path(output_stem)
-    output_stem.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_stem.with_suffix(".png"), dpi=dpi)
-    fig.savefig(output_stem.with_suffix(".svg"))
-    if close_figure:
-        plt.close(fig)
+def _cell_text(rows, headers):
+    return [[str(row.get(header, "")) for header in headers] for row in rows]
 
 
-def render_table_image(rows, columns, title, output_stem):
-    """Render a table to both PNG and SVG files.
+def render_table_dual_format(rows, headers, output_stem, title=None, fontsize=9):
+    """Render a table to both PNG and SVG files using the same stem path."""
+    if not rows:
+        rows = [{header: "" for header in headers}]
 
-    Parameters
-    ----------
-    rows : list[dict]
-        Table rows as dictionaries.
-    columns : list[str]
-        Columns to display in order.
-    title : str
-        Figure title.
-    output_stem : pathlib.Path
-        Path stem used for ``.png`` and ``.svg`` outputs.
-    """
-    output_stem = Path(output_stem)
-    output_stem.parent.mkdir(parents=True, exist_ok=True)
-
-    cell_text = []
-    for row in rows:
-        cell_text.append([str(row.get(col, "")) for col in columns])
-
-    if not cell_text:
-        cell_text = [["" for _ in columns]]
-
-    fig_height = max(2.2, 0.5 + 0.4 * len(cell_text))
-    fig, ax = plt.subplots(figsize=(max(6.5, len(columns) * 1.3), fig_height))
+    fig, ax = plt.subplots(figsize=(max(8, len(headers) * 1.2), max(2.5, len(rows) * 0.45 + 1.8)))
     ax.axis("off")
+
     table = ax.table(
-        cellText=cell_text,
-        colLabels=columns,
+        cellText=_cell_text(rows, headers),
+        colLabels=headers,
         loc="center",
         cellLoc="center",
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(9)
+    table.set_fontsize(fontsize)
     table.scale(1.0, 1.2)
-    ax.set_title(title)
+
+    if title:
+        ax.set_title(title, fontsize=11, pad=10)
+
     fig.tight_layout()
-    save_figure_png_svg(fig, output_stem, dpi=300, close_figure=True)
+    fig.savefig(f"{output_stem}.png", dpi=220, bbox_inches="tight")
+    fig.savefig(f"{output_stem}.svg", bbox_inches="tight")
+    plt.close(fig)

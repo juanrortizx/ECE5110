@@ -1,36 +1,29 @@
-"""Workflow orchestration for Unit 03 differentiation outputs."""
+"""Top-level orchestration for Unit 03 differentiation workflow."""
 
-from __future__ import annotations
-
-from unit03.differentiation.artifacts import (
-    save_results,
-    write_unittest_report,
-)
 from unit03.common.paths import reset_unit_results
-from unit03.differentiation.calculators import (
-    build_summary,
-    collect_results,
-    estimate_gravity_from_interpolated_freefall,
-)
+from unit03.differentiation.artifacts import save_results, write_unittest_report
+from unit03.differentiation.calculators import collect_results, estimate_gravity_from_interpolated_freefall
 from unit03.differentiation.visuals import generate_article_images, generate_plots
 
 
 def generate_all_outputs(tool):
-    """Generate all differentiation artifacts, plots, and report content."""
-    dirs = reset_unit_results()
+    paths = reset_unit_results()
+    article_results_dir = paths["article_results_dir"]
+    plots_dir = paths["plots_dir"]
+    article_images_dir = paths["article_images_dir"]
+
     rows = collect_results(tool)
     freefall_result = estimate_gravity_from_interpolated_freefall(tool)
+    artifact_data = save_results(rows, freefall_result, article_results_dir)
 
-    artifacts_payload = save_results(rows, freefall_result, dirs["article_results_dir"])
-    generate_article_images(rows, dirs["article_images_dir"], freefall_result)
-    generate_plots(tool, dirs["plots_dir"], freefall_result)
-    report_path = write_unittest_report(rows, freefall_result, dirs["article_results_dir"])
+    generate_article_images(rows, article_images_dir, freefall_result)
+    generate_plots(tool, plots_dir, freefall_result)
+    write_unittest_report(rows, freefall_result, article_results_dir)
 
     return {
         "rows": rows,
-        "summary": build_summary(rows),
+        "summary": artifact_data["summary"],
+        "ranking": artifact_data["ranking"],
+        "metadata": artifact_data["metadata"],
         "freefall_result": freefall_result,
-        "artifact_payload": artifacts_payload,
-        "output_dirs": dirs,
-        "report_path": report_path,
     }

@@ -1,6 +1,6 @@
-| method | case | case_display | observed_order | best_n | best_abs_error | final_n | final_abs_error |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| simpson | exp_on_01 | Integral of exp(x) on [0,1] | 3.998665947 | 256 | 2.222222406e-12 | 256 | 2.222222406e-12 |
-| simpson | pi_form | Integral of 4/(1+x^2) on [0,1] | 6.190258553 | 256 | 0 | 256 | 0 |
-| simpson | sin_on_pi | Integral of sin(x) on [0,pi] | 4.013800204 | 256 | 2.520024189e-10 | 256 | 2.520024189e-10 |
-| simpson | x_squared | Integral of x^2 on [0,1] | inf | 4 | 0 | 256 | 0 |
+| method | case_name | min_abs_error | max_abs_error | final_n | final_abs_error | observed_order |
+| --- | --- | --- | --- | --- | --- | --- |
+| simpson | exp | 2.22222241e-12 | 3.70134627e-05 | 256 | 2.22222241e-12 | 3.99866595e+00 |
+| simpson | pi_integrand | 0.00000000e+00 | 2.40261388e-05 | 256 | 0.00000000e+00 | 6.19025855e+00 |
+| simpson | sine | 2.52002419e-10 | 4.55975498e-03 | 256 | 2.52002419e-10 | 4.01380020e+00 |
+| simpson | x_squared | 0.00000000e+00 | 0.00000000e+00 | 256 | 0.00000000e+00 | inf |

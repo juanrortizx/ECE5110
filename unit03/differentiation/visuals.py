@@ -1,174 +1,151 @@
-"""Plot and table-image generation for Unit 03 differentiation."""
+"""Plot and table-image generation for Unit 03 differentiation workflow."""
 
-from __future__ import annotations
-
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
-from unit03.common.artifact_io import format_rows_for_columns
-from unit03.common.table_images import render_table_image, save_figure_png_svg
-from unit03.differentiation.artifacts import sanitize_filename
-from unit03.differentiation.calculators import build_freefall_position_interpolant, build_summary
+from unit03.common.table_images import render_table_dual_format
 from unit03.differentiation.config import H_VALUES, METHODS, TEST_CASES
 
 
-CASE_TABLE_STEM_BY_NAME = {
-    "exp_x": "exp_at_0p3_results_table",
-    "cubic_poly": "poly_cubic_minus_quadratic_results_table",
-    "sin_x": "sine_at_pi_over_4_results_table",
-}
-
-CASE_PLOT_STEM_BY_NAME = {
-    "exp_x": "exp_at_0p3_error_vs_h",
-    "cubic_poly": "poly_cubic_minus_quadratic_error_vs_h",
-    "sin_x": "sine_at_pi_over_4_error_vs_h",
-}
+def _format_rows(rows, keys):
+    formatted = []
+    for row in rows:
+        formatted_row = {}
+        for key in keys:
+            value = row.get(key)
+            if isinstance(value, float):
+                formatted_row[key] = f"{value:.6e}"
+            else:
+                formatted_row[key] = str(value)
+        formatted.append(formatted_row)
+    return formatted
 
 
 def generate_article_images(rows, article_images_dir, freefall_result):
-    """Render summary tables for article insertion."""
-    summary_rows = build_summary(rows)
-    ranking_rows = sorted(rows, key=lambda row: row["abs_error"], reverse=True)
+    summary_rows = []
+    for method in METHODS:
+        subset = [row for row in rows if row["method"] == method]
+        summary_rows.append(
+            {
+                "method": method,
+                "count": len(subset),
+                "pass_count": sum(1 for row in subset if row["passed"]),
+                "max_abs_error": max(row["abs_error"] for row in subset),
+                "mean_abs_error": float(np.mean([row["abs_error"] for row in subset])),
+            }
+        )
 
-    result_cols = [
-        "case",
-        "method",
-        "x",
-        "h",
-        "exact",
-        "approx",
-        "abs_error",
-        "tolerance",
-        "passed",
-    ]
-    summary_cols = [
-        "method",
-        "passed",
-        "failed",
-        "max_abs_error",
-        "mean_abs_error",
-        "max_rel_error",
-    ]
-
-    render_table_image(
-        format_rows_for_columns(rows, result_cols, float_sigfigs=8),
-        result_cols,
-        "Differentiation Results",
+    render_table_dual_format(
+        _format_rows(rows, ["case_name", "method", "exact", "approx", "abs_error", "tolerance", "passed"]),
+        ["case_name", "method", "exact", "approx", "abs_error", "tolerance", "passed"],
         article_images_dir / "all_results_table",
+        title="Differentiation Results",
     )
-    render_table_image(
-        format_rows_for_columns(summary_rows, summary_cols, float_sigfigs=8),
-        summary_cols,
-        "Differentiation Summary",
+
+    render_table_dual_format(
+        _format_rows(summary_rows, ["method", "count", "pass_count", "max_abs_error", "mean_abs_error"]),
+        ["method", "count", "pass_count", "max_abs_error", "mean_abs_error"],
         article_images_dir / "summary_table",
+        title="Differentiation Summary",
     )
-    render_table_image(
-        format_rows_for_columns(ranking_rows, result_cols, float_sigfigs=8),
-        result_cols,
-        "Differentiation Error Ranking",
+
+    ranking = sorted(rows, key=lambda row: row["abs_error"], reverse=True)
+    render_table_dual_format(
+        _format_rows(ranking, ["case_name", "method", "abs_error", "rel_error", "passed"]),
+        ["case_name", "method", "abs_error", "rel_error", "passed"],
         article_images_dir / "error_ranking_table",
+        title="Differentiation Error Ranking",
     )
 
     for case in TEST_CASES:
-        case_rows = [row for row in rows if row["case"] == case["name"]]
-        render_table_image(
-            format_rows_for_columns(case_rows, result_cols, float_sigfigs=8),
-            result_cols,
-            f"Differentiation Case: {case['display_name']}",
-            article_images_dir / CASE_TABLE_STEM_BY_NAME.get(
-                case["name"], f"differentiation_case_{sanitize_filename(case['name'])}_table"
-            ),
+        case_rows = [row for row in rows if row["case_name"] == case["name"]]
+        render_table_dual_format(
+            _format_rows(case_rows, ["method", "exact", "approx", "abs_error", "tolerance", "passed"]),
+            ["method", "exact", "approx", "abs_error", "tolerance", "passed"],
+            article_images_dir / f"{case['name']}_results_table",
+            title=case["display_name"],
         )
 
-    freefall_rows = [
+    freefall_table_rows = [
         {
-            "step_size": freefall_result["step_size"],
             "evaluation_time": freefall_result["evaluation_time"],
-            "accel_signed": freefall_result["acceleration_signed"],
-            "accel_magnitude": freefall_result["acceleration_magnitude"],
-            "target_abs_g": freefall_result["target_abs_gravity"],
-            "abs_error": freefall_result["absolute_error"],
+            "signed_accel": freefall_result["estimated_accel_signed"],
+            "abs_accel": freefall_result["estimated_accel_magnitude"],
+            "target_abs_g": freefall_result["target_gravity_magnitude"],
+            "abs_error": freefall_result["magnitude_abs_error"],
             "tolerance": freefall_result["tolerance"],
             "passed": freefall_result["passed"],
         }
     ]
-    freefall_cols = list(freefall_rows[0].keys())
-    render_table_image(
-        format_rows_for_columns(freefall_rows, freefall_cols, float_sigfigs=8),
-        freefall_cols,
-        "Free-Fall Gravity Estimate",
+    render_table_dual_format(
+        _format_rows(
+            freefall_table_rows,
+            ["evaluation_time", "signed_accel", "abs_accel", "target_abs_g", "abs_error", "tolerance", "passed"],
+        ),
+        ["evaluation_time", "signed_accel", "abs_accel", "target_abs_g", "abs_error", "tolerance", "passed"],
         article_images_dir / "freefall_gravity_results_table",
+        title="Free-Fall Gravity Estimate",
     )
 
-    sample_rows = [
-        {"time": t, "position": x}
-        for t, x in zip(freefall_result["time_data"], freefall_result["position_data"])
-    ]
-    render_table_image(
-        format_rows_for_columns(sample_rows, ["time", "position"], float_sigfigs=8),
-        ["time", "position"],
-        "Free-Fall Samples",
+    source_rows = []
+    for t_value, s_value in zip(freefall_result["time_data"], freefall_result["position_data"]):
+        source_rows.append({"time_s": t_value, "position_m": s_value})
+    render_table_dual_format(
+        _format_rows(source_rows, ["time_s", "position_m"]),
+        ["time_s", "position_m"],
         article_images_dir / "freefall_source_data_table",
+        title="Free-Fall Source Data",
     )
 
 
 def generate_plots(tool, plots_dir, freefall_result):
-    """Generate log-log error plots and free-fall interpolation figure."""
     for case in TEST_CASES:
-        fig, ax = plt.subplots(figsize=(7.0, 4.6))
-        x0 = float(case["x"])
-        exact = float(case["df"](x0))
+        exact = case["df"](case["x"])
+
+        plt.figure(figsize=(7.2, 4.4))
         for method in METHODS:
             errors = []
             for h in H_VALUES:
-                approx = tool.numerical_differentiation_3point(
-                    case["f"], x0, h=float(h), method=method
-                )
+                approx = tool.numerical_differentiation_3point(case["f"], case["x"], h=float(h), method=method)
                 errors.append(abs(approx - exact))
-            ax.loglog(H_VALUES, errors, label=method)
+            plt.loglog(H_VALUES, errors, label=method)
 
-        ax.set_title(f"Differentiation Error vs h: {case['display_name']}")
-        ax.set_xlabel("h")
-        ax.set_ylabel("|error|")
-        ax.grid(True, which="both", alpha=0.3)
-        ax.legend()
-        fig.tight_layout()
-        stem = plots_dir / CASE_PLOT_STEM_BY_NAME.get(
-            case["name"], f"differentiation_{sanitize_filename(case['name'])}_error_vs_h"
-        )
-        save_figure_png_svg(fig, stem, dpi=300, close_figure=True)
+        plt.grid(True, which="both", ls="--", alpha=0.35)
+        plt.xlabel("h")
+        plt.ylabel("absolute error")
+        plt.title(f"3-point differentiation error vs h: {case['display_name']}")
+        plt.legend()
+        plt.tight_layout()
+        stem = plots_dir / f"{case['name']}_error_vs_h"
+        plt.savefig(f"{stem}.png", dpi=220)
+        plt.savefig(f"{stem}.svg")
+        plt.close()
 
-    position_poly, _ = build_freefall_position_interpolant()
-    t = np.linspace(
-        min(freefall_result["time_data"]),
-        max(freefall_result["time_data"]),
-        300,
-    )
-    x = position_poly(t)
+    coeffs = np.array(freefall_result["poly_coefficients"], dtype=float)
+    poly = np.poly1d(coeffs)
+    t_data = np.array(freefall_result["time_data"], dtype=float)
+    y_data = np.array(freefall_result["position_data"], dtype=float)
+    t_dense = np.linspace(np.min(t_data), np.max(t_data), 400)
 
-    fig, ax = plt.subplots(figsize=(7.0, 4.8))
-    ax.plot(t, x, label="Quadratic interpolant", linewidth=2.0)
-    ax.scatter(
-        freefall_result["time_data"],
-        freefall_result["position_data"],
-        label="Samples",
-        color="black",
-        zorder=3,
+    plt.figure(figsize=(7.2, 4.4))
+    plt.scatter(t_data, y_data, label="source data", color="tab:blue")
+    plt.plot(t_dense, poly(t_dense), label="quadratic interpolant", color="tab:orange")
+    plt.axvline(freefall_result["evaluation_time"], color="tab:green", linestyle="--", label="evaluation time")
+    plt.title("Free-fall interpolation and gravity estimate")
+    plt.xlabel("time [s]")
+    plt.ylabel("position [m]")
+    plt.text(
+        0.02,
+        0.03,
+        f"|g| est = {freefall_result['estimated_accel_magnitude']:.4f} m/s^2",
+        transform=plt.gca().transAxes,
+        fontsize=10,
+        bbox={"facecolor": "white", "alpha": 0.7, "edgecolor": "none"},
     )
-    t0 = freefall_result["evaluation_time"]
-    x0 = float(position_poly(t0))
-    ax.scatter([t0], [x0], label=f"Evaluation t0={t0:.4f} s", color="red", zorder=4)
-    ax.set_title(
-        "Free-Fall Interpolation and |g| Estimate "
-        f"({freefall_result['acceleration_magnitude']:.4f} m/s^2)"
-    )
-    ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Position (m)")
-    ax.grid(True, alpha=0.3)
-    ax.legend()
-    fig.tight_layout()
+    plt.grid(True, ls="--", alpha=0.35)
+    plt.legend()
+    plt.tight_layout()
     stem = plots_dir / "freefall_gravity_interpolation"
-    save_figure_png_svg(fig, stem, dpi=300, close_figure=True)
+    plt.savefig(f"{stem}.png", dpi=220)
+    plt.savefig(f"{stem}.svg")
+    plt.close()

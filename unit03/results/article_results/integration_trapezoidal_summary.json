@@ -1,42 +1,38 @@
 [
   {
-    "best_abs_error": 2.1849077749269696e-06,
-    "best_n": 256,
-    "case": "exp_on_01",
-    "case_display": "Integral of exp(x) on [0,1]",
-    "final_abs_error": 2.1849077749269696e-06,
-    "final_n": 256,
     "method": "trapezoidal",
+    "case_name": "exp",
+    "min_abs_error": 2.1849077749269696e-06,
+    "max_abs_error": 0.008940076098471472,
+    "final_n": 256,
+    "final_abs_error": 2.1849077749269696e-06,
     "observed_order": 1.999809310668038
   },
   {
-    "best_abs_error": 2.543131510268637e-06,
-    "best_n": 256,
-    "case": "pi_form",
-    "case_display": "Integral of 4/(1+x^2) on [0,1]",
-    "final_abs_error": 2.543131510268637e-06,
-    "final_n": 256,
     "method": "trapezoidal",
+    "case_name": "pi_integrand",
+    "min_abs_error": 2.543131510268637e-06,
+    "max_abs_error": 0.010416183001557666,
+    "final_n": 256,
+    "final_abs_error": 2.543131510268637e-06,
     "observed_order": 1.9999925138691284
   },
   {
-    "best_abs_error": 2.509976494757815e-05,
-    "best_n": 256,
-    "case": "sin_on_pi",
-    "case_display": "Integral of sin(x) on [0,pi]",
-    "final_abs_error": 2.509976494757815e-05,
-    "final_n": 256,
     "method": "trapezoidal",
+    "case_name": "sine",
+    "min_abs_error": 2.509976494757815e-05,
+    "max_abs_error": 0.1038811020629602,
+    "final_n": 256,
+    "final_abs_error": 2.509976494757815e-05,
     "observed_order": 2.0018996325032523
   },
   {
-    "best_abs_error": 2.5431315104351704e-06,
-    "best_n": 256,
-    "case": "x_squared",
-    "case_display": "Integral of x^2 on [0,1]",
-    "final_abs_error": 2.5431315104351704e-06,
-    "final_n": 256,
     "method": "trapezoidal",
+    "case_name": "x_squared",
+    "min_abs_error": 2.5431315104351704e-06,
+    "max_abs_error": 0.010416666666666685,
+    "final_n": 256,
+    "final_abs_error": 2.5431315104351704e-06,
     "observed_order": 1.9999999999986675
   }
 ]

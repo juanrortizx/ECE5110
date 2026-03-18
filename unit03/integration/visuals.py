@@ -1,64 +1,65 @@
-"""Visualization utilities for Unit 03 integration workflows."""
+"""Table images and convergence plots for Unit 03 integration workflow."""
 
-from __future__ import annotations
-
-import matplotlib
-
-matplotlib.use("Agg")
+import numpy as np
 import matplotlib.pyplot as plt
 
-from unit03.common.artifact_io import format_rows_for_columns
-from unit03.common.table_images import render_table_image, save_figure_png_svg
+from unit03.common.table_images import render_table_dual_format
+from unit03.integration.config import BENCHMARK_CASES
 
 
-def generate_article_images(method, rows, summary_rows, article_images_dir):
-    """Generate per-method result and summary table images."""
-    result_cols = ["case", "n", "h", "exact", "approx", "abs_error", "rel_error"]
-    summary_cols = [
-        "case",
-        "observed_order",
-        "best_n",
-        "best_abs_error",
-        "final_n",
-        "final_abs_error",
-    ]
+def _fmt_rows(rows, headers):
+    formatted = []
+    for row in rows:
+        entry = {}
+        for key in headers:
+            value = row.get(key)
+            if isinstance(value, float):
+                entry[key] = f"{value:.6e}"
+            else:
+                entry[key] = str(value)
+        formatted.append(entry)
+    return formatted
 
-    render_table_image(
-        format_rows_for_columns(rows, result_cols, float_sigfigs=8),
-        result_cols,
-        f"Integration {method.title()} Results",
-        article_images_dir / f"integration_{method}_results_table",
+
+def generate_article_images(method_key, rows, summary_rows, article_images_dir):
+    result_headers = ["case_name", "n", "h", "exact", "approx", "abs_error"]
+    summary_headers = ["case_name", "observed_order", "final_abs_error", "min_abs_error", "max_abs_error"]
+
+    render_table_dual_format(
+        _fmt_rows(rows, result_headers),
+        result_headers,
+        article_images_dir / f"integration_{method_key}_results_table",
+        title=f"Integration {method_key.title()} Results",
     )
-    render_table_image(
-        format_rows_for_columns(summary_rows, summary_cols, float_sigfigs=8),
-        summary_cols,
-        f"Integration {method.title()} Summary",
-        article_images_dir / f"integration_{method}_summary_table",
+    render_table_dual_format(
+        _fmt_rows(summary_rows, summary_headers),
+        summary_headers,
+        article_images_dir / f"integration_{method_key}_summary_table",
+        title=f"Integration {method_key.title()} Summary",
     )
 
 
-def generate_error_plots(method, rows, plots_dir):
-    """Generate log-log error-vs-h plots for each benchmark case."""
-    case_names = sorted({row["case"] for row in rows})
-    for case_name in case_names:
-        case_rows = sorted(
-            [row for row in rows if row["case"] == case_name],
-            key=lambda row: row["n"],
-        )
-        h_values = [row["h"] for row in case_rows]
-        errors = [row["abs_error"] for row in case_rows]
-        plot_errors = [max(err, 1e-300) for err in errors]
-        display_name = case_rows[0]["case_display"]
+def generate_error_plots(method_key, rows, plots_dir):
+    for case in BENCHMARK_CASES:
+        case_rows = [row for row in rows if row["case_name"] == case["name"]]
+        case_rows = sorted(case_rows, key=lambda row: row["h"], reverse=True)
+        h_vals = [row["h"] for row in case_rows]
+        e_vals = [max(row["abs_error"], np.finfo(float).tiny) for row in case_rows]
 
-        fig, ax = plt.subplots(figsize=(7.0, 4.6))
-        ax.loglog(h_values, plot_errors, marker="o", linewidth=1.8)
-        ax.set_title(f"{method.title()} Error vs h: {display_name}")
-        ax.set_xlabel("h")
-        ax.set_ylabel("|error|")
-        ax.grid(True, which="both", alpha=0.3)
-        fig.tight_layout()
-        if case_name == "x_squared":
-            stem = plots_dir / f"integration_{method}_error_vs_h"
-        else:
-            stem = plots_dir / f"integration_{method}_{case_name}_error_vs_h"
-        save_figure_png_svg(fig, stem, dpi=300, close_figure=True)
+        plt.figure(figsize=(6.6, 4.2))
+        plt.loglog(h_vals, e_vals, marker="o")
+        plt.grid(True, which="both", ls="--", alpha=0.35)
+        plt.xlabel("h")
+        plt.ylabel("absolute error")
+        plt.title(f"{method_key.title()} error vs h: {case['name']}")
+        plt.tight_layout()
+
+        stem = plots_dir / f"integration_{method_key}_{case['name']}_error_vs_h"
+        plt.savefig(f"{stem}.png", dpi=220)
+        plt.savefig(f"{stem}.svg")
+
+        if case["name"] == "x_squared":
+            canonical_stem = plots_dir / f"integration_{method_key}_error_vs_h"
+            plt.savefig(f"{canonical_stem}.png", dpi=220)
+            plt.savefig(f"{canonical_stem}.svg")
+        plt.close()
