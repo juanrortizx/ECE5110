@@ -19,6 +19,13 @@ Use this skill when the task involves any of the following:
 
 This skill is designed for numerical methods workflows in this repository and should follow existing project conventions.
 
+## Layered Skill Model
+
+Use this domain skill together with `unit03-workflow-infra` when touching shared non-numerical helpers.
+
+- `integration-trapezoidal`: trapezoidal method behavior, validation, convergence checks, and method-specific assertions.
+- `unit03-workflow-infra`: shared path constants, output-directory setup, artifact I/O helpers, and reusable table-image utilities.
+
 ## Goal
 
 Produce or update Python files that:
@@ -39,6 +46,15 @@ unit03/integration/
   artifacts.py     # Directory clearing, CSV/JSON/Markdown exporters, report writer
   visuals.py       # Table images and error-vs-h plots
   workflow.py      # generate_all_outputs(tool) orchestrator
+```
+
+Cross-domain utilities may live under:
+
+```text
+unit03/common/
+  paths.py
+  artifact_io.py
+  table_images.py
 ```
 
 `unit03/test/test_integration.py` remains a single unittest harness that calls `workflow.generate_all_outputs(...)` and then runs assertions specific to each method.

@@ -18,6 +18,13 @@ Use this skill when the task involves any of the following:
 
 This skill is designed for numerical methods workflows in this repository and should follow existing project conventions.
 
+## Layered Skill Model
+
+Use this domain skill together with `unit03-workflow-infra` when refactoring shared workflow infrastructure.
+
+- `integration-simpson`: Simpson method behavior, parity validation, convergence checks, and method-specific acceptance criteria.
+- `unit03-workflow-infra`: shared path/output helpers, CSV/Markdown utilities, and shared table-image infrastructure.
+
 ## Goal
 
 Produce or update Python files that:
@@ -38,6 +45,15 @@ unit03/integration/
   artifacts.py     # Directory reset, CSV/JSON/Markdown exports, report writer
   visuals.py       # Table-image utilities and error-vs-h plots
   workflow.py      # generate_all_outputs(tool) orchestration
+```
+
+Cross-domain common helpers can be centralized in:
+
+```text
+unit03/common/
+  paths.py
+  artifact_io.py
+  table_images.py
 ```
 
 `unit03/test/test_integration.py` imports `workflow.generate_all_outputs(...)` and reuses the returned rows/summaries in its assertions. Keep helper functions in their modules; do not reintroduce them into the test script.

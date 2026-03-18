@@ -22,6 +22,13 @@ Use this skill when the task involves any of the following:
 
 This skill is specifically designed for the ECE 5110 numerical methods project structure and should follow the repository conventions already in use.
 
+## Layered Skill Model
+
+Use this domain skill together with `unit03-workflow-infra` when changes involve shared infrastructure.
+
+- `differentiation-3point`: numerical differentiation behavior, tolerances, free-fall validation, and differentiation-specific outputs.
+- `unit03-workflow-infra`: shared path setup, artifact I/O helpers, and common table-image rendering used by multiple Unit 03 domains.
+
 ### Helper Package Layout
 
 Differentiation logic is modularized under `unit03/differentiation/`:
@@ -33,6 +40,15 @@ unit03/differentiation/
   artifacts.py       # Directory reset, markdown writers, CSV/JSON exports, report writer
   visuals.py         # Table-image generation and matplotlib plots
   workflow.py        # `generate_all_outputs(tool)` orchestration entry point
+```
+
+Shared cross-domain helpers may live in:
+
+```text
+unit03/common/
+  paths.py
+  artifact_io.py
+  table_images.py
 ```
 
 `unit03/test/test_differentiation.py` should import `generate_all_outputs` and the needed constants instead of redefining helpers inline. When updating this workflow, edit the module that owns the relevant responsibility (constants in `config.py`, filesystem work in `artifacts.py`, etc.) so future runs stay modular.
