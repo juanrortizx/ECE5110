@@ -11,3 +11,4 @@ images/
 latex.lnk
 
 unit*_test_results/
+/lib/__pycache__
