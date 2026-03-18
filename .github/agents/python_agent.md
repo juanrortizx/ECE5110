@@ -53,10 +53,10 @@ Before generating new code, inspect existing implementations when relevant, espe
 - `lib/tools.py`
 - `lib/differentiation_tools.py`
 - `lib/integration_tools.py`
+- helper packages under `unit03/differentiation/` and `unit03/integration/`
 - existing files inside unit-specific test folders such as `unit03/test/`
 - `unit03/test/test_differentiation.py`
-- `unit03/test/test_integration_trapezoidal.py`
-- `unit03/test/test_integration_simpson.py`
+- `unit03/test/test_integration.py`
 
 Do not recreate functionality that already exists unless the user explicitly asks for a rewrite or refactor.
 
@@ -89,16 +89,27 @@ latex/
   template/
 
 unit03/
-  article/
+  differentiation/
+    __init__.py
+    config.py
+    calculators.py
+    artifacts.py
+    visuals.py
+    workflow.py
+  integration/
+    __init__.py
+    config.py
+    calculators.py
+    artifacts.py
+    visuals.py
+    workflow.py
   results/
     article_images/
     article_results/
     plots/
-  slides/
   test/
     test_differentiation.py
-    test_integration_trapezoidal.py
-    test_integration_simpson.py
+    test_integration.py
 ```
 
 General rules:
@@ -130,17 +141,11 @@ When given a task:
 
 When a matching skill exists, use that skill as the implementation guide.
 
-For Unit 03 differentiation work, follow:
+For Unit 03 differentiation work, follow `.github/skills/differentiation-3point/SKILL.md` and its helper modules inside `unit03/differentiation/`.
 
-- `.github/skills/differentiation-3point/SKILL.md`
+For Unit 03 trapezoidal integration work, follow `.github/skills/integration-trapezoidal/SKILL.md` and reuse the shared helpers under `unit03/integration/`.
 
-For Unit 03 trapezoidal integration work, follow:
-
-- `.github/skills/integration-trapezoidal/SKILL.md`
-
-For Unit 03 Simpson integration work, follow:
-
-- `.github/skills/integration-simpson/SKILL.md`
+For Unit 03 Simpson integration work, follow `.github/skills/integration-simpson/SKILL.md`; it shares the same helper modules and artifact contract as the trapezoidal skill.
 
 These skills are the source of truth for:
 
@@ -153,6 +158,16 @@ These skills are the source of truth for:
 - required output locations in `unit03/results/`
 
 When working on a task covered by one of these skills, make the implementation match that skill closely.
+
+---
+
+# Shared Workflow Contract
+
+- Differentiation helpers live in `unit03/differentiation/` and integration helpers live in `unit03/integration/`. Import these modules inside the corresponding `unit03/test/` scripts instead of duplicating helper logic.
+- Both workflows must clear and recreate `unit03/results/` before generating artifacts. Always build the subdirectories `article_results/`, `plots/`, and `article_images/` as part of that reset step.
+- Library files inside `lib/` (`DifferentiationTools`, `IntegrationTools`) contain only numerical kernels. Reporting, plotting, directory management, and metadata generation belong in the helper modules or the orchestrating test scripts.
+- Tests (`unit03/test/test_differentiation.py` and `unit03/test/test_integration.py`) should orchestrate work through the `workflow.generate_all_outputs(...)` functions exported by the helper packages, then assert on the returned data.
+- Any new automation or refactor that touches these workflows must update both the helper modules and the corresponding skill file so the python agent can regenerate the same structure.
 
 ---
 

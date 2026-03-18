@@ -28,13 +28,29 @@ Produce or update Python files that:
 3. Demonstrate expected convergence behavior.
 4. Export report-ready artifacts.
 
+### Helper Package Layout
+
+Both trapezoidal and Simpson workflows reuse the `unit03/integration/` helper package:
+
+```text
+unit03/integration/
+  config.py        # Paths, benchmark cases, sweep sizes, target orders
+  calculators.py   # collect_method_results, observed_order, build_summary
+  artifacts.py     # Directory clearing, CSV/JSON/Markdown exporters, report writer
+  visuals.py       # Table images and error-vs-h plots
+  workflow.py      # generate_all_outputs(tool) orchestrator
+```
+
+`unit03/test/test_integration.py` remains a single unittest harness that calls `workflow.generate_all_outputs(...)` and then runs assertions specific to each method.
+
 ## Recommended File Targets
 
 Use these default targets unless the user requests different locations:
 
 - Library file: `lib/integration_tools.py`
-- Test/demo file: `unit03/test/test_integration_trapezoidal.py`
-- Results folder: `unit03/results/`
+- Helper package: `unit03/integration/` (`config.py`, `calculators.py`, `artifacts.py`, `visuals.py`, `workflow.py`)
+- Test/demo file: `unit03/test/test_integration.py`
+- Results folder: `unit03/results/` (clear + recreate on each run)
 
 If the user specifies another unit folder, keep the same structure under that unit.
 
@@ -81,12 +97,13 @@ Style rules:
 
 ## Test and Results Workflow
 
-The test/demo script should:
+`unit03/test/test_integration.py` must:
 
 1. Run with `python <script>` and also via unittest discovery.
-2. Evaluate multiple exact-integral benchmarks.
-3. Export machine-readable and article-ready outputs.
-4. Plot error vs step size and verify expected slope.
+2. Invoke `unit03.integration.workflow.generate_all_outputs(IntegrationTools())`, which resets `unit03/results/`, computes both trapezoidal and Simpson rows, writes every CSV/JSON/Markdown file, generates plots/table images, and emits a unified unittest report.
+3. Evaluate the benchmark set below for both methods (shared `BENCHMARK_CASES` from `config.py`).
+4. Ensure trapezoidal validation covers callable checks, positive `n`, and nonzero interval width.
+5. Assert that observed log-log slopes hover near the $O(h^2)$ expectation.
 
 Recommended benchmark set:
 
@@ -107,16 +124,17 @@ Expected convergence:
 
 ## Required Exports
 
-At minimum, save:
+At minimum, a run that exercises the trapezoidal method must emit:
 
-- `integration_trapezoidal_results.csv`
-- `integration_trapezoidal_results.json`
-- `integration_trapezoidal_results.md`
-- `integration_trapezoidal_summary.csv`
-- `integration_trapezoidal_metadata.json`
-- `plots/*error_vs_h*.png`
+- `article_results/integration_trapezoidal_results.{csv,json,md}`
+- `article_results/integration_trapezoidal_summary.csv`
+- `article_results/integration_trapezoidal_metadata.json`
+- `article_results/integration_unittest_report.txt` (shared summary)
+- `plots/integration_trapezoidal_<case>_error_vs_h.{png,svg}`
+- `article_images/integration_trapezoidal_results_table.{png,svg}`
+- `article_images/integration_trapezoidal_summary_table.{png,svg}`
 
-If article workflows are enabled, also export table images (`.png`, `.svg`).
+The same execution also produces the Simpson outputs; confirm that both sets appear after the `unit03/results/` reset.
 
 ## Completion Checks
 
@@ -134,3 +152,13 @@ A trapezoidal workflow is complete when:
 - Using too few $n$ values to show a clear slope region.
 - Mixing scalar and vector function assumptions without handling NumPy input.
 - Interpreting very-small-$h$ floating-point effects as method failure.
+
+## Helper Module Responsibilities
+
+- `config.py` centralizes benchmark data, `N_VALUES`, expected orders, and output paths so both methods share identical inputs.
+- `calculators.py` gathers per-method rows and computes observed convergence orders; extend these helpers instead of duplicating loops.
+- `artifacts.py` is responsible for clearing `unit03/results/`, exporting every CSV/JSON/Markdown file, and writing the unified unittest report.
+- `visuals.py` renders the PNG/SVG table images and the log-log error plots for each benchmark.
+- `workflow.py` ties everything together via `generate_all_outputs(tool)` and returns dictionaries consumed by `unit03/test/test_integration.py`.
+
+Any update to trapezoidal behavior should pass through these helpers so Simpson automatically benefits from shared improvements.

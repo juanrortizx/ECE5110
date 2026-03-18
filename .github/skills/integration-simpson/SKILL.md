@@ -27,13 +27,29 @@ Produce or update Python files that:
 3. Demonstrate expected fourth-order convergence on smooth problems.
 4. Export report-ready outputs.
 
+### Helper Package Layout
+
+Shared helpers for both trapezoidal and Simpson workflows live in `unit03/integration/`:
+
+```text
+unit03/integration/
+  config.py        # Paths, benchmark definitions, sweep values, expected orders
+  calculators.py   # collect_method_results, observed_order, build_summary
+  artifacts.py     # Directory reset, CSV/JSON/Markdown exports, report writer
+  visuals.py       # Table-image utilities and error-vs-h plots
+  workflow.py      # generate_all_outputs(tool) orchestration
+```
+
+`unit03/test/test_integration.py` imports `workflow.generate_all_outputs(...)` and reuses the returned rows/summaries in its assertions. Keep helper functions in their modules; do not reintroduce them into the test script.
+
 ## Recommended File Targets
 
 Use these default targets unless the user requests different locations:
 
 - Library file: `lib/integration_tools.py`
-- Test/demo file: `unit03/test/test_integration_simpson.py`
-- Results folder: `unit03/results/`
+- Helper package: `unit03/integration/` (`config.py`, `calculators.py`, `artifacts.py`, `visuals.py`, `workflow.py`)
+- Test/demo file: `unit03/test/test_integration.py`
+- Results folder: `unit03/results/` (cleared and recreated each run)
 
 If the user specifies another unit folder, keep the same structure under that unit.
 
@@ -86,12 +102,18 @@ Style rules:
 
 ## Test and Results Workflow
 
-The test/demo script should:
+`unit03/test/test_integration.py` must:
 
 1. Run with `python <script>` and also via unittest discovery.
-2. Evaluate exact-integral benchmarks and report per-case errors.
-3. Include a parity test that confirms odd `n` is rejected.
-4. Export machine-readable and article-ready outputs.
+2. Call `unit03.integration.workflow.generate_all_outputs(IntegrationTools())`, which:
+   - clears and recreates `unit03/results/` (`article_results/`, `plots/`, `article_images/`)
+   - collects trapezoidal and Simpson rows plus summaries
+   - writes all CSV/JSON/Markdown/metadata outputs for both methods
+   - generates error plots and article table images
+   - writes a joint unittest report.
+3. Evaluate the benchmark set below for both methods and record absolute errors.
+4. Include a parity test that confirms odd `n` is rejected for Simpson.
+5. Assert that the observed log-log slopes exceed the expected 4th-order threshold.
 
 Recommended benchmark set:
 
@@ -112,16 +134,17 @@ Expected convergence:
 
 ## Required Exports
 
-At minimum, save:
+At minimum, save the following into `unit03/results/` (after clearing it at the start of the run):
 
-- `integration_simpson_results.csv`
-- `integration_simpson_results.json`
-- `integration_simpson_results.md`
-- `integration_simpson_summary.csv`
-- `integration_simpson_metadata.json`
-- `plots/*error_vs_h*.png`
+- `article_results/integration_simpson_results.{csv,json,md}`
+- `article_results/integration_simpson_summary.csv`
+- `article_results/integration_simpson_metadata.json`
+- `article_results/integration_unittest_report.txt` (shared with trapezoidal summaries)
+- `plots/integration_simpson_<case>_error_vs_h.{png,svg}`
+- `article_images/integration_simpson_results_table.{png,svg}`
+- `article_images/integration_simpson_summary_table.{png,svg}`
 
-If article workflows are enabled, also export table images (`.png`, `.svg`).
+The same run also writes the trapezoidal counterparts; ensure the Simpson portion remains complete.
 
 ## Completion Checks
 
@@ -140,3 +163,13 @@ A Simpson workflow is complete when:
 - Mixing odd/even interior index sums.
 - Claiming fourth-order behavior outside the asymptotic region.
 - Comparing methods at unequal `n` or inconsistent benchmark definitions.
+
+## Helper Module Responsibilities
+
+- `config.py`: stores all benchmark definitions (`BENCHMARK_CASES`), `N_VALUES`, expected orders (4 for Simpson, 2 for trapezoidal), and path constants (`ARTICLE_RESULTS_DIR`, `PLOTS_DIR`, `ARTICLE_IMAGES_DIR`).
+- `calculators.py`: implements `collect_method_results`, `observed_order`, and `build_summary`. Simpson changes should flow through these helpers rather than duplicating loops.
+- `artifacts.py`: exposes `prepare_output_dirs()` (which clears/rebuilds the result tree), `write_method_outputs(...)`, and `write_unittest_report(...)`. Any new artifact goes here so both methods benefit.
+- `visuals.py`: contains `generate_article_images(...)` and `generate_error_plots(...)` plus the shared `save_table_image(...)`.
+- `workflow.py`: orchestrates the entire run via `generate_all_outputs(tool)` and returns the data that the unittest class asserts on.
+
+`unit03/test/test_integration.py` should remain a thin unittest harness that calls `generate_all_outputs` in `setUpClass()` and then runs accuracy/order/output checks using the returned dictionaries.
