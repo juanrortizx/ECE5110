@@ -58,6 +58,12 @@ Before generating new code, inspect existing implementations when relevant, espe
 - `unit03/test/test_differentiation.py`
 - `unit03/test/test_integration.py`
 
+Also inspect shared infrastructure before changing output behavior:
+
+- `unit03/common/paths.py`
+- `unit03/common/artifact_io.py`
+- `unit03/common/table_images.py`
+
 Do not recreate functionality that already exists unless the user explicitly asks for a rewrite or refactor.
 
 If a method already exists, prefer extending or updating it instead of creating a second competing version.
@@ -147,6 +153,9 @@ For Unit 03 trapezoidal integration work, follow `.github/skills/integration-tra
 
 For Unit 03 Simpson integration work, follow `.github/skills/integration-simpson/SKILL.md`; it shares the same helper modules and artifact contract as the trapezoidal skill.
 
+For shared Unit 03 workflow infrastructure work, follow `.github/skills/unit03-workflow-infra/SKILL.md`.
+Use that skill when creating or updating reusable helpers under `unit03/common/`, including result-path setup, artifact writing helpers, table-image utilities, shared formatting helpers, and other infrastructure used by both differentiation and integration workflows.
+
 These skills are the source of truth for:
 
 - required file paths
@@ -164,10 +173,15 @@ When working on a task covered by one of these skills, make the implementation m
 # Shared Workflow Contract
 
 - Differentiation helpers live in `unit03/differentiation/` and integration helpers live in `unit03/integration/`. Import these modules inside the corresponding `unit03/test/` scripts instead of duplicating helper logic.
-- Both workflows must clear and recreate `unit03/results/` before generating artifacts. Always build the subdirectories `article_results/`, `plots/`, and `article_images/` as part of that reset step.
+- Both workflows currently use `unit03.common.paths.reset_unit_results()` to ensure `unit03/results/article_results/`, `unit03/results/plots/`, and `unit03/results/article_images/` exist. Current behavior is non-destructive: existing files are preserved.
 - Library files inside `lib/` (`DifferentiationTools`, `IntegrationTools`) contain only numerical kernels. Reporting, plotting, directory management, and metadata generation belong in the helper modules or the orchestrating test scripts.
 - Tests (`unit03/test/test_differentiation.py` and `unit03/test/test_integration.py`) should orchestrate work through the `workflow.generate_all_outputs(...)` functions exported by the helper packages, then assert on the returned data.
 - Any new automation or refactor that touches these workflows must update both the helper modules and the corresponding skill file so the python agent can regenerate the same structure.
+
+Current test contracts:
+
+- `unit03/test/test_differentiation.py`: tolerance checks, free-fall gravity magnitude check, required differentiation outputs check.
+- `unit03/test/test_integration.py`: trapezoidal validation checks, Simpson odd-`n` rejection, observed-order thresholds, required integration outputs check.
 
 ---
 
@@ -207,6 +221,13 @@ Depending on the task, outputs may include:
 
 All generated artifacts should be stored in the correct existing results folder for that unit.
 
+For Unit 03, common expected artifacts include:
+
+- Differentiation: `differentiation_test_results.*`, `differentiation_summary.*`, `differentiation_error_ranking.csv`, `differentiation_freefall_coefficients.csv`, `freefall_gravity_results.*`, `run_metadata.json`, `unittest_report.txt`.
+- Integration: `integration_trapezoidal_results.*`, `integration_trapezoidal_summary.*`, `integration_trapezoidal_metadata.json`, `integration_simpson_results.*`, `integration_simpson_summary.*`, `integration_simpson_metadata.json`, `integration_unittest_report.txt`.
+- Plots: differentiation case plots, free-fall interpolation plot, plus per-method integration error-vs-h plots.
+- Article images: differentiation summary/results/ranking/case/free-fall tables plus integration method summary/results tables.
+
 ---
 
 # Important Behavior Rules
@@ -216,6 +237,10 @@ All generated artifacts should be stored in the correct existing results folder 
 - Keep implementations faithful to the course workflow and repository conventions.
 - When a skill exists for a task, use that skill’s requirements as the implementation guide.
 - Favor correctness, clarity, and maintainability over unnecessary complexity.
+
+Environment note:
+
+- Prefer running scripts/tests with the workspace venv interpreter at `/Users/rushisharma/Desktop/Spring 2026/5110/ECE5110/.venv/bin/python`.
 
 <!-- ---
 name: "ECE5110 Python Numerical Agent"

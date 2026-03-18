@@ -1,48 +1,44 @@
 ---
 name: differentiation-3point
-description: "Generate or update the numerical differentiation library and its unit test workflow for 3-point finite-difference methods. Use when: creating lib/differentiation_tools.py, creating unit03/test/test_differentiation.py, maintaining numerical differentiation utilities, generating article-ready CSV/JSON/Markdown outputs, producing error plots, exporting table images for reports, and validating a free-fall gravity estimate from interpolated data."
-argument-hint: 'Task description or requested update (e.g., "create the 3-point differentiation library and unit03/test/test_differentiation.py" or "update the unit test script to export article images and add the gravity interpolation test")'
+description: "Generate or update the Unit 03 3-point differentiation workflow used in this repository. Use when maintaining lib/differentiation_tools.py, unit03/differentiation/* helpers, unit03/test/test_differentiation.py, free-fall gravity validation, and differentiation artifact exports under unit03/results/."
+argument-hint: 'Task description (for example: "update 3-point differentiation tolerances", "add differentiation artifact export", or "adjust free-fall gravity validation output")'
 ---
 
 # 3-Point Numerical Differentiation Skill
 
 ## When to Use
 
-Use this skill when the task involves any of the following:
+Use this skill when the task involves:
 
-- Creating `lib/differentiation_tools.py`
-- Creating `unit03/test/test_differentiation.py`
-- Updating 3-point finite-difference derivative logic
-- Adding or maintaining unit tests for numerical differentiation
-- Generating result artifacts for reports or LaTeX articles
-- Producing plots of error versus step size
-- Exporting article-ready tables as `.png` and `.svg`
-- Validating gravitational acceleration from interpolated free-fall data by differentiating twice
-- Exporting the gravity validation into dedicated CSV, JSON, Markdown, plot, and table-image outputs
+- `DifferentiationTools.numerical_differentiation_3point(...)`
+- Unit 03 differentiation helper modules in `unit03/differentiation/`
+- `unit03/test/test_differentiation.py` unittest orchestration
+- Free-fall quadratic interpolation and gravity estimation
+- Differentiation artifact, plot, and article image generation
 
-This skill is specifically designed for the ECE 5110 numerical methods project structure and should follow the repository conventions already in use.
+This skill is repository-specific and should follow the current modular Unit 03 workflow.
 
 ## Layered Skill Model
 
-Use this domain skill together with `unit03-workflow-infra` when changes involve shared infrastructure.
+Use this domain skill together with `unit03-workflow-infra` when a change touches shared path/artifact/table-image infrastructure.
 
 - `differentiation-3point`: numerical differentiation behavior, tolerances, free-fall validation, and differentiation-specific outputs.
 - `unit03-workflow-infra`: shared path setup, artifact I/O helpers, and common table-image rendering used by multiple Unit 03 domains.
 
 ### Helper Package Layout
 
-Differentiation logic is modularized under `unit03/differentiation/`:
+Differentiation workflow modules are:
 
 ```text
 unit03/differentiation/
-  config.py          # Paths, constants, analytic test cases, free-fall data
-  calculators.py     # Numerical result collection + gravity estimation helpers
-  artifacts.py       # Directory reset, markdown writers, CSV/JSON exports, report writer
-  visuals.py         # Table-image generation and matplotlib plots
-  workflow.py        # `generate_all_outputs(tool)` orchestration entry point
+  config.py        # constants + test definitions + free-fall arrays
+  calculators.py   # analytic rows + free-fall gravity estimate
+  artifacts.py     # CSV/JSON/Markdown/metadata/report exports
+  visuals.py       # differentiation plots + article table images
+  workflow.py      # generate_all_outputs(tool) orchestrator
 ```
 
-Shared cross-domain helpers may live in:
+Cross-domain shared helpers live in:
 
 ```text
 unit03/common/
@@ -51,63 +47,25 @@ unit03/common/
   table_images.py
 ```
 
-`unit03/test/test_differentiation.py` should import `generate_all_outputs` and the needed constants instead of redefining helpers inline. When updating this workflow, edit the module that owns the relevant responsibility (constants in `config.py`, filesystem work in `artifacts.py`, etc.) so future runs stay modular.
+`unit03/test/test_differentiation.py` should remain a thin unittest harness that imports constants from `config.py` and uses `workflow.generate_all_outputs(...)`.
 
-## Project Context
+## Current Contract
 
-Assume the repository follows this structure:
+- Library kernel: `lib/differentiation_tools.py`
+- Workflow package: `unit03/differentiation/`
+- Test harness: `unit03/test/test_differentiation.py`
+- Output root: `unit03/results/`
 
-```text
-.github/
-  skills/
-    ...
-lib/
-  differentiation_tools.py
-unit03/
-  test/
-    test_differentiation.py
-  results/
-latex/
-```
-
-The generated files must fit this structure exactly:
-
-- Library file: `lib/differentiation_tools.py`
-- Test/demo/unit-test file: `unit03/test/test_differentiation.py`
-
-The script should store outputs in the existing Unit 03 results folder:
-
-```text
-unit03/results/
-```
-
-Before each run, the script should clear and replace the previous contents of `unit03/results/`.
-
-Inside `unit03/results/`, create:
-
-```text
-article_results/
-plots/
-article_images/
-```
+Directory setup behavior is defined by `unit03/common/paths.py::reset_unit_results()`. It creates `article_results/`, `plots/`, and `article_images/` if missing, and does not delete existing files.
 
 ## Goal
 
-Produce:
+Maintain a reproducible differentiation workflow that:
 
-1. `lib/differentiation_tools.py`
-2. the helper modules listed above in `unit03/differentiation/`
-3. `unit03/test/test_differentiation.py`, which orchestrates the helpers
-
-These files must work together so that the library contains the numerical method, the helper modules handle reporting/plotting/output duties, and the script:
-
-- runs `unittest`
-- evaluates several predefined analytic test cases
-- validates a free-fall gravity estimate from interpolated data
-- saves structured result files
-- generates article-ready table images
-- generates log-log error plots for each analytic test case
-- generates dedicated free-fall export files and visuals
+1. Evaluates three analytic derivative benchmarks with central/forward/backward 3-point stencils.
+2. Estimates gravity magnitude from quadratic interpolation of free-fall samples.
+3. Exports article-ready files (CSV/JSON/Markdown/TXT plus PNG/SVG tables and plots).
+4. Supports direct script execution and unittest discovery.
 
 ## File 1: `lib/differentiation_tools.py`
 
@@ -129,7 +87,7 @@ Use a module/class description indicating:
 
 ### Required Method
 
-Implement exactly this public method:
+Implement this public method:
 
 ```python
 numerical_differentiation_3point(self, f, x, h=1e-5, method="central")
@@ -163,66 +121,33 @@ backward = (f(x - 2 * h) - 4 * f(x - h) + 3 * f(x)) / (2 * h)
 
 ### Style Requirements
 
-- Keep the implementation minimal and readable
-- Use clear docstrings in NumPy style
-- Do not include plotting code in this file
-- Do not add unrelated methods unless explicitly requested
+- Keep implementation minimal and readable.
+- Keep plotting/reporting logic out of this file.
+- Preserve existing class and method names used by Unit 03 helpers.
 
 ## File 2: `unit03/test/test_differentiation.py`
 
 ### Purpose
 
-This file must serve as both:
+This file is a thin unittest harness that calls `workflow.generate_all_outputs(...)` in `setUpClass` and then asserts on returned data and required files.
 
-- a `unittest` test script
-- a reproducible results generator for the seminar/article workflow
+### Import Expectations
 
-It should run directly as:
+Current script behavior:
 
-```python
-python unit03/test/test_differentiation.py
-```
+- Adds project root to `sys.path`.
+- Imports `DifferentiationTools` from `lib/differentiation_tools.py`.
+- Imports constants from `unit03.differentiation.config`.
+- Imports `generate_all_outputs` from `unit03.differentiation.workflow`.
 
-and also support standard unittest execution.
+### Constants
 
-### Import Requirements
+Core constants are owned by `unit03/differentiation/config.py`:
 
-The script should import:
-
-```python
-import csv
-import json
-import shutil
-import sys
-import unittest
-from datetime import datetime, timezone
-from pathlib import Path
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-```
-
-It must also add the project root to `sys.path` so it can import:
-
-```python
-from lib.differentiation_tools import DifferentiationTools
-```
-
-### Required Constants
-
-Define:
-
-- `SCRIPT_DIR`
-- `PROJECT_ROOT`
-- `UNIT_RESULTS_DIR`
-- `TEST_CASES`
-- `METHODS`
-- `H_VALUES`
-- `FREEFALL_POSITION_DATA`
-- `FREEFALL_TIME_DATA`
-- `FREEFALL_GRAVITY_TOL`
+- `METHODS = ("central", "forward", "backward")`
+- `H_VALUES = np.logspace(-1, -8, 80)`
+- `TEST_CASES` (sin, exp, cubic)
+- `FREEFALL_POSITION_DATA`, `FREEFALL_TIME_DATA`, `FREEFALL_GRAVITY_TOL`
 
 ### Required Analytic Test Cases
 
@@ -305,7 +230,6 @@ Implement and maintain the following modules.
 
 ### `unit03/differentiation/config.py`
 
-- Defines project/root paths, `UNIT_RESULTS_DIR`, and the required subdirectories.
 - Declares `TEST_CASES`, `METHODS`, `H_VALUES`, `FREEFALL_POSITION_DATA`, `FREEFALL_TIME_DATA`, and `FREEFALL_GRAVITY_TOL`.
 - Any change to analytic cases or constants must be reflected here so every helper uses the same data.
 
@@ -318,21 +242,19 @@ Implement and maintain the following modules.
 
 ### `unit03/differentiation/artifacts.py`
 
-- `create_output_dirs()` clears `unit03/results/` and recreates `article_results/`, `plots/`, and `article_images/`.
-- `sanitize_filename()` normalizes case-specific filenames; `format_cell()` unifies table formatting.
-- `_markdown_table()` (internal) plus `save_results(rows, freefall_result)` write all CSV/JSON/Markdown/metadata files listed in the Output Artifact Requirements, including the detailed free-fall Markdown content.
+- `sanitize_filename()` normalizes case-specific filenames.
+- `save_results(rows, freefall_result, article_results_dir)` writes all differentiation CSV/JSON/Markdown/metadata outputs.
 - `write_unittest_report(rows, freefall_result)` exports the plain-text summary (analytic + gravity sections) into `article_results/unittest_report.txt`.
 
 ### `unit03/differentiation/visuals.py`
 
-- `save_table_image(...)` renders PNG/SVG table images.
 - `generate_article_images(rows, article_images_dir, freefall_result)` produces the summary/all-results/error-ranking tables, per-case tables, and the two free-fall tables.
 - `generate_plots(tool, plots_dir, freefall_result)` sweeps `H_VALUES` for each analytic case (log-log PNG/SVG) and produces the dedicated free-fall interpolation plot that overlays the data, interpolant, evaluation point, and estimated |g|.
 
 ### `unit03/differentiation/workflow.py`
 
 - Exposes `generate_all_outputs(tool)` which:
-  - calls `create_output_dirs()`
+  - calls `reset_unit_results()` via `unit03.common.paths`
   - collects analytic rows and the free-fall estimate
   - saves CSV/JSON/Markdown/metadata
   - generates article images and plots
@@ -359,8 +281,7 @@ class TestDifferentiationThreePoint(unittest.TestCase):
 In `setUpClass`, do all of the following:
 
 - instantiate `DifferentiationTools`
-- create the Unit 03 output directory set inside `unit03/results`
-- clear any previous generated results in that folder before writing new ones
+- ensure the Unit 03 output directories exist inside `unit03/results`
 - collect analytic result rows
 - compute the free-fall gravity estimate using the interpolated dataset
 - save CSV/JSON/Markdown/metadata files
@@ -387,22 +308,13 @@ The report should include both:
   - overall gravity status
   - overall combined status
 
-### Required Tests
+### Required Tests (Current)
 
-Implement at least these tests:
+`TestDifferentiationThreePoint` currently verifies:
 
 1. `test_all_methods_meet_tolerance`
-   - fail with detailed messages if any analytic method exceeds tolerance
-
 2. `test_gravity_from_interpolated_freefall_data`
-   - use the stored free-fall gravity estimate
-   - verify `abs(accel_est)` is within `FREEFALL_GRAVITY_TOL` of `9.81`
-
-3. `test_invalid_method_raises_value_error`
-   - verify invalid method raises `ValueError`
-
-4. `test_nonpositive_h_raises_value_error`
-   - verify `h=0.0` raises `ValueError`
+3. `test_required_outputs_exist`
 
 ### Main Guard
 
@@ -415,7 +327,7 @@ if __name__ == "__main__":
 
 ## Output Artifact Requirements
 
-The script must produce the following outputs inside `unit03/results/`.
+Current workflow writes/updates the following files inside `unit03/results/`.
 
 ### In `unit03/results/article_results/`
 
@@ -423,6 +335,10 @@ The script must produce the following outputs inside `unit03/results/`.
 - `differentiation_test_results.json`
 - `differentiation_test_results.md`
 - `differentiation_summary.csv`
+- `differentiation_summary.json`
+- `differentiation_summary.md`
+- `differentiation_error_ranking.csv`
+- `differentiation_freefall_coefficients.csv`
 - `freefall_gravity_results.csv`
 - `freefall_gravity_results.json`
 - `freefall_gravity_results.md`
@@ -450,6 +366,15 @@ Also save:
 
 Save summary and analytic result tables as both `.png` and `.svg`.
 
+Current stems include:
+
+- `all_results_table`
+- `summary_table`
+- `error_ranking_table`
+- `sine_at_pi_over_4_results_table`
+- `exp_at_0p3_results_table`
+- `poly_cubic_minus_quadratic_results_table`
+
 Also save:
 
 - `freefall_gravity_results_table.png`
@@ -473,45 +398,35 @@ Follow these conventions unless explicitly overridden:
 - Do not add seaborn
 - Do not add CLI argument parsing unless explicitly requested
 
+## Execution Note
+
+Preferred execution command in this repository:
+
+```bash
+/Users/rushisharma/Desktop/Spring 2026/5110/ECE5110/.venv/bin/python unit03/test/test_differentiation.py
+```
+
 ## Exactness Requirement
 
 When the user asks to create these files, prefer matching the established project behavior closely. If the user already provided code or a target implementation, reproduce that logic faithfully rather than inventing a new design.
 
-## Suggested Generation Procedure
+## Suggested Procedure
 
-When using this skill to generate the files, follow this order:
-
-1. Create `lib/differentiation_tools.py`
-2. Create `unit03/test/test_differentiation.py`
-3. Verify imports and paths are correct
-4. Verify the script writes to `unit03/results`
-5. Verify the folder is cleared and regenerated on each run
-6. Verify all required outputs are produced
-7. Verify invalid input tests raise `ValueError`
-8. Verify the free-fall gravity check estimates an acceleration magnitude close to `9.81 m/s^2`
-9. Verify the dedicated free-fall CSV, JSON, Markdown, plot, and table-image outputs are generated
+1. Update constants in `unit03/differentiation/config.py` if case data changes.
+2. Update numerical logic in `lib/differentiation_tools.py` only when method behavior changes.
+3. Update aggregation/export logic in `calculators.py`, `artifacts.py`, and `visuals.py`.
+4. Keep `unit03/test/test_differentiation.py` focused on assertions and workflow invocation.
+5. Run the differentiation test script and verify expected artifacts exist.
 
 ## Final Checklist
 
-Before finishing, verify all of the following:
-
-- [ ] `lib/differentiation_tools.py` contains class `DifferentiationTools`
-- [ ] `numerical_differentiation_3point` is implemented exactly with central/forward/backward 3-point formulas
-- [ ] invalid `method` raises `ValueError`
-- [ ] nonpositive `h` raises `ValueError`
-- [ ] `unit03/test/test_differentiation.py` imports the library correctly
-- [ ] the script defines the three required analytic test cases
-- [ ] the script defines the required free-fall position and time arrays and gravity tolerance constant
-- [ ] the script includes a quadratic interpolant helper for the free-fall data
-- [ ] the script includes a gravity-estimation unit test based on differentiating the interpolant twice
-- [ ] analytic CSV, JSON, Markdown, metadata, report, plot, and table-image outputs are generated
-- [ ] dedicated free-fall CSV, JSON, Markdown, plot, and table-image outputs are generated
-- [ ] outputs are written to `unit03/results`
-- [ ] previous generated contents in `unit03/results` are cleared before each run
-- [ ] plots are saved as both `.png` and `.svg`
-- [ ] article tables are saved as both `.png` and `.svg`
-- [ ] the gravity test checks acceleration magnitude against `9.81` with an appropriate tolerance
-- [ ] the script runs through `unittest.main(verbosity=2)`
+- [ ] `DifferentiationTools.numerical_differentiation_3point(...)` supports central/forward/backward.
+- [ ] `unit03/differentiation/workflow.py` returns rows, summary, freefall_result, dirs, and report path.
+- [ ] `unit03/test/test_differentiation.py` passes all unittests.
+- [ ] Differentiation CSV/JSON/Markdown/TXT outputs exist under `unit03/results/article_results/`.
+- [ ] Differentiation/free-fall PNG and SVG plots exist under `unit03/results/plots/`.
+- [ ] Differentiation/free-fall PNG and SVG table images exist under `unit03/results/article_images/`.
+- [ ] Integration files in `unit03/results/` remain intact when differentiation workflow runs.
 
 ## Example Requests
 
@@ -523,3 +438,4 @@ Examples of requests that should trigger this skill:
 - "Add a free-fall interpolation test that estimates gravity by differentiating twice"
 - "Export the gravity interpolation test into CSV/JSON/Markdown and its own plot/table images"
 - "Rebuild the numerical differentiation files for Unit 03"
+- "Update differentiation skill docs to match current Unit 03 outputs"

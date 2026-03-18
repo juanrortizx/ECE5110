@@ -1,14 +1,14 @@
 ---
 name: integration-trapezoidal
-description: "Generate or update Python numerical integration workflows using the composite trapezoidal rule. Use when: creating integration utilities, building trapezoidal unit tests, exporting error tables/plots, and validating convergence against known analytic integrals."
-argument-hint: 'Task description or requested update (e.g., "create trapezoidal integration library and tests" or "add convergence plots and report exports for the trapezoidal rule")'
+description: "Generate or update the Unit 03 integration workflow with trapezoidal coverage, including shared trapezoidal/Simpson outputs, convergence checks, and artifact exports under unit03/results/."
+argument-hint: 'Task description (e.g., "adjust trapezoidal convergence thresholds", "update integration exports", or "modify integration unittest workflow")'
 ---
 
 # Composite Trapezoidal Integration Skill
 
 ## When to Use
 
-Use this skill when the task involves any of the following:
+Use this skill when the task involves:
 
 - Creating or updating Python trapezoidal-integration utilities
 - Implementing a reusable composite trapezoidal rule API
@@ -17,11 +17,11 @@ Use this skill when the task involves any of the following:
 - Exporting CSV, JSON, and Markdown result artifacts for reports
 - Generating error-versus-step-size plots to verify convergence
 
-This skill is designed for numerical methods workflows in this repository and should follow existing project conventions.
+This skill follows the current shared integration workflow where trapezoidal and Simpson outputs are generated together.
 
 ## Layered Skill Model
 
-Use this domain skill together with `unit03-workflow-infra` when touching shared non-numerical helpers.
+Use this domain skill together with `unit03-workflow-infra` when a change touches shared paths/artifact I/O/table-image helpers.
 
 - `integration-trapezoidal`: trapezoidal method behavior, validation, convergence checks, and method-specific assertions.
 - `unit03-workflow-infra`: shared path constants, output-directory setup, artifact I/O helpers, and reusable table-image utilities.
@@ -43,7 +43,7 @@ Both trapezoidal and Simpson workflows reuse the `unit03/integration/` helper pa
 unit03/integration/
   config.py        # Paths, benchmark cases, sweep sizes, target orders
   calculators.py   # collect_method_results, observed_order, build_summary
-  artifacts.py     # Directory clearing, CSV/JSON/Markdown exporters, report writer
+  artifacts.py     # CSV/JSON/Markdown exporters, metadata + report writer
   visuals.py       # Table images and error-vs-h plots
   workflow.py      # generate_all_outputs(tool) orchestrator
 ```
@@ -59,14 +59,14 @@ unit03/common/
 
 `unit03/test/test_integration.py` remains a single unittest harness that calls `workflow.generate_all_outputs(...)` and then runs assertions specific to each method.
 
-## Recommended File Targets
+## Current File Targets
 
 Use these default targets unless the user requests different locations:
 
 - Library file: `lib/integration_tools.py`
 - Helper package: `unit03/integration/` (`config.py`, `calculators.py`, `artifacts.py`, `visuals.py`, `workflow.py`)
 - Test/demo file: `unit03/test/test_integration.py`
-- Results folder: `unit03/results/` (clear + recreate on each run)
+- Results folder: `unit03/results/` (directories created if missing)
 
 If the user specifies another unit folder, keep the same structure under that unit.
 
@@ -116,7 +116,14 @@ Style rules:
 `unit03/test/test_integration.py` must:
 
 1. Run with `python <script>` and also via unittest discovery.
-2. Invoke `unit03.integration.workflow.generate_all_outputs(IntegrationTools())`, which resets `unit03/results/`, computes both trapezoidal and Simpson rows, writes every CSV/JSON/Markdown file, generates plots/table images, and emits a unified unittest report.
+2. Invoke `unit03.integration.workflow.generate_all_outputs(IntegrationTools())`, which:
+
+- ensures output directories exist via `unit03.common.paths.reset_unit_results()`
+- computes both trapezoidal and Simpson rows
+- writes per-method CSV/JSON/Markdown/metadata outputs
+- generates per-method table images and error plots
+- writes `integration_unittest_report.txt`
+
 3. Evaluate the benchmark set below for both methods (shared `BENCHMARK_CASES` from `config.py`).
 4. Ensure trapezoidal validation covers callable checks, positive `n`, and nonzero interval width.
 5. Assert that observed log-log slopes hover near the $O(h^2)$ expectation.
@@ -140,17 +147,18 @@ Expected convergence:
 
 ## Required Exports
 
-At minimum, a run that exercises the trapezoidal method must emit:
+A complete run currently emits trapezoidal files:
 
 - `article_results/integration_trapezoidal_results.{csv,json,md}`
-- `article_results/integration_trapezoidal_summary.csv`
+- `article_results/integration_trapezoidal_summary.{csv,json,md}`
 - `article_results/integration_trapezoidal_metadata.json`
 - `article_results/integration_unittest_report.txt` (shared summary)
 - `plots/integration_trapezoidal_<case>_error_vs_h.{png,svg}`
+- `plots/integration_trapezoidal_error_vs_h.{png,svg}` for `x_squared`
 - `article_images/integration_trapezoidal_results_table.{png,svg}`
 - `article_images/integration_trapezoidal_summary_table.{png,svg}`
 
-The same execution also produces the Simpson outputs; confirm that both sets appear after the `unit03/results/` reset.
+The same execution also writes the Simpson counterparts in the same run.
 
 ## Completion Checks
 
@@ -161,6 +169,7 @@ A trapezoidal workflow is complete when:
 - Error-vs-h plot is generated.
 - Observed log-log slope is near 2 in the convergence region.
 - Required output artifacts are written to the unit results folder.
+- Existing differentiation artifacts in `unit03/results/` are not removed by this workflow.
 
 ## Common Pitfalls
 
@@ -173,8 +182,16 @@ A trapezoidal workflow is complete when:
 
 - `config.py` centralizes benchmark data, `N_VALUES`, expected orders, and output paths so both methods share identical inputs.
 - `calculators.py` gathers per-method rows and computes observed convergence orders; extend these helpers instead of duplicating loops.
-- `artifacts.py` is responsible for clearing `unit03/results/`, exporting every CSV/JSON/Markdown file, and writing the unified unittest report.
+- `artifacts.py` exports every CSV/JSON/Markdown file plus metadata, and writes the unified unittest report.
 - `visuals.py` renders the PNG/SVG table images and the log-log error plots for each benchmark.
 - `workflow.py` ties everything together via `generate_all_outputs(tool)` and returns dictionaries consumed by `unit03/test/test_integration.py`.
 
 Any update to trapezoidal behavior should pass through these helpers so Simpson automatically benefits from shared improvements.
+
+## Execution Note
+
+Preferred command in this repository:
+
+```bash
+/Users/rushisharma/Desktop/Spring 2026/5110/ECE5110/.venv/bin/python unit03/test/test_integration.py
+```

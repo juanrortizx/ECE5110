@@ -1,14 +1,14 @@
 ---
 name: integration-simpson
-description: "Generate or update Python numerical integration workflows using composite Simpson's rule. Use when: creating Simpson integration utilities, building even-subinterval validation tests, exporting error tables/plots, and confirming fourth-order convergence on smooth integrands."
-argument-hint: 'Task description or requested update (e.g., "create Simpson integration library and tests" or "add Simpson convergence validation and report exports")'
+description: "Generate or update the Unit 03 integration workflow with Simpson coverage, including parity validation, convergence checks, and shared integration artifact exports under unit03/results/."
+argument-hint: 'Task description (e.g., "update Simpson order checks", "adjust integration outputs", or "revise integration unittest workflow")'
 ---
 
 # Composite Simpson Integration Skill
 
 ## When to Use
 
-Use this skill when the task involves any of the following:
+Use this skill when the task involves:
 
 - Creating or updating Python Simpson-integration utilities
 - Implementing a composite Simpson rule API with input validation
@@ -16,11 +16,11 @@ Use this skill when the task involves any of the following:
 - Comparing Simpson and trapezoidal accuracy on shared benchmarks
 - Exporting report artifacts and convergence plots
 
-This skill is designed for numerical methods workflows in this repository and should follow existing project conventions.
+This skill follows the repository's shared integration workflow where Simpson and trapezoidal outputs are produced together.
 
 ## Layered Skill Model
 
-Use this domain skill together with `unit03-workflow-infra` when refactoring shared workflow infrastructure.
+Use this domain skill together with `unit03-workflow-infra` when touching shared paths/artifact I/O/table-image helpers.
 
 - `integration-simpson`: Simpson method behavior, parity validation, convergence checks, and method-specific acceptance criteria.
 - `unit03-workflow-infra`: shared path/output helpers, CSV/Markdown utilities, and shared table-image infrastructure.
@@ -58,14 +58,14 @@ unit03/common/
 
 `unit03/test/test_integration.py` imports `workflow.generate_all_outputs(...)` and reuses the returned rows/summaries in its assertions. Keep helper functions in their modules; do not reintroduce them into the test script.
 
-## Recommended File Targets
+## Current File Targets
 
 Use these default targets unless the user requests different locations:
 
 - Library file: `lib/integration_tools.py`
 - Helper package: `unit03/integration/` (`config.py`, `calculators.py`, `artifacts.py`, `visuals.py`, `workflow.py`)
 - Test/demo file: `unit03/test/test_integration.py`
-- Results folder: `unit03/results/` (cleared and recreated each run)
+- Results folder: `unit03/results/` (directories created if missing)
 
 If the user specifies another unit folder, keep the same structure under that unit.
 
@@ -122,11 +122,13 @@ Style rules:
 
 1. Run with `python <script>` and also via unittest discovery.
 2. Call `unit03.integration.workflow.generate_all_outputs(IntegrationTools())`, which:
-   - clears and recreates `unit03/results/` (`article_results/`, `plots/`, `article_images/`)
-   - collects trapezoidal and Simpson rows plus summaries
-   - writes all CSV/JSON/Markdown/metadata outputs for both methods
-   - generates error plots and article table images
-   - writes a joint unittest report.
+
+- ensures `unit03/results/` subdirectories exist (`article_results/`, `plots/`, `article_images/`)
+- collects trapezoidal and Simpson rows plus summaries
+- writes all CSV/JSON/Markdown/metadata outputs for both methods
+- generates error plots and article table images
+- writes a joint unittest report.
+
 3. Evaluate the benchmark set below for both methods and record absolute errors.
 4. Include a parity test that confirms odd `n` is rejected for Simpson.
 5. Assert that the observed log-log slopes exceed the expected 4th-order threshold.
@@ -150,13 +152,14 @@ Expected convergence:
 
 ## Required Exports
 
-At minimum, save the following into `unit03/results/` (after clearing it at the start of the run):
+At minimum, save the following into `unit03/results/`:
 
 - `article_results/integration_simpson_results.{csv,json,md}`
-- `article_results/integration_simpson_summary.csv`
+- `article_results/integration_simpson_summary.{csv,json,md}`
 - `article_results/integration_simpson_metadata.json`
 - `article_results/integration_unittest_report.txt` (shared with trapezoidal summaries)
 - `plots/integration_simpson_<case>_error_vs_h.{png,svg}`
+- `plots/integration_simpson_error_vs_h.{png,svg}` for `x_squared`
 - `article_images/integration_simpson_results_table.{png,svg}`
 - `article_images/integration_simpson_summary_table.{png,svg}`
 
@@ -172,6 +175,7 @@ A Simpson workflow is complete when:
 - Error-vs-h plot is generated.
 - Observed log-log slope is near 4 in the convergence region.
 - Required outputs are written to the unit results folder.
+- Existing differentiation files in `unit03/results/` remain available after an integration run.
 
 ## Common Pitfalls
 
@@ -184,8 +188,16 @@ A Simpson workflow is complete when:
 
 - `config.py`: stores all benchmark definitions (`BENCHMARK_CASES`), `N_VALUES`, expected orders (4 for Simpson, 2 for trapezoidal), and path constants (`ARTICLE_RESULTS_DIR`, `PLOTS_DIR`, `ARTICLE_IMAGES_DIR`).
 - `calculators.py`: implements `collect_method_results`, `observed_order`, and `build_summary`. Simpson changes should flow through these helpers rather than duplicating loops.
-- `artifacts.py`: exposes `prepare_output_dirs()` (which clears/rebuilds the result tree), `write_method_outputs(...)`, and `write_unittest_report(...)`. Any new artifact goes here so both methods benefit.
-- `visuals.py`: contains `generate_article_images(...)` and `generate_error_plots(...)` plus the shared `save_table_image(...)`.
+- `artifacts.py`: exposes `write_method_outputs(...)` and `write_unittest_report(...)`. Any new export should be added here so both methods remain consistent.
+- `visuals.py`: contains `generate_article_images(...)` and `generate_error_plots(...)` using shared table/figure helpers from `unit03/common/table_images.py`.
 - `workflow.py`: orchestrates the entire run via `generate_all_outputs(tool)` and returns the data that the unittest class asserts on.
 
 `unit03/test/test_integration.py` should remain a thin unittest harness that calls `generate_all_outputs` in `setUpClass()` and then runs accuracy/order/output checks using the returned dictionaries.
+
+## Execution Note
+
+Preferred command in this repository:
+
+```bash
+/Users/rushisharma/Desktop/Spring 2026/5110/ECE5110/.venv/bin/python unit03/test/test_integration.py
+```
