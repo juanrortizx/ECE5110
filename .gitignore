@@ -12,3 +12,4 @@ latex.lnk
 
 unit*_test_results/
 /lib/__pycache__
+lib/__pycache__/integration_tools.cpython-313.pyc
