@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Tools:
+
+#---------------------------------------------------------------------------------------
+# Unit 01: Solutions of Equations in One Variable
+#---------------------------------------------------------------------------------------
     def solve_bisection_rec(self, f, a, b, precision, max_steps):
         if max_steps <= 0:
             return 0, -2
@@ -71,6 +75,9 @@ class Tools:
 
         return x, max_steps, -2
     
+#---------------------------------------------------------------------------------------
+# Unit 02: Interpolation and Polynomial Approximation 
+#---------------------------------------------------------------------------------------
     def _divided_differences(self, x, y):
         """
         Internal helper to compute the Newton divided differences.
@@ -196,6 +203,10 @@ class Tools:
 
         return P
 
+#---------------------------------------------------------------------------------------
+# Unit 03: Numerical Integration and Differentiation
+#---------------------------------------------------------------------------------------
+
     def midpoint_rule(self, f, a, b, n):
         if n <= 0:
             raise ValueError("Number of subintervals n must be positive.")
@@ -228,6 +239,10 @@ class Tools:
                           4 * np.sum(f(x[1:n:2])) + 
                           2 * np.sum(f(x[2:n-1:2])) + 
                           f(x[n])) # Simpson's sum
+
+#---------------------------------------------------------------------------------------
+# Unit 03.5: Differentiation and Integration AI Group Project
+#---------------------------------------------------------------------------------------
 
     def composite_trapezoidal(self, f, a, b, n):
         if not callable(f):
@@ -278,6 +293,139 @@ class Tools:
         else:
             raise ValueError("method must be 'central', 'forward', or 'backward'")
 
+#---------------------------------------------------------------------------------------
+# Unit 04: Solving Linear Systems
+#---------------------------------------------------------------------------------------
+
+## Linear Systems of Equations (LSoE) and Cubic Splines
+
+    def solve_lsoe(self, A, B):
+        err = 0
+        A = np.array(A, dtype=float, copy=True)
+        B = np.array(B, dtype=float, copy=True).reshape(-1)
+        n = A.shape[0]
+        sol = np.zeros(n, dtype=float)
+
+        if A.ndim != 2 or A.shape[1] != n or B.shape[0] != n:
+            raise ValueError(
+                f"Matrix dimensions must agree: A is {A.shape[0]}x{A.shape[1]}, B is {B.shape[0]}x1"
+            )
+
+        # Forward elimination with partial pivoting
+        for ix in range(n - 1):
+            pivotRow = ix + np.argmax(np.abs(A[ix:n, ix]))
+            pivotVal = A[pivotRow, ix]
+
+            if np.isclose(pivotVal, 0.0):
+                err = 1
+                raise ValueError("Matrix is singular or nearly singular.")
+
+            if pivotRow != ix:
+                A[[ix, pivotRow], :] = A[[pivotRow, ix], :]
+                B[[ix, pivotRow]] = B[[pivotRow, ix]]
+
+            for row in range(ix + 1, n):
+                factor = A[row, ix] / A[ix, ix]
+                A[row, ix:n] = A[row, ix:n] - factor * A[ix, ix:n]
+                B[row] = B[row] - factor * B[ix]
+
+        # Back substitution
+        for ix in range(n - 1, -1, -1):
+            if np.isclose(A[ix, ix], 0.0):
+                err = 1
+                raise ValueError("Matrix is singular or nearly singular.")
+            sol[ix] = (B[ix] - np.dot(A[ix, ix + 1:n], sol[ix + 1:n])) / A[ix, ix]
+
+        return sol, err
+
+    def cubic_splines(self, X, Y):
+        err = 0
+        n = len(X)
+        
+        if n != len(Y):
+            err = 1
+            raise ValueError(f"Matrix dimensions must agree: X is {n}x1, Y is {len(Y)}x1")
+        
+        if n < 2:
+            err = 1
+            raise ValueError("At least two data points are required.")
+        
+        # Number of spline segments
+        m = n - 1
+        
+        # Each segment has 4 coefficients: a_i, b_i, c_i, d_i
+        # Total unknowns = 4 * (n - 1)
+        A = np.zeros((4 * m, 4 * m))
+        B = np.zeros(4 * m)
+        row = 0
+        
+        # 1) Each spline passes through its left endpoint
+        for i in range(m):
+            col = 4 * i
+            A[row, col:col+4] = [X[i]**3, X[i]**2, X[i], 1]
+            B[row] = Y[i]
+            row += 1
+        
+        # 2) Each spline passes through its right endpoint
+        for i in range(m):
+            col = 4 * i
+            A[row, col:col+4] = [X[i + 1]**3, X[i + 1]**2, X[i + 1], 1]
+            B[row] = Y[i + 1]
+            row += 1
+        
+        # 3) First derivative continuity at interior knots
+        for i in range(m - 1):
+            xk = X[i + 1]
+            col1 = 4 * i
+            col2 = 4 * (i + 1)
+            A[row, col1:col1+3] = [3 * xk**2, 2 * xk, 1]
+            A[row, col2:col2+3] = [-3 * xk**2, -2 * xk, -1]
+            B[row] = 0
+            row += 1
+        
+        # 4) Second derivative continuity at interior knots
+        for i in range(m - 1):
+            xk = X[i + 1]
+            col1 = 4 * i
+            col2 = 4 * (i + 1)
+            A[row, col1:col1+2] = [6 * xk, 2]
+            A[row, col2:col2+2] = [-6 * xk, -2]
+            B[row] = 0
+            row += 1
+        
+        # 5) Natural spline boundary conditions
+        # S_1''(X_1) = 0
+        A[row, :4] = [6 * X[0], 2, 0, 0]
+        B[row] = 0
+        row += 1
+        
+        # S_m''(X_n) = 0
+        lastCol = 4 * (m - 1)
+        A[row, lastCol:lastCol+2] = [6 * X[n-1], 2]
+        B[row] = 0
+        row += 1
+        
+        # Solve the linear system
+        sol, err = self.solve_lsoe(A, B)
+        
+        return sol, err
+
+#---------------------------------------------------------------------------------------
+# Unit 05: Ordinary Differential Equations (ODEs)
+#---------------------------------------------------------------------------------------
+
+# Stuff here
+
+#---------------------------------------------------------------------------------------
+# Unit 06: Non-linear Systems
+#---------------------------------------------------------------------------------------
+
+# Stuff here
+
+#---------------------------------------------------------------------------------------
+# Generic plotting utility
+#---------------------------------------------------------------------------------------
+
     def plot_solution(self, f, a, b, solutions, labels=None, title="Root-Finding Method"):
         """
         Universal plotter:
@@ -317,6 +465,9 @@ class Tools:
         plt.tight_layout()
         plt.show()
 
+#---------------------------------------------------------------------------------------
+# Consolidated compatability classes 
+#---------------------------------------------------------------------------------------
 
 class tools(Tools):
     """Backwards-compatible alias used by existing Unit 01/02/03 scripts."""
