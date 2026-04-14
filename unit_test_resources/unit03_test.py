@@ -36,6 +36,3 @@ print(f"Forward difference: {deriv_forward}", f" (Error: {abs(deriv_forward - xa
 print(f"Backward difference: {deriv_backward}", f" (Error: {abs(deriv_backward - xact_f1_d)})")
 print(f"Exact derivative (2x): {2 * x_eval}")
 
-# Plot f1 using plot_solution
-tool.plot_solution(f1, -1, 1, solutions=None, title="f(x) = x²")
-
