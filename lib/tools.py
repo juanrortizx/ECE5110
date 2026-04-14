@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class tools:
+class Tools:
     def solve_bisection_rec(self, f, a, b, precision, max_steps):
         if max_steps <= 0:
             return 0, -2
@@ -229,7 +229,46 @@ class tools:
                           2 * np.sum(f(x[2:n-1:2])) + 
                           f(x[n])) # Simpson's sum
 
+    def composite_trapezoidal(self, f, a, b, n):
+        if not callable(f):
+            raise TypeError("f must be callable")
+        if n <= 0:
+            raise ValueError("n must be strictly positive")
+        if a == b:
+            raise ValueError("integration interval must have nonzero width")
+
+        h = (b - a) / n
+        x = np.linspace(a, b, n + 1)
+        y = f(x)
+        return float(h * (0.5 * y[0] + np.sum(y[1:-1]) + 0.5 * y[-1]))
+
+    def composite_simpson(self, f, a, b, n):
+        if not callable(f):
+            raise TypeError("f must be callable")
+        if n <= 0:
+            raise ValueError("n must be strictly positive")
+        if n % 2 != 0:
+            raise ValueError("n must be even for composite Simpson's rule")
+        if a == b:
+            raise ValueError("integration interval must have nonzero width")
+
+        h = (b - a) / n
+        x = np.linspace(a, b, n + 1)
+        y = f(x)
+        return float(
+            (h / 3.0)
+            * (
+                y[0]
+                + y[-1]
+                + 4.0 * np.sum(y[1:-1:2])
+                + 2.0 * np.sum(y[2:-1:2])
+            )
+        )
+
     def numerical_differentiation_3point(self, f, x, h=1e-5, method='central'):
+        if h <= 0:
+            raise ValueError("h must be strictly positive")
+
         if method == 'central':
             return (f(x + h) - f(x - h)) / (2 * h)
         elif method == 'forward':
@@ -277,6 +316,18 @@ class tools:
         plt.grid(True)
         plt.tight_layout()
         plt.show()
+
+
+class tools(Tools):
+    """Backwards-compatible alias used by existing Unit 01/02/03 scripts."""
+
+
+class IntegrationTools(Tools):
+    """Compatibility class for integration workflows."""
+
+
+class DifferentiationTools(Tools):
+    """Compatibility class for differentiation workflows."""
 
 
         
