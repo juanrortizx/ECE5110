@@ -1,0 +1,6 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{num} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones\PYGZus{}like}\PYG{p}{(}\PYG{n}{X}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{n}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n}{i} \PYG{o}{==} \PYG{n}{k}\PYG{p}{:} \PYG{k}{continue}
+    \PYG{n}{num} \PYG{o}{*=} \PYG{p}{(}\PYG{n}{X} \PYG{o}{\PYGZhy{}} \PYG{n}{x}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\end{MintedVerbatim}

@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{out} \PYG{o}{+=} \PYG{n}{y}\PYG{p}{[}\PYG{n}{k}\PYG{p}{]} \PYG{o}{*} \PYG{p}{(}\PYG{n}{num} \PYG{o}{/} \PYG{n}{denom}\PYG{p}{[}\PYG{n}{k}\PYG{p}{])}
+
+\end{MintedVerbatim}

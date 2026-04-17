@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Tools:
 
@@ -414,59 +413,76 @@ class Tools:
 # Unit 05: Ordinary Differential Equations (ODEs)
 #---------------------------------------------------------------------------------------
 
-# Stuff here
+    def euler(self, f, t0, tf, y0, n):
+        if n <= 0:
+            raise ValueError("n must be positive")
+        t = np.linspace(float(t0), float(tf), int(n) + 1)
+        y = np.zeros(int(n) + 1, dtype=float)
+        y[0] = float(y0)
 
+        h = t[1] - t[0]
+        for i in range(n):
+            y[i + 1] = y[i] + h * f(t[i], y[i])
+
+        return t, y
+    
+    def runge_kutta_4(self, f, x0, xn, h, y0):
+        if h == 0:
+            raise ValueError("h must be nonzero")
+        if (xn - x0) * h < 0:
+            raise ValueError("h must move from x0 toward xn")
+
+        steps = np.arange(float(x0), float(xn) + h, float(h))
+        y = np.zeros(len(steps), dtype=float)
+
+        y[0] = float(y0)
+        for i in range(1, len(steps)):
+            x_prev = steps[i - 1]
+            y_prev = y[i - 1]
+            k1 = f(x_prev, y_prev)
+            k2 = f(x_prev + h / 2, y_prev + h * k1 / 2)
+            k3 = f(x_prev + h / 2, y_prev + h * k2 / 2)
+            k4 = f(x_prev + h, y_prev + h * k3)
+            y[i] = y_prev + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+
+        return steps, y
+
+
+ 
 #---------------------------------------------------------------------------------------
 # Unit 06: Non-linear Systems
 #---------------------------------------------------------------------------------------
 
-# Stuff here
+    def solve_nlsoe(self, F, x0, tolerance=1e-8, max_steps=100):
+        x = np.asarray(x0, dtype=float)
+        n = x.size
+
+        for i in range(1, max_steps + 1):
+            Fx = F(x)
+            residual = np.linalg.norm(Fx)
+
+            if residual < tolerance:
+                return x, i, 0   # success
+
+            # Approximate Jacobian using finite differences
+            J = np.zeros((n, n), dtype=float)
+            h = 1e-5
+            for j in range(n):
+                x_plus = np.copy(x)
+                x_plus[j] += h
+                J[:, j] = (F(x_plus) - Fx) / h
+
+            try:
+                delta = np.linalg.solve(J, -Fx)
+            except np.linalg.LinAlgError:
+                return x, i, -1  # Jacobian is singular
+
+            x += delta
+
+        return x, max_steps, -2  # failure to converge
 
 #---------------------------------------------------------------------------------------
-# Generic plotting utility
-#---------------------------------------------------------------------------------------
-
-    def plot_solution(self, f, a, b, solutions, labels=None, title="Root-Finding Method"):
-        """
-        Universal plotter:
-          - Plots y = f(x) for x in [a, b]
-          - Marks any solution points (roots, intersections, or just points of interest)
-        Works with any callable 'f', including the Lagrange interpolation callable.
-        """
-        # Safety checks
-        if a > b:
-            a, b = b, a  # swap for convenience
-
-        xvals = np.linspace(a, b, 400)
-
-        # Support vectorized evaluation; if f isn't vectorized, map it.
-        try:
-            yvals = f(xvals)
-        except Exception:
-            yvals = np.array([f(xi) for xi in xvals], dtype=float)
-
-        plt.figure(figsize=(6, 4))
-        plt.plot(xvals, yvals, label="f(x)")
-        plt.axhline(0, color="black", linewidth=0.8)
-
-        # Plot each solution/marker point if within [a,b]
-        if solutions is not None:
-            for i, sol in enumerate(solutions):
-                try:
-                    ysol = float(f(sol))
-                except Exception:
-                    ysol = np.nan
-                lbl = labels[i] if (labels and i < len(labels)) else f"solution={sol:.4f}"
-                plt.scatter([sol], [ysol], c="red", label=lbl, zorder=3)
-
-        plt.title(title)
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
-
-#---------------------------------------------------------------------------------------
-# Consolidated compatability classes 
+# Consolidated compatability classes / Old unit tests
 #---------------------------------------------------------------------------------------
 
 class tools(Tools):
