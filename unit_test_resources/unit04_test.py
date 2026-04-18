@@ -11,24 +11,43 @@ tool = Tools()
 from lib.helper import Helper # Plot Functions
 helper = Helper()
 
-Array1 = [[3, 2, -4], [2, 3, 3], [5, -3, 1]]
-Array2 = [3, 15, 14]
+# Robot parameters
+L1 = 1.0  # Length of first link
+L2 = 1.0  # Length of second link
 
-sol, err = tool.solve_lsoe(Array1, Array2)
+# Target position
+target_x = 1.2
+target_y = 0.5
 
-print("Solution:", sol)
-print("Error:", err)
+def f(theta):
+    t1, t2 = theta
+    return np.array([L1*np.cos(t1) + L2*np.cos(t1 + t2) - target_x,
+                     L1*np.sin(t1) + L2*np.sin(t1 + t2) - target_y])
 
-# LSOE gives a discrete solution vector, so plot value vs variable index.
-helper.plot_solution((np.arange(1, len(sol)+1), sol), labels="LSOE Solution", title="LSOE Solution Vector")
+x0 = [0.5, 0.5]  # Initial guess for joint angles
 
-# Optional diagnostic: residual should be near zero for a valid solve.
-A = np.asarray(Array1, dtype=float)
-B = np.asarray(Array2, dtype=float)
-residual = A @ sol - B
+sol, steps, err, iters, residual_hist, theta_hist = tool.solve_nlsoe_with_history(f, x0)
+
+print("Solution (theta1, theta2):", sol)
+print("Steps taken:", steps)
+print("Final error:", err)
+
+# Plot convergence of nonlinear solve (use semilog data transform for clarity).
 helper.plot_solution(
-	funcs=(np.arange(1, len(sol)+1), residual),
-	labels="Residual (A@x - B)",
-	title="Unit04 LSOE Residual"
+    funcs=(iters, np.log10(np.maximum(residual_hist, 1e-16))),
+    labels="log10(||F(theta)||2)",
+    title="NLSOE Convergence History",
+    markers='o',
+    show_zero_line=False,
+    save_path="plots/unit04_nlsoe_convergence.png"
 )
 
+# Plot joint-angle evolution across iterations (not just final values).
+helper.plot_solution(
+    funcs=[(iters, theta_hist[:len(iters), 0]), (iters, theta_hist[:len(iters), 1])],
+    labels=["theta1", "theta2"],
+    title="NLSOE State Trajectory",
+    markers=['o', 's'],
+    show_zero_line=False,
+    save_path="plots/unit04_nlsoe_state_trajectory.png"
+)

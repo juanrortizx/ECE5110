@@ -453,33 +453,69 @@ class Tools:
 # Unit 06: Non-linear Systems
 #---------------------------------------------------------------------------------------
 
-    def solve_nlsoe(self, F, x0, tolerance=1e-8, max_steps=100):
-        x = np.asarray(x0, dtype=float)
+    def solve_nlsoe_with_history(self, F, x0, tolerance=1e-8, max_steps=100, h=1e-5):
+        x = np.asarray(x0, dtype=float).reshape(-1)
         n = x.size
 
+        if n == 0:
+            raise ValueError("x0 must contain at least one variable")
+        if max_steps <= 0:
+            raise ValueError("max_steps must be positive")
+        if tolerance <= 0:
+            raise ValueError("tolerance must be positive")
+        if h <= 0:
+            raise ValueError("h must be positive")
+
+        theta_hist = [x.copy()]
+        residual_hist = []
+
         for i in range(1, max_steps + 1):
-            Fx = F(x)
-            residual = np.linalg.norm(Fx)
+            Fx = np.asarray(F(x), dtype=float).reshape(-1)
+            if Fx.size != n:
+                raise ValueError(
+                    f"F(x) must return a vector of length {n}, got {Fx.size}"
+                )
 
+            residual = np.linalg.norm(Fx, ord=2)
+            residual_hist.append(residual)
             if residual < tolerance:
-                return x, i, 0   # success
+                iter_idx = np.arange(len(residual_hist), dtype=int)
+                return x, i, 0, iter_idx, np.asarray(residual_hist, dtype=float), np.asarray(theta_hist, dtype=float)
 
-            # Approximate Jacobian using finite differences
+            # Build Jacobian J where J[k, j] = dF_k/dx_j via forward differences.
             J = np.zeros((n, n), dtype=float)
-            h = 1e-5
             for j in range(n):
-                x_plus = np.copy(x)
+                x_plus = x.copy()
                 x_plus[j] += h
-                J[:, j] = (F(x_plus) - Fx) / h
+                F_plus = np.asarray(F(x_plus), dtype=float).reshape(-1)
+                if F_plus.size != n:
+                    raise ValueError(
+                        f"F(x) must return a vector of length {n}, got {F_plus.size}"
+                    )
+                J[:, j] = (F_plus - Fx) / h
 
+            # Solve J * delta = -F(x) using Unit 04 linear system solver.
             try:
-                delta = np.linalg.solve(J, -Fx)
-            except np.linalg.LinAlgError:
-                return x, i, -1  # Jacobian is singular
+                delta, err = self.solve_lsoe(J, -Fx)
+            except ValueError:
+                iter_idx = np.arange(len(residual_hist), dtype=int)
+                return x, i, -1, iter_idx, np.asarray(residual_hist, dtype=float), np.asarray(theta_hist, dtype=float)
 
-            x += delta
+            if err != 0:
+                iter_idx = np.arange(len(residual_hist), dtype=int)
+                return x, i, -1, iter_idx, np.asarray(residual_hist, dtype=float), np.asarray(theta_hist, dtype=float)
 
-        return x, max_steps, -2  # failure to converge
+            x = x + delta
+            theta_hist.append(x.copy())
+
+        iter_idx = np.arange(len(residual_hist), dtype=int)
+        return x, max_steps, -2, iter_idx, np.asarray(residual_hist, dtype=float), np.asarray(theta_hist, dtype=float)
+
+    def solve_nlsoe(self, F, x0, tolerance=1e-8, max_steps=100):
+        x, i, err, _, _, _ = self.solve_nlsoe_with_history(
+            F, x0, tolerance=tolerance, max_steps=max_steps
+        )
+        return x, i, err
 
 #---------------------------------------------------------------------------------------
 # Consolidated compatability classes / Old unit tests

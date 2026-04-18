@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1776194844.5491 "/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex" "unit04_article.pdf" "unit04_article" 1776194845.4199 0
-  "/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex" 1776194843.51402 12222 445324157d9fc1ea2dc00fb7fa6f99b4 ""
+["pdflatex"] 1776472575.6382 "/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex" "unit04_article.pdf" "unit04_article" 1776472576.40985 0
+  "/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex" 1776472575.46256 12079 2a0d0ef22e2815d5d48465d2a8a24af5 ""
   "/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1775415801 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1775415801 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/adobe/helvetic/phvb7t.tfm" 1775415801 2240 eb56c13537f4d8a0bd3fafc25572b1bd ""
@@ -108,8 +108,8 @@
   "_minted/default.style.minted" 1776193572.04086 6426 e1fb43a91491f41b33310478eee48cdb ""
   "ist.sty" 1776218662 10433 ac1f1000f5072ef1399a071a5e466633 ""
   "logo.png" 1776218662 5183 c820398d986564049152bc80ec1f5726 ""
-  "unit04_article.aux" 1776194845.38346 2162 2ad749b0431ead250d16f96f6de39ec0 "pdflatex"
-  "unit04_article.tex" 1776194843.51402 12222 445324157d9fc1ea2dc00fb7fa6f99b4 ""
+  "unit04_article.aux" 1776472576.37778 2162 2ad749b0431ead250d16f96f6de39ec0 "pdflatex"
+  "unit04_article.tex" 1776472575.46256 12079 2a0d0ef22e2815d5d48465d2a8a24af5 ""
   (generated)
   "unit04_article.aux"
   "unit04_article.log"
