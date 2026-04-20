@@ -4,5 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"latex-workshop.latex.rootFile": "${workspaceFolder}/slides/unit04_slides/unit04_slides.tex",
+		"latex-workshop.latex.outputDir": "${workspaceFolder}/slides/unit04_slides",
+		"latex-workshop.synctex.afterBuild.enabled": true
+	}
 }

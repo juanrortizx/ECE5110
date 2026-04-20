@@ -27,7 +27,7 @@
 % Title and Authors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{ Solving Nonlinear Systems for a 2-Link Robotic Arm Using Python and Jacobian-Based Iteration}
+\title{ Simulating an Industrial Temperature Sensor Output Response with Runge-Kutta Methods}
 \author{ Juan R. Ortiz; Timothy Jung; Pomona, California}
 \date{\today} % date has an empty field.
 % correct for bad hyphenation here
@@ -43,148 +43,112 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Abstract
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{abstract}
-This article presents a practical application of solving nonlinear systems to model the dynamics of a 2-link robotic arm using Python and Jacobian-based iteration. The model is derived from the equations of motion and is validated against experimental data. This approach provides a foundation for designing control strategies for the robotic arm.
+This article models the behavior of a temperature sensor in an industrial setting using an ordinary differential equation (ODE), solved numerically with the Runge-Kutta method in Python.
 \end{abstract}
 
 \section{Objective}
 \label{sec:intro}
-The objective of this study is to implement a numerical model that represents the motion and forces involved in the robotic arm's operation. 
-\vspace{0.1in}
+The objective is to solve a temperature sensor ODE using the Runge-Kutta method.
 
 \section{Method}
-A 2-link robotic arm consists of two segmented links connected by joints, allowing motion within a 2D plane. The dynamics of this movement can be described as a system of non-linear equations. 
-\vspace{0.1in}
-
-\noindent This can be expressed as:
+We can model the temperature sensor's behavior using a first-order ODE of the form:
 \[\hspace{0.4in}
-x = L_1\cos(\theta_1) + L_2\cos(\theta_1 + \theta_2) - target_x
-\]
-\[\hspace{0.4in}
-y = L_1\sin(\theta_1) + L_2\sin(\theta_1 + \theta_2) - target_y
-\]
-\vspace{0.1in}
-
-\noindent We are trying to find the angles $\theta_1$ and $\theta_2$ that will allow the link end-effector to reach its target position ($target_x$, $target_y$) for $F(x) = 0$.
-\vspace{0.1in}
-
-\noindent A scalar function is defined by Newton's method as:
-\[\hspace{0.4in}x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} = x_k - \Delta x\]
-\noindent where $\Delta x$ is the change in $x$ that we need to apply to get closer to the solution. We can use the Jacobian matrix to relate the change:
-\[\hspace{0.4in}J(x_k) \Delta x = -f(x_k)\]
-\noindent where:
-\[\hspace{0.4in}J(x_k) = 
-\begin{bmatrix}
-\frac{\partial f_1}{\partial \theta_1} & \frac{\partial f_1}{\partial \theta_2} \\
-\frac{\partial f_2}{\partial \theta_1} & \frac{\partial f_2}{\partial \theta_2}
-\end{bmatrix}
-\]
-
-\[\hspace{0.4in}
-\frac{\partial f_1}{\partial \theta_1} = -L_1\sin(\theta_1) - L_2\sin(\theta_1 + \theta_2)
-\]
-
-\[\hspace{0.4in}
-\frac{\partial f_2}{\partial \theta_1} = L_1\cos(\theta_1) + L_2\cos(\theta_1 + \theta_2)
-\]
-
-\[\hspace{0.4in}
-\frac{\partial f_2}{\partial \theta_2} = L_2\cos(\theta_1 + \theta_2)
-\]
-
-\[\hspace{0.4in}
-\frac{\partial f_1}{\partial \theta_2} = -L_2\sin(\theta_1 + \theta_2)
-\]
-
-\noindent Solving this analytically can be complex, so instead our solver approximates the Jacobian and iteratively updates the angles until convergence is achieved.
-\vspace{0.1in}
-
-\noindent In python, we can approximate the Jacobian using this code snippet:
-
-\[\hspace{0.4in} J^{(k)}_{:.j} \approx \frac{f(x_k + h e_j) - f(x_k)}{h}\]
-
-\begin{center}
-\begin{minipage}{0.75\linewidth} % adjust width as you like
-\begin{minted}[fontsize=\small, frame=single]{python}
-# Build Jacobian via forward diff.
-J = np.zeros((n, n), dtype=float)
-for j in range(n):
-    x_plus = x.copy()
-    x_plus[j] += h
-    F_plus = np.asarray(F(x_plus), 
-              dtype=float).reshape(-1)
-    if F_plus.size != n:
-        raise ValueError(
-            f"F(x) must return a vector 
-              of length {n}, got 
-              {F_plus.size}"
-        )
-    J[:, j] = (F_plus - Fx) / h
-\end{minted}
-\end{minipage}
-\end{center}
-
-\noindent The solver iteratively builds the Jacobian through finite forward differences. No we can solve the Newton step using a linear solver.
-
-\[\hspace{0.4in}
-J(x^{(k)}) \delta^{(k)} = -F(x^{(k)})
+\frac{dT}{dt} = -a(T - T_{ambient}) + K_{p}(T_{setpoint} - T)
 \]
 
 \begin{center}
 \begin{minipage}{0.75\linewidth} % adjust width as you like
 \begin{minted}[fontsize=\small, frame=single]{python}
-delta, err = self.solve_lsoe(J, -Fx)
+def f(t, y):
+    return -a * (y - T_ambient) 
+                  + Kp * (T_set - y)
 \end{minted}
 \end{minipage}
 \end{center}
 
-\noindent Figure \ref{fig:1}: The core idea is to use the Jacobian matrix, which relates the changes in joint angles to the end-effector's position. 
-\begin{figure}[H]
-    \includegraphics[width=1.0\linewidth]{../../images/robot_arm.png}
-    \caption{Example of a 2-link kinematic system.}
-    \label{fig:1}
-\end{figure}
+\noindent Where:
 
+\begin{itemize}
+    \item $T$: sensor temperature
+    \item $t$: time
+    \item $a$: positive cooling rate constant
+    \item $T_{ambient}$: ambient temperature
+    \item $K_{p}$: proportional gain constant
+    \item $T_{setpoint}$: desired temperature
+\end{itemize}
+
+In this model, the term $-a(T - T_{ambient})$ represents cooling toward the ambient temperature, while $K_{p}(T_{setpoint} - T)$ is a proportional control term driving the temperature toward the desired setpoint.
 \vspace{0.1in}
-\noindent Now we can update each step:
 
+\noindent Although this ODE has an analytical solution, numerical methods are preferred in practice due to noise and system complexity. Here, we use the fourth-order Runge–Kutta (RK4) method.
+\vspace{0.1in}
+
+\noindent RK4 advances the solution using: 
 \[\hspace{0.4in}
-x^{(k+1)} = x^{(k)} + \delta^{(k)}
+k_1 = f(t_n, y_n)
 \]
+\[\hspace{0.4in}
+k_2 = f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_1)
+\]
+\[\hspace{0.4in}
+k_3 = f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_2)
+\]
+\[\hspace{0.4in}
+k_4 = f(t_n + h, y_n + hk_3)
+\]
+\[\hspace{0.4in}
+y_{n+1} = y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)
+\]
+
+\noindent In python this can be implemented as follows:
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\small, frame=single]{python}
+for i in range(1, len(steps)):
+  x_prev = steps[i - 1]
+  y_prev = y[i - 1]
+  k1 = f(x_prev, y_prev)
+  k2 = f(x_prev + h / 2, 
+         y_prev + h * k1 / 2)
+  k3 = f(x_prev + h / 2, 
+         y_prev + h * k2 / 2)
+  k4 = f(x_prev + h, 
+         y_prev + h * k3)
+  y[i] = y_prev + h * (k1 + 2 * k2 + 
+                            2 * k3 + 
+                                k4) / 6
+\end{minted}
+\end{minipage}
+\end{center}
+
+\noindent This code iteratively computes the slopes $k_1$, $k_2$, $k_3$, and $k_4$ at each time step and updates the solution $y$ accordingly.
+\vspace{0.1in}
+
+\noindent We will simulate noise in the system to closer match real-world conditions. This can be done by adding a random noise term to the function. For example:
 
 \begin{center}
 \begin{minipage}{0.75\linewidth} % adjust width as you like
 \begin{minted}[fontsize=\small, frame=single]{python}
-x = x + delta
+noise = np.random.normal(0.0, 
+                         noise_std, 
+                         size=len(y)
+                         )
+y_noisy = y + noise
 \end{minted}
 \end{minipage}
 \end{center}
-
-\noindent This process is repeated until the solution converges, meaning that the end-effector reaches the target position within the specified tolerance.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Result}
-In Figure \ref{fig:2} the plot represents the joint angles $\theta_1$ and $\theta_2$ as they evolve over iterations of the solver. The trajectory shows how the angles adjust to minimize the error between the end-effector's position and the target position, ultimately converging to a solution that allows the robotic arm to reach its desired location.
+Figure \ref{fig:1} shows the temperature response using the RK4 method with added noise, converging toward the setpoint.
+
 \begin{figure}[H]
-    \includegraphics[width=1.0\linewidth]{../../images/unit04_nlsoe_state_trajectory.png}
-    \caption{The state trajectory of the 2-link robotic arm as it converges to the target position.}
-    \label{fig:2}
+    \includegraphics[width=1.0\linewidth]{../../images/unit05_rk4_noisy.png}
+    \caption{The temperature sensor output response using the Runge-Kutta 4th order method..}
+    \label{fig:1}
 \end{figure}
-
-In Figure \ref{fig:3} the plot represents the convergence behavior of the iterative solver. The graph shows the reduction in the error as the iterations progress, indicating that the solution is approaching the target position.
-\begin{figure}[H]
-    \includegraphics[width=1.0\linewidth]{../../images/unit04_nlsoe_convergence.png}
-    \caption{The convergence of the 2-link robotic arm as it reaches the target position.}
-    \label{fig:3}
-\end{figure}
-
-\noindent The results demonstrate that the Jacobian-based iteration method effectively solves the nonlinear system of equations of the 2-line robotic arm.
-\vspace{0.1in}
-
-\noindent From the results we can conclude that this method converges fast, but could also diverge if the initial guess is not close enough to the solution. Also the implementation of forward differences is simple but can be less accurate than other methods of approximating a Jacobian, such as central differences or automatic differentiation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 

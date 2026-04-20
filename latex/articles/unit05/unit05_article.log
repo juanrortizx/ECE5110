@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.7)  20 APR 2026 12:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.7)  20 APR 2026 10:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex
-(/home/juanrortiz/Code/ECE5110/latex/articles/unit04/unit04_article.tex
+**/home/juanrortiz/Code/ECE5110/latex/articles/unit05/unit05_article.tex
+(/home/juanrortiz/Code/ECE5110/latex/articles/unit05/unit05_article.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 (/usr/share/texmf-dist/tex/latex/base/article.cls
@@ -288,7 +288,7 @@ File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (/usr/share/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count325
-) (./unit04_article.aux
+) (./unit05_article.aux
 
 LaTeX Warning: Label `sec:intro' multiply defined.
 
@@ -296,7 +296,7 @@ LaTeX Warning: Label `sec:intro' multiply defined.
 LaTeX Warning: Label `Figure:logo' multiply defined.
 
 )
-\openout1 = `unit04_article.aux'.
+\openout1 = `unit05_article.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
 LaTeX Font Info:    ... okay on input line 39.
@@ -350,80 +350,73 @@ File: ot1phv.fd 2020/03/25 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/b/it' in size <8> not available
 (Font)              Font shape `OT1/phv/b/sl' tried instead on input line 40.
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 61.
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 56.
  (/usr/share/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 61.
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 56.
  (/usr/share/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 61.
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 56.
  (/usr/share/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 61.
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 56.
  (/usr/share/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 61.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 56.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 61.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 56.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 61.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 56.
 \pydata@fh@0=\write4
-\openout4 = `_830B80CB01EE4AA5E1AF0E94B4B4FA01.data.minted'.
+\openout4 = `_E56AED5391CF583F6485DCAE89CFB1AF.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260420120800 830B80CB01EE4AA5E1AF0E94B4B4FA01)...executed safely (allowed).
+runsystem(latexminted config  --timestamp 20260420105123 E56AED5391CF583F6485DCAE89CFB1AF)...executed safely (allowed).
 
- (./_830B80CB01EE4AA5E1AF0E94B4B4FA01.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260420120800 830B80CB01EE4AA5E1AF0E94B4B4FA01)...executed safely (allowed).
+ (./_E56AED5391CF583F6485DCAE89CFB1AF.config.minted)
+runsystem(latexminted cleanconfig  --timestamp 20260420105123 E56AED5391CF583F6485DCAE89CFB1AF)...executed safely (allowed).
 
- (./_minted/default.style.minted) (./_minted/11EC0B7B0A27550C06B2EE5F74B2110D.highlight.minted
+ (./_minted/default.style.minted) (./_minted/D4C84077135B1EB40EB93F35D28351DA.highlight.minted
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <8> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 4.
-) (./_minted/2EA6F95D8285F5C85BA790E309591A95.highlight.minted)
-<../../images/robot_arm.png, id=1, 241.56917pt x 230.8625pt>
-File: ../../images/robot_arm.png Graphic file (type png)
-<use ../../images/robot_arm.png>
-Package pdftex.def Info: ../../images/robot_arm.png  used on input line 144.
-(pdftex.def)             Requested size: 234.8775pt x 224.47179pt.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 2.
+)
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 73.
+ (/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+) (./_minted/837C4922A612C4BB13B7EC7D42F60841.highlight.minted) (./_minted/02513E19530D83AA250B848CBF4A89B1.highlight.minted)
+<../../images/unit05_rk4_noisy.png, id=1, 570.933pt x 424.9476pt>
+File: ../../images/unit05_rk4_noisy.png Graphic file (type png)
+<use ../../images/unit05_rk4_noisy.png>
+Package pdftex.def Info: ../../images/unit05_rk4_noisy.png  used on input line 148.
+(pdftex.def)             Requested size: 234.8775pt x 174.81969pt.
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <7> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 145.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 149.
 LaTeX Font Info:    Font shape `OT1/phv/b/it' in size <7> not available
-(Font)              Font shape `OT1/phv/b/sl' tried instead on input line 145.
+(Font)              Font shape `OT1/phv/b/sl' tried instead on input line 149.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
-] (./_minted/8CB152526925B3A655F17B4333F190A7.highlight.minted)
-<../../images/unit04_nlsoe_state_trajectory.png, id=20, 570.933pt x 424.9476pt>
-File: ../../images/unit04_nlsoe_state_trajectory.png Graphic file (type png)
-<use ../../images/unit04_nlsoe_state_trajectory.png>
-Package pdftex.def Info: ../../images/unit04_nlsoe_state_trajectory.png  used on input line 172.
-(pdftex.def)             Requested size: 234.8775pt x 174.81969pt.
-<../../images/unit04_nlsoe_convergence.png, id=22, 570.933pt x 424.9476pt>
-File: ../../images/unit04_nlsoe_convergence.png Graphic file (type png)
-<use ../../images/unit04_nlsoe_convergence.png>
-Package pdftex.def Info: ../../images/unit04_nlsoe_convergence.png  used on input line 179.
-(pdftex.def)             Requested size: 234.8775pt x 174.81969pt.
- [2 <../../images/robot_arm.png> <../../images/unit04_nlsoe_state_trajectory.png> <../../images/unit04_nlsoe_convergence.png>]
+ <../../images/unit05_rk4_noisy.png>]
 LaTeX Font Info:    Font shape `OT1/phv/b/it' in size <10> not available
-(Font)              Font shape `OT1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `OT1/phv/b/sl' tried instead on input line 192.
 
-Underfull \hbox (badness 10000) in paragraph at lines 257--257
+Underfull \hbox (badness 10000) in paragraph at lines 221--221
 []\OT1/phv/m/n/9 subsubsection en-vi-ron-
  []
 
 LaTeX Font Info:    Font shape `OT1/phv/m/it' in size <9> not available
-(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 267.
+(Font)              Font shape `OT1/phv/m/sl' tried instead on input line 231.
 
-Underfull \hbox (badness 1939) in paragraph at lines 266--267
+Underfull \hbox (badness 1939) in paragraph at lines 230--231
 []\OT1/phv/m/n/9 bibliography + com-mand
  []
 
 
-Overfull \hbox (0.5108pt too wide) in paragraph at lines 250--272
+Overfull \hbox (0.5108pt too wide) in paragraph at lines 214--236
  [] 
  []
 
@@ -431,27 +424,27 @@ Overfull \hbox (0.5108pt too wide) in paragraph at lines 250--272
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Overfull \hbox (0.51439pt too wide) in paragraph at lines 299--306
+Overfull \hbox (0.51439pt too wide) in paragraph at lines 263--270
  [] 
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<logo.png, id=30, 105.996pt x 90.0966pt>
+<logo.png, id=19, 105.996pt x 90.0966pt>
 File: logo.png Graphic file (type png)
 <use logo.png>
-Package pdftex.def Info: logo.png  used on input line 310.
+Package pdftex.def Info: logo.png  used on input line 274.
 (pdftex.def)             Requested size: 70.46396pt x 59.8956pt.
 File: logo.png Graphic file (type png)
 <use logo.png>
-Package pdftex.def Info: logo.png  used on input line 321.
+Package pdftex.def Info: logo.png  used on input line 285.
 (pdftex.def)             Requested size: 70.46396pt x 59.8956pt.
-[3
+[2
 
- <./logo.png (PNG copy)>] [4
+ <./logo.png (PNG copy)>] [3
 
-] (./unit04_article.aux)
+] (./unit05_article.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -462,18 +455,18 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 8620 strings out of 469515
- 193252 string characters out of 5470808
- 721133 words of memory out of 5000000
- 37103 multiletter control sequences out of 15000+600000
- 672508 words of font info for 117 fonts, out of 8000000 for 9000
+ 8619 strings out of 469515
+ 192846 string characters out of 5470808
+ 721081 words of memory out of 5000000
+ 37107 multiletter control sequences out of 15000+600000
+ 669746 words of font info for 109 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,10n,93p,533b,793s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></usr/share/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on unit04_article.pdf (4 pages, 252606 bytes).
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on unit05_article.pdf (3 pages, 180557 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 57 compressed objects within 1 object stream
+ 74 PDF objects out of 1000 (max. 8388607)
+ 43 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
