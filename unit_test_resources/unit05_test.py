@@ -40,3 +40,26 @@ helper.plot_solution(
     title="ODE with Sensor Noise",
     save_path="plots/unit05_rk4_noisy.png"
 )
+
+
+# Solve the same temperature ODE with Euler on the same interval.
+t0 = 0.5
+tf = 15.0
+h = 0.05
+n = int((tf - t0) / h)
+t_euler, y_euler = tool.euler(f, t0=t0, tf=tf, y0=0.0, n=n)
+
+# Add independent sensor noise for Euler measurements.
+noise_euler = np.random.normal(loc=0.0, scale=noise_std, size=len(y_euler))
+y_euler_noisy = y_euler + noise_euler
+
+print("y_euler (clean):", y_euler)
+print("y_euler (noisy):", y_euler_noisy)
+
+helper.plot_solution(
+    (t_euler, y_euler_noisy),
+    labels="Euler Noisy Sensor",
+    title="ODE with Sensor Noise (Euler)",
+    save_path="plots/unit05_euler_noisy.png"
+)
+

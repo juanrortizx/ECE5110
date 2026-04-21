@@ -337,7 +337,9 @@ class Tools:
 
         return sol, err
 
-    def cubic_splines(self, X, Y):
+    def cubic_splines(self, X, Y, return_details=False):
+        X = np.asarray(X, dtype=float)
+        Y = np.asarray(Y, dtype=float)
         err = 0
         n = len(X)
         
@@ -406,8 +408,24 @@ class Tools:
         
         # Solve the linear system
         sol, err = self.solve_lsoe(A, B)
-        
-        return sol, err
+
+        def S(Xq):
+            """Evaluate the natural cubic spline at scalar or vector query points."""
+            Xq = np.asarray(Xq, dtype=float)
+            Yq = np.empty_like(Xq, dtype=float)
+
+            for idx, xv in np.ndenumerate(Xq):
+                seg = np.searchsorted(X, xv, side="right") - 1
+                seg = int(np.clip(seg, 0, n - 2))
+
+                a3, a2, a1, a0 = sol[4 * seg:4 * seg + 4]
+                Yq[idx] = a3 * xv**3 + a2 * xv**2 + a1 * xv + a0
+
+            return Yq
+
+        if return_details:
+            return S, sol, err
+        return S
 
 #---------------------------------------------------------------------------------------
 # Unit 05: Ordinary Differential Equations (ODEs)

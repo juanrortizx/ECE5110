@@ -1,5 +1,15 @@
-from lib.tools import tools
+import sys
 import math
+from pathlib import Path
+
+
+# Add parent directory to path so we can import from lib
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from lib.tools import Tools # Tool Functions
+tool = Tools() 
+from lib.helper import Helper # Plot Functions
+helper = Helper()
 
 precision = 1e-9
 start = 1e-9
@@ -12,7 +22,7 @@ def f(C):
 def df(C):
     return -1/(2*math.pi*10000*C**2)
 
-tool = tools()
+tool = Tools()
 
 sol_newton, iters_newton, err_newton = tool.solve_newton_method(
     f,
