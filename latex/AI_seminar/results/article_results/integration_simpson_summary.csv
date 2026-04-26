@@ -1,0 +1,5 @@
+method,case_name,display_name,n_values,num_runs,expected_order,observed_order,finest_n,finest_h,finest_approx,exact,finest_abs_error,final_tolerance,passed_final_tolerance
+simpson,poly_x_squared,"Integral of x^2 on [0, 1]","4,8,16,32,64,128,256",7,4.0,inf,256,0.00390625,0.3333333333333333,0.3333333333333333,0.0,1e-12,True
+simpson,sin_0_to_pi,"Integral of sin(x) on [0, pi]","4,8,16,32,64,128,256",7,4.0,4.013800203992324,256,0.01227184630308513,2.0000000002520024,2.0,2.520024189323067e-10,5e-10,True
+simpson,exp_0_to_1,"Integral of exp(x) on [0, 1]","4,8,16,32,64,128,256",7,4.0,3.9986659474020887,256,0.00390625,1.7182818284612673,1.718281828459045,2.2222224060897133e-12,1e-11,True
+simpson,pi_integral,"Integral of 4/(1+x^2) on [0, 1]","4,8,16,32,64,128,256",7,4.0,6.190258552593436,256,0.00390625,3.141592653589793,3.141592653589793,0.0,1e-11,True

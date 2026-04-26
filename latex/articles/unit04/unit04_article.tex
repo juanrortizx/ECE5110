@@ -1,0 +1,376 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% IS&T Template 
+% Patrick Vandewalle
+% January 2006
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document class
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[letterpaper,twocolumn,fleqn]{article} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ist}
+% add other packages here
+\usepackage{float} %forza
+\usepackage{wrapfig} %forza
+\usepackage{minted}
+\usepackage{amsmath}
+
+\pagestyle{empty}                % no page numbers is default
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title and Authors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ Solving Nonlinear Systems for a 2-Link Robotic Arm Using Python and Jacobian-Based Iteration}
+\author{ Juan R. Ortiz; Timothy Jung; Pomona, California}
+\date{\today} % date has an empty field.
+% correct for bad hyphenation here
+% \hyphenation{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Begin document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document} 
+\maketitle 
+\thispagestyle{empty} % prevents the first page to be numbered
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+This article presents a practical application of solving nonlinear systems to model the dynamics of a 2-link robotic arm using Python and Jacobian-based iteration. The model is derived from the equations of motion and is validated against experimental data. This approach provides a foundation for designing control strategies for the robotic arm.
+\end{abstract}
+
+\section{Objective}
+\label{sec:intro}
+The objective of this study is to implement a numerical model that represents the motion and forces involved in the robotic arm's operation. 
+\vspace{0.1in}
+
+\section{Method}
+A 2-link robotic arm consists of two segmented links connected by joints, allowing motion within a 2D plane. The dynamics of this movement can be described as a system of non-linear equations. 
+\vspace{0.1in}
+
+\noindent This can be expressed as:
+\[\hspace{0.4in}
+x = L_1\cos(\theta_1) + L_2\cos(\theta_1 + \theta_2) - target_x
+\]
+\[\hspace{0.4in}
+y = L_1\sin(\theta_1) + L_2\sin(\theta_1 + \theta_2) - target_y
+\]
+\vspace{0.1in}
+
+\noindent We are trying to find the angles $\theta_1$ and $\theta_2$ that will allow the link end-effector to reach its target position ($target_x$, $target_y$) for $F(x) = 0$.
+\vspace{0.1in}
+
+\noindent A scalar function is defined by Newton's method as:
+\[\hspace{0.4in}x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} = x_k - \Delta x\]
+\noindent where $\Delta x$ is the change in $x$ that we need to apply to get closer to the solution. We can use the Jacobian matrix to relate the change:
+\[\hspace{0.4in}J(x_k) \Delta x = -f(x_k)\]
+\noindent where:
+\[\hspace{0.4in}J(x_k) = 
+\begin{bmatrix}
+\frac{\partial f_1}{\partial \theta_1} & \frac{\partial f_1}{\partial \theta_2} \\
+\frac{\partial f_2}{\partial \theta_1} & \frac{\partial f_2}{\partial \theta_2}
+\end{bmatrix}
+\]
+
+\[\hspace{0.4in}
+\frac{\partial f_1}{\partial \theta_1} = -L_1\sin(\theta_1) - L_2\sin(\theta_1 + \theta_2)
+\]
+
+\[\hspace{0.4in}
+\frac{\partial f_2}{\partial \theta_1} = L_1\cos(\theta_1) + L_2\cos(\theta_1 + \theta_2)
+\]
+
+\[\hspace{0.4in}
+\frac{\partial f_2}{\partial \theta_2} = L_2\cos(\theta_1 + \theta_2)
+\]
+
+\[\hspace{0.4in}
+\frac{\partial f_1}{\partial \theta_2} = -L_2\sin(\theta_1 + \theta_2)
+\]
+
+\noindent Solving this analytically can be complex, so instead our solver approximates the Jacobian and iteratively updates the angles until convergence is achieved.
+\vspace{0.1in}
+
+\noindent In python, we can approximate the Jacobian using this code snippet:
+
+\[\hspace{0.4in} J^{(k)}_{:.j} \approx \frac{f(x_k + h e_j) - f(x_k)}{h}\]
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\small, frame=single]{python}
+# Build Jacobian via forward diff.
+J = np.zeros((n, n), dtype=float)
+for j in range(n):
+    x_plus = x.copy()
+    x_plus[j] += h
+    F_plus = np.asarray(F(x_plus), 
+              dtype=float).reshape(-1)
+    if F_plus.size != n:
+        raise ValueError(
+            f"F(x) must return a vector 
+              of length {n}, got 
+              {F_plus.size}"
+        )
+    J[:, j] = (F_plus - Fx) / h
+\end{minted}
+\end{minipage}
+\end{center}
+
+\noindent The solver iteratively builds the Jacobian through finite forward differences. No we can solve the Newton step using a linear solver.
+
+\[\hspace{0.4in}
+J(x^{(k)}) \delta^{(k)} = -F(x^{(k)})
+\]
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\small, frame=single]{python}
+delta, err = self.solve_lsoe(J, -Fx)
+\end{minted}
+\end{minipage}
+\end{center}
+
+\noindent Figure \ref{fig:1}: The core idea is to use the Jacobian matrix, which relates the changes in joint angles to the end-effector's position. 
+\begin{figure}[H]
+    \includegraphics[width=1.0\linewidth]{../../images/robot_arm.png}
+    \caption{Example of a 2-link kinematic system.}
+    \label{fig:1}
+\end{figure}
+
+\vspace{0.1in}
+\noindent Now we can update each step:
+
+\[\hspace{0.4in}
+x^{(k+1)} = x^{(k)} + \delta^{(k)}
+\]
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\small, frame=single]{python}
+x = x + delta
+\end{minted}
+\end{minipage}
+\end{center}
+
+\noindent This process is repeated until the solution converges, meaning that the end-effector reaches the target position within the specified tolerance.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Result}
+In Figure \ref{fig:2} the plot represents the joint angles $\theta_1$ and $\theta_2$ as they evolve over iterations of the solver. The trajectory shows how the angles adjust to minimize the error between the end-effector's position and the target position, ultimately converging to a solution that allows the robotic arm to reach its desired location.
+\begin{figure}[H]
+    \includegraphics[width=1.0\linewidth]{../../images/unit04_nlsoe_state_trajectory.png}
+    \caption{The state trajectory of the 2-link robotic arm as it converges to the target position.}
+    \label{fig:2}
+\end{figure}
+
+In Figure \ref{fig:3} the plot represents the convergence behavior of the iterative solver. The graph shows the reduction in the error as the iterations progress, indicating that the solution is approaching the target position.
+\begin{figure}[H]
+    \includegraphics[width=1.0\linewidth]{../../images/unit04_nlsoe_convergence.png}
+    \caption{The convergence of the 2-link robotic arm as it reaches the target position.}
+    \label{fig:3}
+\end{figure}
+
+\noindent The results demonstrate that the Jacobian-based iteration method effectively solves the nonlinear system of equations of the 2-line robotic arm.
+\vspace{0.1in}
+
+\noindent From the results we can conclude that this method converges fast, but could also diverge if the initial guess is not close enough to the solution. Also the implementation of forward differences is simple but can be less accurate than other methods of approximating a Jacobian, such as central differences or automatic differentiation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\clearpage
+% Overall Document Guidelines: Head
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overall Document Guidelines: Head}
+\label{sec:intro}
+
+Clear document of any fonts other than Times, Arial, and Symbol. The
+paper should be formatted using the tags provided in the template,
+i.e., title, author, section, subsection, subsubsection, eq./fig.,
+references, etc.  in a 2 column format on US letter size paper ($8.5
+\times 11$ inches, or $21.6 \times 27.9$ cm).
+
+The left and right margins are set automatically to .75 inch (1.90 cm),
+and the top and bottom margins to 1.0 inch (2.54 cm). The document is in
+a 2-column format with column widths set at 3.38 inch (8.57 cm) and the
+gutter -the space between columns- at .25 inch (0.635 cm).
+
+Papers should be a maximum of 4-6 pages; longer papers will be
+returned for revision. Please do not place folios or page numbers in
+your paper. That information is inserted when we assemble the book.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Graphics and Equations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Graphics and Equations}
+Graphics and equations should fit within one column (3.38 inches
+wide), but full width (7 inch) figures are also acceptable. Equations,
+figures and figure captions each have their own style tags. Equations
+are numbered using parentheses flushed right as shown below.
+
+\begin{equation}
+\label{eq:ist}
+\textrm{IS\&T} + \textrm{members} \times \textrm{Confs.} = \textrm{Success}
+\end{equation}
+
+
+\subsection{Helpful Hints and Style Tags: Subhead}
+For a complete listing of the style tags for use in this template
+refer to Table \ref{tab:fonts}. These are the style tags for
+conference proceedings; if you use the wrong template/style tags your
+paper will be sent back to you to be reformatted.  All of these forms
+and templates related to the publication of conference papers are
+available at
+
+www.imaging.org/conferences/guidelines.cfm. 
+
+Select the specific conference and download the Authors Kit. The
+template may vary from one conference to another.
+
+The template is set up for MS Word and LaTeX. Please check the paper
+carefully to confirm that the styles have been applied correctly, then
+print it out and double check to ensure that the paper appears as
+intended.
+
+\begin{table}[!h]
+\caption{Style Tag Table: Table head}
+\label{tab:fonts}
+\begin{center}       
+\begin{tabular}{|p{0.45\columnwidth}|p{0.45\columnwidth}|} 
+\hline
+1. Title& title environment \\ \hline
+2. Byline: & \\
+Author/Affiliation & author environment \\ \hline
+3. Head & section environment \\ \hline
+4. Subhead & subsection environment \\ \hline
+5. Tertiary head & subsubsection environment \\ \hline
+6. Abstract & abstract environment \\ \hline 
+& \\ \hline
+7. Body & regular text\\ \hline
+8. Equation & equation environment\\ \hline
+9.1 Figure & align left \\ \hline
+9.2 Figure caption & caption environment \\ \hline
+10.1 Table head & caption environment \\ \hline
+10.2 Table text & tabular environment \\ \hline
+11. References & bibliography + 
+command \emph{small} to have a 1pt smaller font\\ \hline
+12. Author Bio text & biography environment\\ \hline
+13.1 List, bullet & itemize environment\\ \hline
+13.2 List, numbered & enumerate environment \\ \hline
+\end{tabular}
+\end{center}
+\end{table} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Submitting Your Paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Submitting Your Paper}
+The submission of your paper has to be performed through the IS\&T
+submission website. Authors receive a login for this site by e-mail.
+Papers can be submitted in Postscript, Word, or WordPerfect format,
+and will be converted to PDF by the submission server. Please
+carefully review the generated PDF and verify that all the text,
+equations, figures and tables are displayed correctly before approving
+its submission.
+
+\subsection{Margins in LaTeX}
+Because of the differences between dvips conversion utilities, the
+margins of your generated PDF document might vary. Please print
+your document, and verify its margins. If they are incorrect, please
+adapt the sizes of the margins in the file \emph{ist.sty}. Typically the
+top margin should be decreased.
+
+\begin{table}[!h]
+\caption{Document Specs: Table head}
+\label{tab:specs}
+\begin{center}       
+\begin{tabular}{p{0.35\columnwidth}p{0.55\columnwidth}} 
+Paper Size & US Letter \\
+Left/right margin & .75 inch (1.90 cm) \\
+Top/bottom margin & 1 inch (2.54 cm) \\
+Columns & 2 at 3.38 inch (8.57 cm) wide. \\
+ & Spacing between columns: 0.25 inch (0.635 cm)
+\end{tabular}
+\end{center}
+\end{table} 
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+Please contact IS\&T with any questions or requests for assistance in
+helping prepare the paper. We look forward to having your paper
+presented at the conference and published in the conference
+proceedings.
+
+\begin{figure}[!hb]
+  \includegraphics[width=0.3\columnwidth]{logo.png}
+  \caption{IS\&T logo.}
+  \label{Figure:logo}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reference Preparation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Reference Preparation}
+Use the standard LaTeX \emph{cite} command for references in the
+text. You can then use the standard bibliography command to generate
+the list of references. Add the command \emph{small} before the
+bibliography to give it the right font size.  Reference \cite{bib1}
+style should be used for books, Reference \cite{bib2} style should be
+used for Journals, and Reference \cite{bib3} style should be used for
+Proceedings.
+
+%\section{Acknowledgments} 
+%add the acknowledgement section here
+
+% To start a new column (but not a new page) and help balance the last-page
+% column length use \vfill\pagebreak.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\small
+\begin{thebibliography}{9}
+\bibitem{bib1}John Doe, Recent Progress in Digital Halftoning II,
+  IS\&T, Springfield, VA, 1999, pg. 173.
+\bibitem{bib2}John Doe, Digital Imaging, J. Imaging. Sci. and
+  Technol., 42, 112 (1998).
+\bibitem{bib3}John Doe, An Inexpensive Micro-Goniophotometry You Can
+  Build, Proc. PICS, pg. 179. (1998).
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Biography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{biography}
+Please submit a brief biographical sketch of no more than 75 words. 
+Include relevant professional and educational information as shown 
+in the example below.
+
+Jane Doe received her BS in physics from the University of Nevada (1977) 
+and her PhD in applied physics from Columbia University (1983). Since 
+then she has worked in the Research and Technology Division at Xerox 
+in Webster, NY. Her work has focused on the development of toner adhesion 
+and transport issues. She is on the Board of  IS\&T and a member of APS 
+and SPIE.
+\end{biography}
+
+\end{document} 

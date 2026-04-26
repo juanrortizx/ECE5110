@@ -1,0 +1,251 @@
+\documentclass[a4paper,landscape, 12pt]{extarticle}
+\usepackage[left=0.5in, right=0.5in, top=0.4in, bottom=0.55in]{geometry}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[normalem]{ulem}
+\usepackage{tabto}
+\usepackage{minted}
+\usepackage{float}
+\renewcommand\ULthickness{1.0pt}   %%---> For changing thickness of underline
+\setlength\ULdepth{1.3ex}%\maxdimen ---> For changing depth of underline
+\usepackage{tikz}
+\usetikzlibrary{graphs}
+
+\usepackage{array}
+\usepackage{caption}
+\usepackage{amsmath} 
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{enumitem}
+
+\author{Juan R Ortiz; Timothy Jung}
+
+% Page style with slide numbers
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[R]{\Large\thepage\ / \pageref{LastPage}}
+
+% Define header command for consistent formatting
+\newcommand{\slideheader}[2]{%
+\noindent
+\includegraphics[height=0.5in]{../../images/cpp_logo.png}%
+\hspace{0.3in}%
+{\Large \uline{#1 \hfill #2}}%
+\par\vspace{0.4in}
+}
+% Standard content spacing - 0.6in base indent for all content
+\newcommand{\contentstart}{%
+\leftskip 0.6in \rightskip 0.6in
+}
+\newcommand{\contentend}{%
+\leftskip 0in \rightskip 0in
+}
+
+% Standard font size for body content
+\newcommand{\bodytext}{\LARGE}
+
+\begin{document}
+\begin{huge} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIDE 1 - Title Slide
+\slideheader{ECE5110 Numerical Modeling}{Unit 05}
+
+\vspace{1.2in}
+\begin{center}
+{\Huge \textbf{Juan Ortiz and Timothy Jung}}
+
+\vspace{0.4in}
+{\LARGE Modeling and Simulation of a Temperature Sensor Using the Runge–Kutta Method}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 2
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+\noindent Despite temperature sensors being in controlled environments, they can still be affected by external noise, such electromagnetic interference or mechanical vibrations. 
+\vspace{0.1in}
+
+We will model a noisy temperature sensor's output response to a step change in temperature using an ordinary differential equation (ODE).
+\vspace{0.1in}
+
+\noindent First order ODE form:
+
+\[\hspace{0.4in}
+\frac{dT}{dt} = -a(T - T_{ambient}) + K_{p}(T_{setpoint} - T)
+\]
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\Large, frame=single]{python}
+def f(t, y):
+    return -a * (y - T_ambient) 
+                  + Kp * (T_set - y)
+\end{minted}
+\end{minipage}
+\end{center}
+
+
+\vspace{0.2in}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 3
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+\noindent Each term in the ODE has a specific physical meaning:
+\vspace{0.4in}
+
+\begin{minipage}[t]{\dimexpr\textwidth-1.2in}
+\begin{itemize}
+    \item $T$: sensor temperature
+    \item $t$: time
+    \item $a$: positive cooling rate constant
+    \item $T_{ambient}$: ambient temperature
+    \item $K_{p}$: proportional gain constant
+    \item $T_{setpoint}$: desired temperature
+\end{itemize}
+\end{minipage}
+
+
+\vspace{0.2in}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 4
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+\noindent We can solve this ODE by implementing the 4th order Runge-Kutta method.
+\vspace{0.4in}
+
+\noindent RK4 advances the solution using: 
+\begin{align*}
+k_1 &= f(t_n, y_n) \\
+k_2 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_1) \\
+k_3 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_2) \\
+k_4 &= f(t_n + h, y_n + hk_3) \\
+y_{n+1} &= y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)
+\end{align*}
+
+
+
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage %Page 5
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+
+\noindent This can be implemented in Python as follows:: 
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\huge, frame=single]{python}
+for i in range(1, len(steps)):
+  x_prev = steps[i - 1]
+  y_prev = y[i - 1]
+  k1 = f(x_prev, y_prev)
+  k2 = f(x_prev + h / 2, 
+         y_prev + h * k1 / 2)
+  k3 = f(x_prev + h / 2, 
+         y_prev + h * k2 / 2)
+  k4 = f(x_prev + h, 
+         y_prev + h * k3)
+  y[i] = y_prev + h * (k1 + 2 * k2 + 
+                            2 * k3 + 
+                                k4) / 6
+\end{minted}
+\end{minipage}
+\end{center}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage %Page 5
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+
+\noindent To simulate the sensor noise, we add a random noise term to the ODE output at each time step:
+
+\begin{center}
+\begin{minipage}{0.75\linewidth} % adjust width as you like
+\begin{minted}[fontsize=\huge, frame=single]{python}
+noise = np.random.normal(0.0, 
+                         noise_std, 
+                         size=len(y)
+                         )
+y_noisy = y + noise
+\end{minted}
+\end{minipage}
+\end{center}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 6
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+
+\noindent The plot below shows the simulated temperature response of the sensor to a step change in temperature:
+
+\begin{center}
+\includegraphics[height=5.0in]{../../images/unit05_rk4_noisy.png}%
+\end{center}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %Page 7
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{0.4in}
+
+\noindent This model is practical in industry because it approximates real sensor behavior.
+\vspace{0.4in}
+
+\begin{minipage}[t]{\dimexpr\textwidth-1.2in}
+\begin{itemize}
+    \item It allows engineers to predict temperature response.
+    \item Helps tune control parameters.
+    \item Supports testing before hardware deployment.
+    \item Reduces cost and development time.
+    \item Improves system reliability.
+
+\end{itemize}
+\end{minipage}
+
+\leftskip 0in \rightskip 0in 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage %End Page
+\slideheader{Unit 05: Ordinary Differential Equations}{ECE5110 - Numerical Modeling}
+
+\leftskip 0.7in \rightskip 0.7in 
+\vspace{2.5in}
+\begin{center}
+{\Huge \textbf{QUESTIONS?}}
+\end{center}
+\leftskip 0in \rightskip 0in 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{huge}
+\end{document}

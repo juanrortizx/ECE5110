@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{f}\PYG{p}{(}\PYG{n}{t}\PYG{p}{,} \PYG{n}{y}\PYG{p}{):}
+    \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{n}{a} \PYG{o}{*} \PYG{p}{(}\PYG{n}{y} \PYG{o}{\PYGZhy{}} \PYG{n}{T\PYGZus{}ambient}\PYG{p}{)}
+                  \PYG{o}{+} \PYG{n}{Kp} \PYG{o}{*} \PYG{p}{(}\PYG{n}{T\PYGZus{}set} \PYG{o}{\PYGZhy{}} \PYG{n}{y}\PYG{p}{)}
+\end{MintedVerbatim}

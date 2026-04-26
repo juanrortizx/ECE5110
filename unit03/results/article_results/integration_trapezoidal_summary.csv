@@ -1,5 +1,0 @@
-method,case_name,display_name,n_values,num_runs,expected_order,observed_order,finest_n,finest_h,finest_approx,exact,finest_abs_error,final_tolerance,passed_final_tolerance
-trapezoidal,poly_x_squared,"Integral of x^2 on [0, 1]","4,8,16,32,64,128,256",7,2.0,1.9999999999986675,256,0.00390625,0.33333587646484375,0.3333333333333333,2.5431315104351704e-06,3e-06,True
-trapezoidal,sin_0_to_pi,"Integral of sin(x) on [0, pi]","4,8,16,32,64,128,256",7,2.0,2.0018996325032523,256,0.01227184630308513,1.9999749002350524,2.0,2.509976494757815e-05,3e-05,True
-trapezoidal,exp_0_to_1,"Integral of exp(x) on [0, 1]","4,8,16,32,64,128,256",7,2.0,1.999809310668038,256,0.00390625,1.71828401336682,1.718281828459045,2.1849077749269696e-06,3e-06,True
-trapezoidal,pi_integral,"Integral of 4/(1+x^2) on [0, 1]","4,8,16,32,64,128,256",7,2.0,1.9999925138691284,256,0.00390625,3.141590110458283,3.141592653589793,2.543131510268637e-06,5e-06,True
